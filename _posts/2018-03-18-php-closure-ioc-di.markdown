@@ -19,9 +19,11 @@ $func = function()
 };
 $func();
 ```
+
 匿名函数和普通函数的区分有：
 - 匿名函数也可以作为变量的值来使用。
 - **匿名函数可以从父作用域继承变量，而这个父作用域是定义该闭包的函数（不一定是调用它的函数）。**
+
 ```
 $message = 'hello';
 $example = function () {
@@ -32,10 +34,12 @@ echo $example();
 
 输出：hello
 ```
+
 闭包除了可以从父作用域继承变量外，还可以使用`use`关键字将变量传递进去，具体见[官方文档](http://php.net/manual/zh/functions.anonymous.php)。
 
 ### 闭包类
 定义一个闭包函数，其实就是实例化一个闭包类(`Closure`)对象：
+
 ```
 $func = function()
 {
@@ -47,7 +51,9 @@ var_dump($func);
 object(Closure)#1 (0) {
 }
 ```
+
 类摘要：
+
 ```
 Closure {
      __construct ( void )
@@ -61,6 +67,7 @@ Closure {
 接下来我们来看看`bindTo`方法，通过该方法，我们可以把闭包的内部状态绑定到其他对象上。这里`bindTo`方法的第二个参数显得尤为重要，其作用是指定绑定闭包的那个对象所属的PHP类，这样，闭包就可以在其他地方访问绑定闭包的对象中受保护和私有的成员变量。
 
 你会发现，PHP框架经常使用`bindTo`方法把路由URL映射到匿名回调函数上，框架会把匿名回调函数绑定到应用对象上，这样在匿名函数中就可以使用`$this`关键字引用重要的应用对象：
+
 ```
 class App {
     protected $routes = [];
@@ -86,7 +93,9 @@ class App {
 
 }
 ```
+
 这里我们需要重点关注`addRoute`方法，这个方法的参数分别是一个路由路径和一个路由回调，`dispatch`方法的参数是当前HTTP请求的路径，它会调用匹配的路由回调。第9行是重点所在，我们将路由回调绑定到了当前的App实例上。这么做能够在回调函数中处理App实例的状态：
+
 ```
 $app = new App();
 $app->addRoute(‘/user’, function(){
@@ -95,6 +104,7 @@ $app->addRoute(‘/user’, function(){
 });
 $app->dispatch('/user');
 ```
+
 ### IoC 容器
 **匿名函数可以从父作用域继承变量，而这个父作用域是定义该闭包的函数（不一定是调用它的函数）。**
 
@@ -143,6 +153,7 @@ Container::bind('foo', function() {
 // 通过容器取出实例
 $talk->greet(Container::make('foo')); // Hello World
 ```
+
 上述例子中，只有在通过`make`方法获取实例的时候，实例才被创建，这样使得我们可以实现容器。
 
 在`Laravel`框架底层也大量使用了闭包以及`bindTo`方法，利用好闭包可以实现更多的高级特性如事件触发等。
