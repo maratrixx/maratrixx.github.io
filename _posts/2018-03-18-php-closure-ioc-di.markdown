@@ -26,16 +26,15 @@ $func();
 
 ```
 $message = 'hello';
-$example = function () {
-    var_dump($message);
+$example = function () use ($message) {
+    return $message;
 };
 $message = 'world';
 echo $example();
 
 输出：hello
 ```
-
-闭包除了可以从父作用域继承变量外，还可以使用`use`关键字将变量传递进去，具体见[官方文档](http://php.net/manual/zh/functions.anonymous.php)。
+注意：必须使用`use`关键字将变量传递进去才行，具体见[官方文档](http://php.net/manual/zh/functions.anonymous.php)。
 
 ### 闭包类
 定义一个闭包函数，其实就是实例化一个闭包类(`Closure`)对象：
