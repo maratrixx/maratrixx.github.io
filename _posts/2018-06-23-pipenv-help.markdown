@@ -7,17 +7,13 @@ author:     "maratrix"
 header-img: "img/home-bg-o.jpg"
 ---
 
-# Pipenv – 超好用的 Python 包管理工具
-
 ## pipenv 是什么
 
-pipenv 是 python 官方推荐的包管理工具。
+pipenv 是 python 官方推荐的包管理工具，集成了 virtualenv、pyenv 和 pip 三者的功能于一身，类似于 php 中的 composer。
 
 我们知道，为了方便管理 python 的虚拟环境和库，通常使用较多的是 virtualenv 、pyenv 和 pip，但是他们不够好用或者说不够偷懒。于是 requests 的作者 Kenneth Reitz 开发了用于创建和管理 python 虚拟环境的工具 —- pipenv。
 
-pipenv 集成了 virtualenv、pyenv 和 pip 三者的功能于一身，类似于 php 中的 composer。
-
-它能够自动为项目创建和管理虚拟环境，从 Pipfile 文件中添加或者删除包，同事生成 Pipfile.lock 文件来锁定安装包的版本和依赖信息，避免构建错误。
+它能够自动为项目创建和管理虚拟环境，从 Pipfile 文件中添加或者删除包，同时生成 Pipfile.lock 文件来锁定安装包的版本和依赖信息，避免构建错误。
 
 pipenv 主要解决了以下问题：
 
@@ -48,7 +44,7 @@ $ python -m site --user-base
 你会看到类似下面的输出
 
 ```
-/Users/***/Library/Python/3.6
+/Users/liyafeng/Library/Python/3.6
 ```
 
 #### 使用 brew 安装
@@ -187,6 +183,8 @@ pipenv install urllib3
 
 此时，Pipfile 里有最新安装的包文件的信息，如名称、版本等。用来在重新安装项目依赖或与他人共享项目时，你可以用 Pipfile 来跟踪项目依赖。
 
+Pipfile 是用来替代原来的 requirements.txt 的，内容类似下面这样。source 部分用来设置仓库地址，packages 部分用来指定项目依赖的包，dev-packages 部分用来指定开发环境需要的包，这样分开便于管理。
+
 ```
 $ cat Pipfile
 [[source]]
@@ -195,7 +193,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-httpie = "*"
 "urllib3" = "*"
 
 [dev-packages]
@@ -226,7 +223,6 @@ $ Pipfile.lock
         ]
     },
     "default": {                
-        **********省略很多代码**********
          "urllib3": {
             "hashes": [
                 "sha256:a68ac5e15e76e7e5dd2b8f94007233e01effe3e50e8daddf69acfd81cb686baf",
@@ -341,7 +337,14 @@ echo "FOO=hello foo" > .env
 
 之后 `pipenv shell` 进入虚拟环境，`echo $FOO` 就能看环境变量的值 `hello foo` 已经设置好了。
 
+## 参考链接
 
-### 遇到的问题
+[https://docs.pipenv.org/](https://docs.pipenv.org/)
 
-### 总结
+[pipenv 新款 Python 虚拟环境工具详解](http://www.liujiangblog.com/blog/18/)
+
+[pipenv 笔记](https://farer.org/2018/01/16/pipenv-notes/)
+
+[pipenv 使用指南](https://crazygit.wiseturtles.com/2018/01/08/pipenv-tour/)
+
+[[翻译] Pipenv – 官方推荐的 Python 包管理工具](https://juejin.im/post/5a41a654518825258a5fe3f7)
