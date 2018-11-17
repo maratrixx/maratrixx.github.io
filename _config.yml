@@ -3,8 +3,8 @@ title: MARATRIX BLOG
 SEOTitle: 博客 | Maratrix Blog
 header-img: img/home-bg.jpg
 email: i@liyafeng.cn
-description: "关于服务端开发与日常随笔 | 这里是 @Maratrix 的个人博客，与你一起发现更大的世界。"
-keyword: "maratrix, MARATRIX, @maratrix, 博客, 个人网站, 互联网, Web, PHP, Go, OpenResty"
+description: "关于程序开发与日常随笔 | 这里是 @Maratrix 的个人博客，与你一起发现更大的世界。"
+keyword: "maratrix, MARATRIX, @maratrix, 博客, 个人网站, 互联网, 程序员, Web, PHP, Go, OpenResty"
 url: "http://liyafeng.cn"              # your host, for absolute URL
 baseurl: ""                             # for example, '/blog' if your blog hosted on 'host/blog'
 
@@ -67,7 +67,7 @@ kramdown:
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
-sidebar-about-description: "写写代码，做做设计，<br>离开世界之前，一切都是过程"
+sidebar-about-description: "写写代码，做做产品，<br>世界那么大，多玩玩看看，<br>离开世界之前，一切都是过程"
 sidebar-avatar: /img/avatar-mx.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
