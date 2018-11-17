@@ -5,6 +5,8 @@ subtitle:   ""
 date:       2018-06-23 09:28:00
 author:     "maratrix"
 header-img: "img/home-bg-o.jpg"
+tags:
+    - python
 ---
 
 ## pipenv 是什么
