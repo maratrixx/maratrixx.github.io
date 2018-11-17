@@ -5,6 +5,8 @@ subtitle:   ""
 date:       2018-03-18 12:00:00
 author:     "maratrix"
 header-img: "img/home-bg-art.jpg"
+tags:
+    - php
 ---
 
 ### 匿名函数

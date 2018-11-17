@@ -5,6 +5,8 @@ subtitle:   ""
 date:       2018-11-16 16:00:00
 author:     "maratrix"
 header-img: "img/home-bg-art.jpg"
+tags:
+    - golang
 ---
 
 ### 背景
