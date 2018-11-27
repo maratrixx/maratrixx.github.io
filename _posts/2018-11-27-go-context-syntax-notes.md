@@ -13,7 +13,7 @@ tags:
 
 最近在学习 golang 的标准库 context，发现网上有人很好的总结了，特此转载下，感谢原作者：
 
-转自：[Go语言实战笔记（二十）| Go Context](http://www.flysnow.org/2017/05/12/go-in-action-go-context.html)
+转自：[飞雪无情的博客](http://www.flysnow.org/2017/05/12/go-in-action-go-context.html)
 
 ---
 
