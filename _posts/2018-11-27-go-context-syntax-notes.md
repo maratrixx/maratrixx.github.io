@@ -333,3 +333,11 @@ func watch(ctx context.Context) {
 - 给一个函数方法传递Context的时候，不要传递nil，如果不知道传递什么，就使用context.TODO
 - Context的Value相关方法应该传递必须的数据，不要什么数据都使用这个传递
 - Context是县城安全的，可以放心的在多个goroutine中传递
+
+---
+
+### 其他参考
+
+- [快速掌握 Golang context 包，简单示例](https://deepzz.com/post/golang-context-package-notes.html)
+
+- [Golang之Context的使用](http://www.nljb.net/default/Golang%E4%B9%8BContext%E7%9A%84%E4%BD%BF%E7%94%A8/)
