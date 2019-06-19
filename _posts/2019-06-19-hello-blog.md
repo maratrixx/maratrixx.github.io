@@ -5,7 +5,6 @@ subtitle:   ""
 date:       2019-06-19 00:00:00
 author:     "maratrix"
 header-img: "img/post-bg-unix-linux.jpg"
-catalog: true
 tags:
     - Blog
 ---
