@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "再次开始写博客"
-subtitle:   " \"Hello World, Hello Blog Again\""
+subtitle:   ""
 date:       2019-06-19 00:00:00
 author:     "maratrix"
 header-img: "img/post-bg-unix-linux.jpg"
