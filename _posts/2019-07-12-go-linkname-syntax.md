@@ -29,10 +29,11 @@ tags:
 
 只看文档有没有云里雾里？我们来看标准库`time.Sleep`代码实例：
 
-```go
+```
 // Sleep pauses the current goroutine for at least the duration d.
 // A negative or zero duration causes Sleep to return immediately.
 func Sleep(d Duration)
+
 ```
 
 这个函数我们经常会用到，但是却没有函数体，而且同样在当前目录下也没有汇编语言的代码实现。那么，在哪里实现的呢？
