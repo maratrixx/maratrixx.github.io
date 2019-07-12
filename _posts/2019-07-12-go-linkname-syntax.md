@@ -129,7 +129,7 @@ linkname/aa/aa.go:5:6: missing function body
 
 难道我们前面讲的都是错的吗？
 
-这里有一个技巧，你在 package b下创建一个空的文件， w文件名随意，只要文件后缀为`.s`，再运行一下`go run main.go`：
+这里有一个技巧，你在` package aa`下创建一个空的文件， 文件名随意，只要文件后缀为`.s`，再运行一下`go run main.go`：
 
 ```
 hello world
