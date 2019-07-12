@@ -150,3 +150,9 @@ hello world
 
 一般情况下我们不会采用这种方式，只有在很稀少的情况下，为了更好地组织我们的代码，我们才会有选择的采采用。至少，作为一个Go开发者，我们得明白通过这种方式可以绕过权限的限制。
 
+
+
+#####  参考博客：
+
+[突破限制,访问其它Go package中的私有函数](https://colobu.com/2017/05/12/call-private-functions-in-other-packages/)
+
