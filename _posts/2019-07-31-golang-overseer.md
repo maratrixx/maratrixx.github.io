@@ -14,9 +14,9 @@ tags:
 
 为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库：
 
-* **grace**https://github.com/facebookgo/grace/blob/master/gracedemo/demo.go
-* **endless** https://github.com/fvbock/endless/tree/master/examples
-* **overseer** https://github.com/jpillora/overseer/tree/master/example
+* [grace](https://github.com/facebookgo/grace/blob/master/gracedemo/demo.go)
+* [endless](https://github.com/fvbock/endless/tree/master/examples)
+* [overseer]( https://github.com/jpillora/overseer/tree/master/example)
 
 
 
