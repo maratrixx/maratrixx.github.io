@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>源码阅读 on MARATRIX BLOG</title>
+    <link>https://imttx.github.io/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</link>
+    <description>Recent content in 源码阅读 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 14 Apr 2020 11:55:41 +0800</lastBuildDate>
+    
+	<atom:link href="https://imttx.github.io/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>strings.Builder 源码阅读与分析</title>
+      <link>https://imttx.github.io/post/2020/04/14/strings-builder-source-note/</link>
+      <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
+      
+      <guid>https://imttx.github.io/post/2020/04/14/strings-builder-source-note/</guid>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ str := []string{&amp;quot;aa&amp;quot;, &amp;quot;bb&amp;quot;, &amp;quot;cc&amp;quot;} ss := &amp;quot;&amp;quot; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内</description>
+    </item>
+    
+  </channel>
+</rss>

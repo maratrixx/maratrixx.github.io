@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Nginx基于权重的轮询算法实现 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Nginx基于权重的轮询算法实现 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-04-14T11:47:28&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-04-14T11:47:28&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Nginx基于权重的轮询算法实现">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://imttx.github.io">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://imttx.github.io">首页</a>
+                    
+                    <a  href="https://imttx.github.io/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://imttx.github.io/about/" title="关于">关于</a>
+                    
+                    <a  href="https://imttx.github.io/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Nginx基于权重的轮询算法实现</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月14日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://imttx.github.io/categories/Go'>Go</a></span>
+            
+            <span class="meta-category"><a href='https://imttx.github.io/categories/Nginx'>Nginx</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p><strong>Nginx平滑的基于权重轮询算法描述为：</strong></p>
+<blockquote>
+<p>Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers.</p>
+</blockquote>
+<p><strong>算法执行2步，选择出1个当前节点：</strong></p>
+<ul>
+<li>每个节点，用它们的当前值加上它们自己的权重。</li>
+<li>选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。</li>
+</ul>
+<p>例如<code>{a:5, b:1, c:1}</code>三个节点，里面的<code>{5,1,1}</code>分别代表abc节点的权重。一开始我们初始化三个节点的当前值为<code>{0, 0, 0}</code>。 选择过程如下表：</p>
+<table>
+<thead>
+<tr>
+<th>轮数</th>
+<th>选择前的当前权重</th>
+<th>选择节点</th>
+<th>选择后的当前权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>{5,1,1}</td>
+<td>a</td>
+<td>{-2,1,1}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>{3,2,2}</td>
+<td>a</td>
+<td>{-4,2,2}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>{1,3,3}</td>
+<td>b</td>
+<td>{1,-4,3}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>{6,-3,4}</td>
+<td>a</td>
+<td>{-1,-3,4}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>{4,-2,5}</td>
+<td>c</td>
+<td>{4,-2,-2}</td>
+</tr>
+<tr>
+<td>6</td>
+<td>{9,-1,-1}</td>
+<td>a</td>
+<td>{2,-1,-1}</td>
+</tr>
+<tr>
+<td>7</td>
+<td>{7,0,0}</td>
+<td>a</td>
+<td>{0,0,0}</td>
+</tr>
+</tbody>
+</table>
+<p>我们可以发现，<code>a, b, c</code>选择的次数符合<code>5:1:1</code>，而且权重大的不会被连续选择。7轮选择后， 当前值又回到<code>{0, 0, 0}</code>，以上操作可以一直循环，一样符合平滑和基于权重。</p>
+<h2 id="go语言实现">Go语言实现</h2>
+<pre><code>package main
+
+import &quot;fmt&quot;
+
+type Node struct {
+	Server  string
+	Weight  int
+	Current int
+}
+
+//平滑轮询调度实现
+func SelectNext(nodes []*Node) (best *Node) {
+	if len(nodes) == 0 {
+		return nil
+	}
+
+	total := 0
+	for _, node := range nodes {
+		if node == nil {
+			continue
+		}
+
+		total += node.Weight		//记录所有节点的权重总和
+		node.Current += node.Weight	//每个节点，用它们的当前值加上它们自己的权重
+
+		//每选择当前值最大的节点为选中节点
+		if best == nil || node.Current &gt; best.Current {
+			best = node
+		}
+	}
+
+	if best == nil {
+		return nil
+	}
+	
+	//选中节点的当前值减去所有节点的权重总和
+	best.Current -= total 
+	return best
+}
+
+func main() {
+	nodes := []*Node{
+		{Server: &quot;127.0.0.1&quot;, Weight: 5},
+		{Server: &quot;127.0.0.2&quot;, Weight: 1},
+		{Server: &quot;127.0.0.3&quot;, Weight: 1},
+	}
+
+	for i := 0; i &lt; 10; i++ {
+		if best := SelectNext(nodes); best != nil {
+			fmt.Println(i, &quot;=&gt;&quot;, best.Server, best.Weight)
+		}
+	}
+}
+
+</code></pre><p>运行输出：</p>
+<pre><code>0 =&gt; 127.0.0.1 5
+1 =&gt; 127.0.0.1 5
+2 =&gt; 127.0.0.2 1
+3 =&gt; 127.0.0.1 5
+4 =&gt; 127.0.0.3 1
+5 =&gt; 127.0.0.1 5
+6 =&gt; 127.0.0.1 5
+7 =&gt; 127.0.0.1 5
+8 =&gt; 127.0.0.1 5
+9 =&gt; 127.0.0.2 1
+</code></pre><h2 id="小结">小结</h2>
+<p>这里简单做了总结笔记，很多开源项目的基于权重的轮询算法也是参考了此算法，比如著名的Go语言RPC框架<a href="https://github.com/smallnest/rpcx/blob/207ef3c938f2f14145a70b6e40a0487262651651/client/smooth-weighted-round-robin.go#L19">https://github.com/smallnest/rpcx</a>。</p>
+<p>关于如何证明算法的平滑性，感兴趣的可以阅读下面的参考链接：</p>
+<ul>
+<li><a href="https://tenfy.cn/2018/11/12/smooth-weighted-round-robin/">https://tenfy.cn/2018/11/12/smooth-weighted-round-robin/</a></li>
+<li><a href="https://github.com/phusion/nginx/commit/27e94984486058d73157038f7950a0a36ecc6e35">https://github.com/phusion/nginx/commit/27e94984486058d73157038f7950a0a36ecc6e35</a></li>
+</ul>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://imttx.github.io">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/">https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/about/">关于我</a></li>
+        
+        <li><a href="/read/">阅读</a></li>
+        
+        <li><a href="/archives/">归档</a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://imttx.github.io/tags/go'>go</a></li>
+                
+                <li><a href='https://imttx.github.io/tags/nginx'>nginx</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://imttx.github.io/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://imttx.github.io">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://imttx.github.io/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+    </li>
+    
+    <li>
+        <a href="https://imttx.github.io/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://imttx.github.io/categories/Go/">Go (3)</a></li>
+    
+    <li><a href="https://imttx.github.io/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://imttx.github.io/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://imttx.github.io/tags/go/">go</a>
+    
+    <a href="https://imttx.github.io/tags/nginx/">nginx</a>
+    
+    <a href="https://imttx.github.io/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://imttx.github.io/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://imttx.github.io">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>nginx on MARATRIX BLOG</title>
+    <link>https://imttx.github.io/tags/nginx/</link>
+    <description>Recent content in nginx on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 14 Apr 2020 11:47:28 +0800</lastBuildDate>
+    
+	<atom:link href="https://imttx.github.io/tags/nginx/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Nginx基于权重的轮询算法实现</title>
+      <link>https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/</link>
+      <pubDate>Tue, 14 Apr 2020 11:47:28 +0800</pubDate>
+      
+      <guid>https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/</guid>
+      <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:</description>
+    </item>
+    
+  </channel>
+</rss>
