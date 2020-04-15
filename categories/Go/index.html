@@ -15,12 +15,12 @@
     <meta name="description" content="Go">
         
     <meta name="author" content="maratrix">
-    <meta property="og:url" content="https://imttx.github.io/categories/Go/">
+    <meta property="og:url" content="http://maratrix.cn/categories/Go/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <link rel="alternate" type="application/rss+xml+xml" href="https://imttx.github.io/categories/Go/index.xml" title="MARATRIX BLOG" />
+    <link rel="alternate" type="application/rss+xml+xml" href="http://maratrix.cn/categories/Go/index.xml" title="MARATRIX BLOG" />
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
@@ -37,7 +37,7 @@
         <div class="col-group">
             <div class="site-name ">
                 
-                    <a id="logo" href="https://imttx.github.io/">
+                    <a id="logo" href="http://maratrix.cn/">
                         MARATRIX BLOG
                     </a>
                 
@@ -45,13 +45,13 @@
             </div>
             <div>
                 <nav id="nav-menu" class="clearfix">
-                    <a class="" href="https://imttx.github.io/">首页</a>
+                    <a class="" href="http://maratrix.cn/">首页</a>
                     
-                    <a  href="https://imttx.github.io/archives/" title="归档">归档</a>
+                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
                     
-                    <a  href="https://imttx.github.io/about/" title="关于">关于</a>
+                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
                     
-                    <a  href="https://imttx.github.io/read/" title="阅读">阅读</a>
+                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
                     
                 </nav>
             </div>
@@ -78,7 +78,7 @@
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://imttx.github.io/post/2020/04/14/strings-builder-source-note/">strings.Builder 源码阅读与分析</a>
+                <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">strings.Builder 源码阅读与分析</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -88,22 +88,22 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='https://imttx.github.io/categories/Go'>Go</a>
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
             
-            <a href='https://imttx.github.io/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>源码阅读</a>
+            <a href='http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>源码阅读</a>
             
         </div>
         
         <div class="post-content">
             背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ str := []string{&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;} ss := &quot;&quot; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内……
-            <p class="readmore"><a href="https://imttx.github.io/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://imttx.github.io/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
+                <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -113,20 +113,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='https://imttx.github.io/categories/Go'>Go</a>
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
             最近在看Go标准库里面的rpc源码，发现了下面一段代码： // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &quot;CONNECT&quot; { w.Header().Set(&quot;Content-Type&quot;, &quot;text/plain; charset=utf-8&quot;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &quot;405 must CONNECT\n&quot;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&quot;rpc hijacking &quot;, req.RemoteAddr, &quot;: &quot;, err.Error()) return } io.WriteString(conn, &quot;HTTP/1.0 &quot;+connected+&quot;\n\n&quot;) server.ServeConn(conn) } 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就是说 Golang 的内置 HTTP 库和 HTTPServer 库将不……
-            <p class="readmore"><a href="https://imttx.github.io/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/">Nginx基于权重的轮询算法实现</a>
+                <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">Nginx基于权重的轮询算法实现</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -136,15 +136,15 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='https://imttx.github.io/categories/Go'>Go</a>
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
             
-            <a href='https://imttx.github.io/categories/Nginx'>Nginx</a>
+            <a href='http://maratrix.cn/categories/Nginx'>Nginx</a>
             
         </div>
         
         <div class="post-content">
             Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:……
-            <p class="readmore"><a href="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
         </div>
     </article>
     
@@ -161,10 +161,10 @@
 
                 <div id="secondary">
     <section class="widget">
-        <form id="search" action='https://imttx.github.io/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
       
       <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="https://imttx.github.io/">
+      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
       <button type="submit" class="submit icon-search"></button>
 </form>
     </section>
@@ -174,15 +174,15 @@
 <ul class="widget-list">
     
     <li>
-        <a href="https://imttx.github.io/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
     </li>
     
     <li>
-        <a href="https://imttx.github.io/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
     </li>
     
     <li>
-        <a href="https://imttx.github.io/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
     </li>
     
 </ul>
@@ -194,11 +194,11 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="https://imttx.github.io/categories/Go/">Go (3)</a></li>
+    <li><a href="http://maratrix.cn/categories/Go/">Go (3)</a></li>
     
-    <li><a href="https://imttx.github.io/categories/Nginx/">Nginx (1)</a></li>
+    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
-    <li><a href="https://imttx.github.io/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
     
 </ul>
     </section>
@@ -207,11 +207,11 @@
         <h3 class="widget-title">标签</h3>
 <div class="tagcloud">
     
-    <a href="https://imttx.github.io/tags/go/">go</a>
+    <a href="http://maratrix.cn/tags/go/">go</a>
     
-    <a href="https://imttx.github.io/tags/nginx/">nginx</a>
+    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
     
-    <a href="https://imttx.github.io/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
     
 </div>
     </section>
@@ -244,7 +244,7 @@
     <section class="widget">
         <h3 class="widget-title">其它</h3>
         <ul class="widget-list">
-            <li><a href="https://imttx.github.io/index.xml">文章 RSS</a></li>
+            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
         </ul>
     </section>
 </div>
@@ -253,7 +253,7 @@
     </div>
     <footer id="footer">
     <div class="container">
-        &copy; 2020 <a href="https://imttx.github.io/">MARATRIX BLOG By maratrix</a>.
+        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
         Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
         <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
         
