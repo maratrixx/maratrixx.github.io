@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Rust学习笔记004-数据类型 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Rust学习笔记004-数据类型 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-05T09:51:09&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-05T09:51:09&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Rust学习笔记004-数据类型">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://maratrix.cn/">首页</a>
+                    
+                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Rust学习笔记004-数据类型</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h2 id="前言">前言</h2>
+<p>Rust是静态类型语言，在编译时就必须知道所有变量的类型。</p>
+<p><strong>两种方式确定类型：</strong></p>
+<ul>
+<li>根据值及使用方式，编译器通常可以推断出我们想要用的类型；</li>
+<li>当多种类型均有可能时，必须增加类型注解；</li>
+</ul>
+<p>如下代码，不加类型编译会报错。</p>
+<pre><code>let guess: u32 = &quot;42&quot;.parse().expect(&quot;Not a number!&quot;);
+</code></pre><h2 id="标量类型">标量类型</h2>
+<ul>
+<li>整型</li>
+<li>浮点型</li>
+<li>布尔类型</li>
+<li>字符类型</li>
+</ul>
+<h4 id="整型">整型</h4>
+<table>
+<thead>
+<tr>
+<th>长度</th>
+<th>有符号</th>
+<th>无符号</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8bit</td>
+<td>i8</td>
+<td>u8</td>
+</tr>
+<tr>
+<td>16bit</td>
+<td>i16</td>
+<td>u16</td>
+</tr>
+<tr>
+<td>32bit</td>
+<td>i32</td>
+<td>u32</td>
+</tr>
+<tr>
+<td>64bit</td>
+<td>i64</td>
+<td>u64</td>
+</tr>
+<tr>
+<td>arch</td>
+<td>isize</td>
+<td>usize</td>
+</tr>
+</tbody>
+</table>
+<p><strong>注意：</strong></p>
+<ul>
+<li>isize 和 usize 类型依赖运行程序的计算机架构，64 位架构上它们是 64 位的， 32 位架构上它们是 32 位的。</li>
+<li>除 byte 以外的所有数字字面值允许使用类型后缀，例如 57u8。</li>
+<li>允许使用 _ 做为分隔符以方便读数，例如1_000。</li>
+<li>默认数字类型为<code>i32</code>。</li>
+</ul>
+<h4 id="整型溢出">整型溢出</h4>
+<p>比方说有一个 u8 ，它可以存放从0-255的值。那么当你将其修改为 256 时会发生什么呢？</p>
+<p>Rust的处理方式是根据运行模式来区分对待：</p>
+<ul>
+<li>debug模式：检查溢出，溢出时编译会panic报错；</li>
+<li>release模式：不检查溢出，256会变成1，257会变成2，以此类推；</li>
+</ul>
+<h4 id="浮点型">浮点型</h4>
+<table>
+<thead>
+<tr>
+<th>长度</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32bit</td>
+<td>f32</td>
+</tr>
+<tr>
+<td>64bit</td>
+<td>f64</td>
+</tr>
+</tbody>
+</table>
+<p>默认类型为<code>f64</code>;</p>
+<h4 id="布尔型">布尔型</h4>
+<p>布尔类型使用<code>bool</code>表示：</p>
+<ul>
+<li>true</li>
+<li>fasle</li>
+</ul>
+<h4 id="字符型">字符型</h4>
+<p>Rust 的<code>char</code>类型代表了一个 Unicode 标量值（Unicode Scalar Value），这意味着它可以比 ASCII 表示更多内容。在 Rust 中，拼音字母（Accented letters），中文、日文、韩文等字符，emoji（绘文字）以及零长度的空白字符都是有效的 char 值。</p>
+<p>Unicode 标量值包含从 U+0000 到 U+D7FF 和 U+E000 到 U+10FFFF 在内的值。</p>
+<pre><code>fn main() {
+    let c = 'z';
+    let z = 'ℤ';
+    let heart_eyed_cat = '😻';
+}
+</code></pre><p><strong>注意 char 由单引号指定，不同于字符串使用双引号。</strong></p>
+<h2 id="复合类型">复合类型</h2>
+<ul>
+<li>元组（tuple）</li>
+<li>数组（array）</li>
+</ul>
+<h4 id="元组类型">元组类型</h4>
+<p>使用包含在圆括号中的逗号分隔的值列表来创建一个元组。元组中的每一个位置都有一个类型，而且这些不同值的类型也不必是相同的。</p>
+<p><strong>元组声明：</strong></p>
+<ul>
+<li>元组的类型格式为<code> (类型1, 类型2, ...)</code>，中间使用<code>,</code>逗号分隔；</li>
+<li>元组中的值位于圆括号内<code>,</code>逗号分隔的列表中；</li>
+</ul>
+<pre><code>let tup: (i32, f32, bool) = (123, 12.34, false);
+</code></pre><p><strong>如何取值：</strong></p>
+<ul>
+<li>模式解构</li>
+</ul>
+<pre><code>let tup = (500, 6.4, 1);
+let (x, y, z) = tup;
+println!(&quot;y = {}&quot;, y);
+</code></pre><p>程序首先创建了一个元组并绑定到 tup 变量上。接着使用了 let 和一个模式将 tup 分成了三个不同的变量，x、y 和 z，这叫做解构（destructuring）。</p>
+<ul>
+<li>索引</li>
+</ul>
+<pre><code>let tup = (500, 6.4, 1);
+println!(&quot;{}, {}, {}&quot;, tup.0, tup.1, tup.2);
+</code></pre><p>跟大多数编程语言一样，元组的第一个索引值是 0。</p>
+<h4 id="数组类型">数组类型</h4>
+<p>另一个包含多个值的方式是 数组（array）。与元组不同，数组中的每个元素的类型必须相同。并且Rust 中的数组是固定长度的，一旦声明，它们的长度不能增长或缩小。</p>
+<p><strong>数组声明：</strong></p>
+<ul>
+<li>数组的类型格式为<code> [类型; 数组长度]</code>，注意中间使用<code>;</code>分号分隔；</li>
+<li>数组中的值位于中括号内<code>,</code>逗号分隔的列表中；</li>
+</ul>
+<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
+</code></pre><p>这里创建了一个长度为4，类型为i32的数组。</p>
+<p><strong>访问元素</strong>
+和其他编程语言类型，Rust数组使用索引下标访问元素，从0开始。</p>
+<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
+println!(&quot;{}, {}&quot;, arr[0], arr[1]);
+</code></pre><p><strong>下标越界</strong>
+当访问超过数组长度的下标时会怎样的呢？</p>
+<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
+let idx = 10;
+println!(&quot;{}&quot;, arr[idx]);
+</code></pre><p>运行结果：</p>
+<pre><code>Compiling learn_types v0.1.0 (/Users/****/www/rust_code/learn_types)
+    Finished dev [unoptimized + debuginfo] target(s) in 0.30s
+     Running `target/debug/learn_types`
+thread 'main' panicked at 'index out of bounds: the len is 4 but the index is 10', src/main.rs:45:16
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
+</code></pre><p>可与看出，编译并没有产生任何错误，不过程序会出现一个运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。如果索引超出了数组长度，Rust 会 panic。</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/02/04/003-rust-variable-notes/">Rust学习笔记003-变量与可变性</a></li>
+        
+        <li><a href="/post/2020/02/04/002-rust-notes/">Rust学习笔记002-编程概念</a></li>
+        
+        <li><a href="/post/2020/02/04/001-rust-hello-world-notes/">Rust学习笔记001-初相识</a></li>
+        
+        <li><a href="/post/2020/02/04/000-rust-install-notes/">Rust学习笔记000-安装</a></li>
+        
+        <li><a href="/post/2019/09/28/go-url-scheme-notes/">Go踩坑系列 | 为什么request.URL.Scheme取不到值</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='http://maratrix.cn/tags/rust'>rust</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="http://maratrix.cn/tags/go/">go</a>
+    
+    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    
+    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="http://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/highlight.pack.js'></script>
+
+    <script src='/js/highlight.init.js'></script>
+
+</body>
+
+</html>

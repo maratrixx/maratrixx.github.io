@@ -38,5 +38,41 @@
       <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:</description>
     </item>
     
+    <item>
+      <title>Go踩坑系列 | 为什么request.URL.Scheme取不到值</title>
+      <link>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</link>
+      <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： func main() { http.HandleFunc(&amp;quot;/foo&amp;quot;, func(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, &amp;quot;Scheme:&amp;quot;, r.URL.Scheme) }) log.Fatal(http.ListenAndServe(&amp;quot;:9000&amp;quot;, nil)) } 当我们请求http://127.0.0.1:9000/foo</description>
+    </item>
+    
+    <item>
+      <title>Go踩坑系列 | json标准库string标签你用对了么</title>
+      <link>http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</link>
+      <pubDate>Thu, 05 Sep 2019 10:15:11 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</guid>
+      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&amp;quot;,string&amp;quot; 就可以支持了，如果不知道golang的这些小技巧，就要大费周章</description>
+    </item>
+    
+    <item>
+      <title>Go服务平滑重启实践</title>
+      <link>http://maratrix.cn/post/2019/07/31/go-overseer-notes/</link>
+      <pubDate>Wed, 31 Jul 2019 10:12:16 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2019/07/31/go-overseer-notes/</guid>
+      <description>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endless是比较像的，实现步骤如下： 监听信号 收到信号时fork子进程（使用相同的启动命令），将服务监听的socket文件描述符传递给子进程 子进程</description>
+    </item>
+    
+    <item>
+      <title>go:linkname用法</title>
+      <link>http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</link>
+      <pubDate>Fri, 12 Jul 2019 10:10:42 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</guid>
+      <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in files that have imported &amp;ldquo;unsafe&amp;rdquo;. 翻译过来就是： 这个指令告诉编译器为函数或者变量localname使用i</description>
+    </item>
+    
   </channel>
 </rss>

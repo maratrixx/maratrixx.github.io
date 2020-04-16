@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Rust学习笔记001-初相识 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Rust学习笔记001-初相识 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-04T09:45:20&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-04T09:45:20&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Rust学习笔记001-初相识">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://maratrix.cn/">首页</a>
+                    
+                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Rust学习笔记001-初相识</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <blockquote>
+<p>Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety.</p>
+</blockquote>
+<p>Rust是一门系统级编程语言，具有三个特点：</p>
+<ul>
+<li>运行快</li>
+<li>防止段错误</li>
+<li>保证线程安全</li>
+</ul>
+<p>C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。</p>
+<h2 id="版本和发布策略">版本和发布策略</h2>
+<h4 id="语义化版本号">语义化版本号</h4>
+<p>Rust编译器的版本号采用了“语义化版本号”规划。版本格式为：主版本号.次版本号.修订号。</p>
+<ul>
+<li>主版本号：当你做了不兼容的API修改</li>
+<li>次版本号：当你做了向下兼容的功能性新增</li>
+<li>修订号：当你做了向下兼容的问题修正</li>
+</ul>
+<p>Rust一般以6个星期更新一个正式版本的速度进行迭代。</p>
+<h4 id="多渠道发布">多渠道发布：</h4>
+<ul>
+<li>nightly版本：每天自动创建的版本，新功能最多，问题也多，供用户试用；</li>
+<li>beta版本：每隔一段时间将nightly版本验证过的功能开放给用户，类似“预发布”版本；</li>
+<li>stable版本：正式版本，每隔6个星期发布一次，最稳定、最可靠，保证向前兼容；</li>
+</ul>
+<h4 id="heading"></h4>
+<h2 id="rustup镜像">rustup镜像</h2>
+<p>把一下代码复制到<code>.bashrc</code>或者类似文件(<code>.zshrc</code>等)然后执行<code>source .bashrc</code>或者将其添加到环境变量</p>
+<pre><code>export RUSTUP\_DIST\_SERVER=https://mirrors.sjtug.sjtu.edu.cn/rust-static
+export RUSTUP\_UPDATE\_ROOT=https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
+</code></pre><ul>
+<li>
+<p>可选的其他地址：</p>
+</li>
+<li>
+<p>上海交大：<a href="https://links.jianshu.com/go?to=https%3A%2F%2Fmirrors.sjtug.sjtu.edu.cn%2F%23%2F">https://mirrors.sjtug.sjtu.edu.cn/#/</a></p>
+</li>
+<li>
+<p>中科大：<a href="https://links.jianshu.com/go?to=http%3A%2F%2Fmirrors.ustc.edu.cn%2Fhelp%2Frust-static.html">http://mirrors.ustc.edu.cn/help/rust-static.html</a></p>
+</li>
+<li>
+<p>rust.cc：<a href="https://links.jianshu.com/go?to=https%3A%2F%2Frustforce.net%2Farticle%3Fid%3D429df22d-a186-438a-8d83-6ab0b44beeb4">https://rustforce.net/article?id=429df22d-a186-438a-8d83-6ab0b44beeb4</a></p>
+</li>
+</ul>
+<h2 id="cargo镜像">cargo镜像</h2>
+<p>Rust官方提供了<code>cargo</code>包管理工具，管理仓库为：<a href="https://crates.io">https://crates.io</a>。当我们在编译需要依赖<code>crates.io</code>的项目时，可能会由于网络问题导致依赖库下载失败。可以在<code>$HOME/.cargo/</code>下建立一个<code>config</code>文件，加入如下配置：</p>
+<pre><code>[source.crates-io] 
+registry = &quot;https://github.com/rust-lang/crates.io-index&quot; 
+replace-with = &quot;ustc&quot; 
+[source.ustc]
+registry = &quot;git://mirrors.ustc.edu.cn/crates.io-index&quot;
+</code></pre><p>如果不能使用<code>git</code>的话，可以把<code>registry</code>替换成：</p>
+<pre><code>registry = &quot;https://mirrors.ustc.edu.cn/crates.io-index&quot;
+</code></pre><h2 id="hello-world">Hello World</h2>
+<p>编程第一课必须是<code>hello world</code>程序，创建<code>hello_world.rs</code>写入以下代码：</p>
+<pre><code>fn main() {  
+    let s = &quot;hello world&quot;;
+    println!(&quot;{}&quot;, s); 
+}
+</code></pre><p>然后编译运行：</p>
+<pre><code>rustc hello_world.rs
+./hello_world  
+//输出：hello world
+</code></pre><p>嗯，第一个Rust程序已经成功运行了。😁</p>
+<p>简单分析下：</p>
+<ul>
+<li>Rust源代码文件使用<code>.rs</code>结尾；</li>
+<li>注释才用<code>//或者/* */</code>风格，当然也可以使用特有的文档注释<code>///</code>，后面会说；</li>
+<li>函数开头必须使用<code>fn</code>关键字；</li>
+<li><code>main</code>函数为程序运行入口点；</li>
+<li>局部变量声明使用<code>let</code>关键字开头；</li>
+<li>语句以分号<code>;</code>结尾；</li>
+<li><code>println!</code>是一个宏，特征就是后面带一个<code>!</code>感叹号；</li>
+</ul>
+<h2 id="prelude">Prelude</h2>
+<ul>
+<li>
+<p>Rust代码从逻辑上是分crate和mod管理的，crate管理项目，可以生成lib或可执行文件，在crate内部使用mod管理；</p>
+</li>
+<li>
+<p>Rust有一个极简标准库，叫作 std，除了极少数嵌入式系统无法使用标准库，绝大部分情况下，都需要使用标准库里的东西；</p>
+</li>
+<li>
+<p>默认情况下，用户不需要导入标准库，编译器会自动引入，系统会在每个 crate 开头自动插入一句话：</p>
+</li>
+</ul>
+<pre><code>use std::prelude::\*
+</code></pre><h2 id="format格式说明">Format格式说明</h2>
+<pre><code>fn main() {  
+println!(&quot;{}&quot;, 1);                          //默认打印用法 
+println!(&quot;{:o}&quot;, 9);                        //八进制 
+println!(&quot;{:x}&quot;, 255);                      //十六进制，小写
+println!(&quot;{:X}&quot;, 255);                      //十六进制，大写 
+println!(&quot;{:p}&quot;, &amp;0);                       //指针println!(&quot;{:b}&quot;, 15);                       //二进制 
+println!(&quot;{:e}&quot;, 10000f32);                 //科学计数，小写 
+println!(&quot;{:E}&quot;, 10000f32);                 //科学计数，大写 
+println!(&quot;{:?}&quot;, &quot;test&quot;);                   //打印debug 
+println!(&quot;{:#?}&quot;, (&quot;test1&quot;, &quot;test2&quot;));      //带换行符和缩进的debug打印 
+println!(&quot;{a}, {b}, {b}&quot;, a=&quot;aa&quot;, b=&quot;bb&quot;);  //命名参数 }
+</code></pre><p>除了<code>println!</code> 宏，Rust还提供了其他一些宏，比如<code>format!, write!, writeln!</code>等，可以在<code>std::fmt</code>标准库内查看。</p>
+<h4 id="设计标准输出宏的原因">设计标准输出宏的原因：</h4>
+<ul>
+<li>更好地错误检查，编译期内即可发现错误；</li>
+<li>函数只能在运行时发现字符串格式化错误；</li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/02/04/000-rust-install-notes/">Rust学习笔记000-安装</a></li>
+        
+        <li><a href="/post/2019/09/28/go-url-scheme-notes/">Go踩坑系列 | 为什么request.URL.Scheme取不到值</a></li>
+        
+        <li><a href="/post/2019/09/05/go-json-string-tag-notes/">Go踩坑系列 | json标准库string标签你用对了么</a></li>
+        
+        <li><a href="/post/2019/07/31/go-overseer-notes/">Go服务平滑重启实践</a></li>
+        
+        <li><a href="/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='http://maratrix.cn/tags/rust'>rust</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="http://maratrix.cn/tags/go/">go</a>
+    
+    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    
+    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="http://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/highlight.pack.js'></script>
+
+    <script src='/js/highlight.init.js'></script>
+
+</body>
+
+</html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Go服务平滑重启实践 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go服务平滑重启实践 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2019-07-31T10:12:16&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2019-07-31T10:12:16&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Go服务平滑重启实践">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="http://maratrix.cn/post/2019/07/31/go-overseer-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://maratrix.cn/">首页</a>
+                    
+                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go服务平滑重启实践</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2019年7月31日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库：</p>
+<ul>
+<li><a href="https://github.com/facebookgo/grace/blob/master/gracedemo/demo.go">grace</a></li>
+<li><a href="https://github.com/fvbock/endless/tree/master/examples">endless</a></li>
+<li><a href="https://github.com/jpillora/overseer/tree/master/example">overseer</a></li>
+</ul>
+<p>大致看了一下源码，<strong>grace</strong>和<strong>endless</strong>是比较像的，实现步骤如下：</p>
+<blockquote>
+<ol>
+<li>监听信号</li>
+<li>收到信号时fork子进程（使用相同的启动命令），将服务监听的socket文件描述符传递给子进程</li>
+<li>子进程监听父进程的socket，这个时候父进程和子进程都可以接收请求</li>
+<li>子进程启动成功之后，父进程停止接收新的连接，等待旧连接处理完成（或超时）</li>
+<li>父进程退出，升级完成</li>
+</ol>
+</blockquote>
+<p><strong>overseer</strong>是与<strong>grace</strong>和<strong>endless</strong>实现方式有些不同，主要两点：</p>
+<blockquote>
+<ol>
+<li>overseer添加了Fetcher，当Fetcher返回有效的二进位流(io.Reader) 时，主进程会将它保存到临时位置并验证它，替换当前的二进制文件并启动。
+Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。Fetcher支持File、GitHub、HTTP和S3的方式。详细可查看包<a href="https://godoc.org/github.com/jpillora/overseer/fetcher">package fetcher</a>
+我们目前线上的环境还是以File为主。</li>
+<li>overseer添加了一个主进程管理平滑重启。子进程处理连接，能够保持主进程pid不变。</li>
+</ol>
+</blockquote>
+<p>贴一下代码，欢迎大家拍砖：</p>
+<pre><code>package main
+
+import (
+	&quot;fmt&quot;
+	&quot;net/http&quot;
+	&quot;time&quot;
+	&quot;github.com/jpillora/overseer&quot;
+	&quot;github.com/jpillora/overseer/fetcher&quot;
+)
+var BuildID = &quot;0&quot;
+
+func prog(state overseer.State) {
+	fmt.Printf(&quot;app#%s (%s) listening...\n&quot;, BuildID, state.ID)
+	http.Handle(&quot;/&quot;, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		d, _ := time.ParseDuration(r.URL.Query().Get(&quot;d&quot;))
+		time.Sleep(d)
+		fmt.Fprintf(w, &quot;app#%s (%s) says hello\n&quot;, BuildID, state.ID)
+	}))
+	http.Serve(state.Listener, nil)
+	fmt.Printf(&quot;app#%s (%s) exiting...\n&quot;, BuildID, state.ID)
+}
+
+//then create another 'main' which runs the upgrades
+//'main()' is run in the initial process
+func main() {
+	overseer.Run(overseer.Config{
+		Program: prog,
+		Address: &quot;:5001&quot;,
+		Fetcher: &amp;fetcher.File{Path: &quot;my_app_next&quot;},
+		Debug:   false, //display log of overseer actions
+	})
+}
+</code></pre><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
+<p><strong>注意：</strong></p>
+<ul>
+<li>考虑到线上环境使用supervisor来守护golang进程，<strong>overseer</strong>可实现pid不变**，**更符合我们的需求</li>
+<li>当编译命令执行后，会起一个新的子进程，接管主进程，废弃之前的子进程，同时保持主进程pid不变</li>
+<li>线上ci配置要去掉<code>supervisorctl restart xxx</code></li>
+<li>在main函数里面的<code>overseer.Run</code>执行之前，不要做任何的输出操作（<code>如log 或fmt等</code>），否则无法监听bin文件的变更。</li>
+<li><code>Featcher.File</code>里面的Path参数为二进制文件的绝对路径，而非二进制文件所在目录的绝对路径，这个要注意。</li>
+</ul>
+<p><strong>一些补充：</strong></p>
+<ol>
+<li>
+<p>线上环境使用supervisor来守护进程，我们在reload或着发信号重启项目时，可采用通过supervisor去获取进程id:</p>
+<pre><code>pid=$(sudo supervisorctl status ${BIN_FILE}|awk '{print $4}'|awk -F, '{print $1}')
+</code></pre></li>
+<li>
+<p>使用supervisor和overseer实现平滑重启后，项目在发版时候，会有两个状态：</p>
+<ul>
+<li>
+<p>初次发布时，项目还没有启动，此时需要通过supervisor来启动</p>
+</li>
+<li>
+<p>后面发布时候，需要通过overseer检测或者通过发信号去平滑重启</p>
+</li>
+</ul>
+<p>我们可以通过 supervisor去做判断，然后给不同的处理：</p>
+<pre><code>   
+function startOrReload() {
+    sudo supervisorctl status ${BIN_FILE} |grep RUNNING &gt; /dev/null
+    #进程没有运行则start，运行则reload
+    if [ $? -ne 0 ]; then
+        start
+    else
+        reload
+    fi
+}
+</code></pre></li>
+<li>
+<p>新版ops是使用软链来发布项目，overseer使用软链需要注意：</p>
+<ul>
+<li>线上环境通常有两个目录，一个为固定目录current (例如：<code>/data/web/$project/current</code>),一个为历史版本目录releases(例如：<code>/data/web/$project/releases/$tag</code>)。Fetcher检测的必须为current目录，而非软链的realpath即releases目录:</li>
+</ul>
+<pre><code>file, err := exec.LookPath(os.Args[0])
+if err != nil {
+    panic(err)
+}
+binPath, err := filepath.Abs(file)
+if err != nil {
+    panic(err)
+}
+//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
+</code></pre><ul>
+<li>另外overseer第一次启动后其自身的realpath的path就不再改变了，程序中就不要再出现以当前执行文件的相对路径或者realpath取获取其它路径了，主要影响为配置文件。</li>
+</ul>
+</li>
+</ol>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a></li>
+        
+        <li><a href="/archives/">归档</a></li>
+        
+        <li><a href="/search/">搜索</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='http://maratrix.cn/tags/go'>go</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="http://maratrix.cn/tags/go/">go</a>
+    
+    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    
+    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="http://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/highlight.pack.js'></script>
+
+    <script src='/js/highlight.init.js'></script>
+
+</body>
+
+</html>

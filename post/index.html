@@ -149,8 +149,203 @@
     
     
     
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月6日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 if 条件 { //... } else if 条件 { //... } else { //... } 注意，这里的条件表达式不包含()括号，直接写表达式即可： let number = 3; if number &gt; 0 { println!(&quot;number was three&quot;); } 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用它： fn main()……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 if 条件 { //... } else if 条件 { //... } else { //... } 注意，这里的条件表达式不包含()括号，直接写表达式即可： let number = 3; if number &gt; 0 { println!(&quot;number was three&quot;); } 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用它： fn main()……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； fn test_function(a: i32, b: bool) -&gt; u32 { //... } 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体由……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 let guess: u32 = &quot;42&quot;.parse().expect(&quot;Not a number!&quot;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            变量声明 语法格式： let 变量名: 变量类型 = 变量值; let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 let x: i32; println!(&quot;x = {}&quot;, x); //运行报错：use of possibly-uninitialized……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个字符。单独的_不是标识符。 其它字符是字母数字或者 _。 原始标识符 有时出于某种原因你……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。 版本和发布策略 语义化版本号 Rust编译器的版本号采用了“语义化版本号”规划。版本格式为：主版本号……
+        </div>
+        <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
 
 
+
+<ol class="page-navigator">
+    
+
+    
+    <li  class="current">
+        <a href="http://maratrix.cn/post/">1</a>
+    </li>
+    
+    <li >
+        <a href="http://maratrix.cn/post/page/2/">2</a>
+    </li>
+    
+
+    
+    <li class="next">
+        <a href="http://maratrix.cn/post/page/2/">下一页</a>
+    </li>
+    
+</ol>
 
 
 
@@ -184,6 +379,34 @@
         <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
     </li>
     
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+    </li>
+    
 </ul>
     </section>
 
@@ -193,9 +416,11 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="http://maratrix.cn/categories/Go/">Go (3)</a></li>
+    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
     
     <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
     
     <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
     
@@ -208,7 +433,11 @@
     
     <a href="http://maratrix.cn/tags/go/">go</a>
     
+    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    
     <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="http://maratrix.cn/tags/rust/">rust</a>
     
     <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
     

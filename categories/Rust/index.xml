@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Rust on MARATRIX BLOG</title>
+    <link>http://maratrix.cn/categories/Rust/</link>
+    <description>Recent content in Rust on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Thu, 06 Feb 2020 10:01:58 +0800</lastBuildDate>
+    
+	<atom:link href="http://maratrix.cn/categories/Rust/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Rust学习笔记006-控制流</title>
+      <link>http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/</link>
+      <pubDate>Thu, 06 Feb 2020 10:01:58 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/06/006-rust-ownership-notes/</guid>
+      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 if 条件 { //... } else if 条件 { //... } else { //... } 注意，这里的条件表达式不包含()括号，直接写表达式即可： let number = 3; if number &amp;gt; 0 { println!(&amp;quot;number was three&amp;quot;); } 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用它： fn main()</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记006-控制流</title>
+      <link>http://maratrix.cn/post/2020/02/05/006-rust-control-notes/</link>
+      <pubDate>Wed, 05 Feb 2020 10:00:51 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/05/006-rust-control-notes/</guid>
+      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 if 条件 { //... } else if 条件 { //... } else { //... } 注意，这里的条件表达式不包含()括号，直接写表达式即可： let number = 3; if number &amp;gt; 0 { println!(&amp;quot;number was three&amp;quot;); } 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用它： fn main()</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记005-函数</title>
+      <link>http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</link>
+      <pubDate>Wed, 05 Feb 2020 09:59:52 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</guid>
+      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； fn test_function(a: i32, b: bool) -&amp;gt; u32 { //... } 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体由</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记004-数据类型</title>
+      <link>http://maratrix.cn/post/2020/02/05/004-rust-types-notes/</link>
+      <pubDate>Wed, 05 Feb 2020 09:51:09 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/05/004-rust-types-notes/</guid>
+      <description>前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 let guess: u32 = &amp;quot;42&amp;quot;.parse().expect(&amp;quot;Not a number!&amp;quot;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记003-变量与可变性</title>
+      <link>http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</link>
+      <pubDate>Tue, 04 Feb 2020 09:49:40 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</guid>
+      <description>变量声明 语法格式： let 变量名: 变量类型 = 变量值; let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 let x: i32; println!(&amp;quot;x = {}&amp;quot;, x); //运行报错：use of possibly-uninitialized</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记002-编程概念</title>
+      <link>http://maratrix.cn/post/2020/02/04/002-rust-notes/</link>
+      <pubDate>Tue, 04 Feb 2020 09:45:34 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/04/002-rust-notes/</guid>
+      <description>标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个字符。单独的_不是标识符。 其它字符是字母数字或者 _。 原始标识符 有时出于某种原因你</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记001-初相识</title>
+      <link>http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/</link>
+      <pubDate>Tue, 04 Feb 2020 09:45:20 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/</guid>
+      <description>Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。 版本和发布策略 语义化版本号 Rust编译器的版本号采用了“语义化版本号”规划。版本格式为：主版本号</description>
+    </item>
+    
+    <item>
+      <title>Rust学习笔记000-安装</title>
+      <link>http://maratrix.cn/post/2020/02/04/000-rust-install-notes/</link>
+      <pubDate>Tue, 04 Feb 2020 09:40:42 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/02/04/000-rust-install-notes/</guid>
+      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境</description>
+    </item>
+    
+  </channel>
+</rss>
