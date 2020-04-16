@@ -28,8 +28,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -95,7 +93,7 @@
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： func main() { http.HandleFunc(&quot;/foo&quot;, func(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, &quot;Scheme:&quot;, r.URL.Scheme) }) log.Fatal(http.ListenAndServe(&quot;:9000&quot;, nil)) } 当我们请求http://127.0.0.1:9000/foo……
+            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &#34;Scheme:&#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&#34;:9000&#34;, nil)) 6} 当我们请求http://127.0.0.1:9000……
             <p class="readmore"><a href="http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -280,10 +278,6 @@
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

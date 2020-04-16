@@ -28,8 +28,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -97,7 +95,7 @@
         </div>
         
         <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ str := []string{&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;} ss := &quot;&quot; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内……
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
         </div>
     </article>
@@ -259,10 +257,6 @@
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

@@ -28,8 +28,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -88,7 +86,7 @@
         </div>
         
         <div class="post-content">
-            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境……
+            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/000-rust-install-notes/">阅读全文</a></p>
     </article>
@@ -113,7 +111,7 @@
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： func main() { http.HandleFunc(&quot;/foo&quot;, func(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, &quot;Scheme:&quot;, r.URL.Scheme) }) log.Fatal(http.ListenAndServe(&quot;:9000&quot;, nil)) } 当我们请求http://127.0.0.1:9000/foo……
+            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &#34;Scheme:&#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&#34;:9000&#34;, nil)) 6} 当我们请求http://127.0.0.1:9000……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
     </article>
@@ -370,10 +368,6 @@
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

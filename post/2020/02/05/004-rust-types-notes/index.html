@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -103,8 +101,8 @@
 <li>当多种类型均有可能时，必须增加类型注解；</li>
 </ul>
 <p>如下代码，不加类型编译会报错。</p>
-<pre><code>let guess: u32 = &quot;42&quot;.parse().expect(&quot;Not a number!&quot;);
-</code></pre><h2 id="标量类型">标量类型</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> guess: <span style="color:#8be9fd">u32</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;42&#34;</span>.parse().expect(<span style="color:#f1fa8c">&#34;Not a number!&#34;</span>);
+</code></pre></div><h2 id="标量类型">标量类型</h2>
 <ul>
 <li>整型</li>
 <li>浮点型</li>
@@ -191,12 +189,12 @@
 <h4 id="字符型">字符型</h4>
 <p>Rust 的<code>char</code>类型代表了一个 Unicode 标量值（Unicode Scalar Value），这意味着它可以比 ASCII 表示更多内容。在 Rust 中，拼音字母（Accented letters），中文、日文、韩文等字符，emoji（绘文字）以及零长度的空白字符都是有效的 char 值。</p>
 <p>Unicode 标量值包含从 U+0000 到 U+D7FF 和 U+E000 到 U+10FFFF 在内的值。</p>
-<pre><code>fn main() {
-    let c = 'z';
-    let z = 'ℤ';
-    let heart_eyed_cat = '😻';
-}
-</code></pre><p><strong>注意 char 由单引号指定，不同于字符串使用双引号。</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#8be9fd;font-style:italic">let</span> c <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;z&#39;</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#8be9fd;font-style:italic">let</span> z <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;ℤ&#39;</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#8be9fd;font-style:italic">let</span> heart_eyed_cat <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;😻&#39;</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+</code></pre></div><p><strong>注意 char 由单引号指定，不同于字符串使用双引号。</strong></p>
 <h2 id="复合类型">复合类型</h2>
 <ul>
 <li>元组（tuple）</li>
@@ -209,21 +207,21 @@
 <li>元组的类型格式为<code> (类型1, 类型2, ...)</code>，中间使用<code>,</code>逗号分隔；</li>
 <li>元组中的值位于圆括号内<code>,</code>逗号分隔的列表中；</li>
 </ul>
-<pre><code>let tup: (i32, f32, bool) = (123, 12.34, false);
-</code></pre><p><strong>如何取值：</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup: (<span style="color:#8be9fd">i32</span>, <span style="color:#8be9fd">f32</span>, <span style="color:#8be9fd">bool</span>) <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">123</span>, <span style="color:#bd93f9">12.34</span>, <span style="color:#ff79c6">false</span>);
+</code></pre></div><p><strong>如何取值：</strong></p>
 <ul>
 <li>模式解构</li>
 </ul>
-<pre><code>let tup = (500, 6.4, 1);
-let (x, y, z) = tup;
-println!(&quot;y = {}&quot;, y);
-</code></pre><p>程序首先创建了一个元组并绑定到 tup 变量上。接着使用了 let 和一个模式将 tup 分成了三个不同的变量，x、y 和 z，这叫做解构（destructuring）。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">500</span>, <span style="color:#bd93f9">6.4</span>, <span style="color:#bd93f9">1</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> (x, y, z) <span style="color:#ff79c6">=</span> tup;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;y = {}&#34;</span>, y);
+</code></pre></div><p>程序首先创建了一个元组并绑定到 tup 变量上。接着使用了 let 和一个模式将 tup 分成了三个不同的变量，x、y 和 z，这叫做解构（destructuring）。</p>
 <ul>
 <li>索引</li>
 </ul>
-<pre><code>let tup = (500, 6.4, 1);
-println!(&quot;{}, {}, {}&quot;, tup.0, tup.1, tup.2);
-</code></pre><p>跟大多数编程语言一样，元组的第一个索引值是 0。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">500</span>, <span style="color:#bd93f9">6.4</span>, <span style="color:#bd93f9">1</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}, {}, {}&#34;</span>, tup.<span style="color:#bd93f9">0</span>, tup.<span style="color:#bd93f9">1</span>, tup.<span style="color:#bd93f9">2</span>);
+</code></pre></div><p>跟大多数编程语言一样，元组的第一个索引值是 0。</p>
 <h4 id="数组类型">数组类型</h4>
 <p>另一个包含多个值的方式是 数组（array）。与元组不同，数组中的每个元素的类型必须相同。并且Rust 中的数组是固定长度的，一旦声明，它们的长度不能增长或缩小。</p>
 <p><strong>数组声明：</strong></p>
@@ -231,24 +229,24 @@ println!(&quot;{}, {}, {}&quot;, tup.0, tup.1, tup.2);
 <li>数组的类型格式为<code> [类型; 数组长度]</code>，注意中间使用<code>;</code>分号分隔；</li>
 <li>数组中的值位于中括号内<code>,</code>逗号分隔的列表中；</li>
 </ul>
-<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
-</code></pre><p>这里创建了一个长度为4，类型为i32的数组。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
+</code></pre></div><p>这里创建了一个长度为4，类型为i32的数组。</p>
 <p><strong>访问元素</strong>
 和其他编程语言类型，Rust数组使用索引下标访问元素，从0开始。</p>
-<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
-println!(&quot;{}, {}&quot;, arr[0], arr[1]);
-</code></pre><p><strong>下标越界</strong>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}, {}&#34;</span>, arr[<span style="color:#bd93f9">0</span>], arr[<span style="color:#bd93f9">1</span>]);
+</code></pre></div><p><strong>下标越界</strong>
 当访问超过数组长度的下标时会怎样的呢？</p>
-<pre><code>let arr: [i32; 4] = [1, 2, 3, 4];
-let idx = 10;
-println!(&quot;{}&quot;, arr[idx]);
-</code></pre><p>运行结果：</p>
-<pre><code>Compiling learn_types v0.1.0 (/Users/****/www/rust_code/learn_types)
-    Finished dev [unoptimized + debuginfo] target(s) in 0.30s
-     Running `target/debug/learn_types`
-thread 'main' panicked at 'index out of bounds: the len is 4 but the index is 10', src/main.rs:45:16
-note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
-</code></pre><p>可与看出，编译并没有产生任何错误，不过程序会出现一个运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。如果索引超出了数组长度，Rust 会 panic。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> idx <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}&#34;</span>, arr[idx]);
+</code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Compiling learn_types v0.<span style="color:#bd93f9">1.0</span> (<span style="color:#ff79c6">/</span>Users<span style="color:#6272a4">/****/</span>www<span style="color:#ff79c6">/</span>rust_code<span style="color:#ff79c6">/</span>learn_types)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Finished dev [unoptimized <span style="color:#ff79c6">+</span> debuginfo] target(s) <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.30</span>s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>     Running `target<span style="color:#ff79c6">/</span>debug<span style="color:#ff79c6">/</span>learn_types`
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>thread <span style="color:#50fa7b">&#39;main</span>&#39; panicked at <span style="color:#50fa7b">&#39;index</span> out of bounds: <span style="color:#50fa7b">the</span> len is <span style="color:#bd93f9">4</span> but the index is <span style="color:#bd93f9">10</span>&#39;, src<span style="color:#ff79c6">/</span>main.rs:<span style="color:#bd93f9">45</span>:<span style="color:#bd93f9">16</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>note: <span style="color:#50fa7b">run</span> with `RUST_BACKTRACE<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span>` environment variable to display a backtrace.
+</code></pre></div><p>可与看出，编译并没有产生任何错误，不过程序会出现一个运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。如果索引超出了数组长度，Rust 会 panic。</p>
 
         </div>
 
@@ -461,10 +459,6 @@ note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace.
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

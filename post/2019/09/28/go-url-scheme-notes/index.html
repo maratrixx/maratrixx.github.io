@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -98,65 +96,65 @@
             <h2 id="遇到的问题">遇到的问题</h2>
 <p>最近在阅读<code>echo</code>框架的源码，发现<code>context.go</code>文件在读取请求的<code>scheme</code>时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？</p>
 <p>于是写了段代码来验证：</p>
-<pre><code>func main() {
-	http.HandleFunc(&quot;/foo&quot;, func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, &quot;Scheme:&quot;, r.URL.Scheme)
-	})
-	log.Fatal(http.ListenAndServe(&quot;:9000&quot;, nil))
-}
-</code></pre><p>当我们请求<code>http://127.0.0.1:9000/foo</code>时期待的输出是：</p>
-<pre><code>Scheme: http
-</code></pre><p>然而，真实的输出却是这样的：</p>
-<pre><code>Scheme:
-</code></pre><p>有没有很意外？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	http.<span style="color:#50fa7b">HandleFunc</span>(<span style="color:#f1fa8c">&#34;/foo&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(w http.ResponseWriter, r <span style="color:#ff79c6">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		fmt.<span style="color:#50fa7b">Fprintln</span>(w, <span style="color:#f1fa8c">&#34;Scheme:&#34;</span>, r.URL.Scheme)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	log.<span style="color:#50fa7b">Fatal</span>(http.<span style="color:#50fa7b">ListenAndServe</span>(<span style="color:#f1fa8c">&#34;:9000&#34;</span>, <span style="color:#ff79c6">nil</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
+</code></pre></div><p>当我们请求<code>http://127.0.0.1:9000/foo</code>时期待的输出是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Scheme: http
+</code></pre></div><p>然而，真实的输出却是这样的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Scheme:
+</code></pre></div><p>有没有很意外？</p>
 <h2 id="什么原因">什么原因</h2>
 <p>那是什么原因导致的呢？</p>
 <p>其实标准库文档有提到，只是大家一般不会注意到（比如像我），只有踩到这个“坑”了才会去研究下。</p>
 <p>查看标准库<code>http.Request</code>注释：</p>
-<pre><code>type Request struct {
-	//***
-
-	// URL specifies either the URI being requested (for server
-	// requests) or the URL to access (for client requests).
-	//
-	// For server requests, the URL is parsed from the URI
-	// supplied on the Request-Line as stored in RequestURI.  For
-	// most requests, fields other than Path and RawQuery will be
-	// empty. (See RFC 7230, Section 5.3)
-	//
-	// For client requests, the URL's Host specifies the server to
-	// connect to, while the Request's Host field optionally
-	// specifies the Host header value to send in the HTTP
-	// request.
-	URL *url.URL
-	//***
-</code></pre><p>注意看第二段注释，简单解释下就是，对于服务端收到的请求，<code>http.Request</code>只会解析请求行到<code>url.URL</code>，也就是说<code>url.Path</code>和<code>url.RawQuery</code>之外的字段都是空的。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Request <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#6272a4">//***
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#6272a4">// URL specifies either the URI being requested (for server
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// requests) or the URL to access (for client requests).
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// For server requests, the URL is parsed from the URI
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// supplied on the Request-Line as stored in RequestURI.  For
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// most requests, fields other than Path and RawQuery will be
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// empty. (See RFC 7230, Section 5.3)
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// For client requests, the URL&#39;s Host specifies the server to
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// connect to, while the Request&#39;s Host field optionally
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// specifies the Host header value to send in the HTTP
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// request.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>	URL <span style="color:#ff79c6">*</span>url.URL
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#6272a4">//***
+</span></code></pre></div><p>注意看第二段注释，简单解释下就是，对于服务端收到的请求，<code>http.Request</code>只会解析请求行到<code>url.URL</code>，也就是说<code>url.Path</code>和<code>url.RawQuery</code>之外的字段都是空的。</p>
 <p>另外，在google groups也有讨论：</p>
 <p><a href="https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0">http.req.URI.Scheme inside is empty?</a></p>
 <h2 id="如何解决">如何解决</h2>
 <p>比较推荐的做法是判断<code>request.TLS</code>是否为<code> nil</code>，不为空即为<code>https</code>，为空即为<code>http</code>。</p>
 <p>或者，可以参考<code>echo</code>框架的实现来处理：</p>
-<pre><code>func (c *context) Scheme() string {
-	// Can't use `r.Request.URL.Scheme`
-	// See: https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0
-	if c.IsTLS() {
-		return &quot;https&quot;
-	}
-	if scheme := c.request.Header.Get(&quot;X-Forwarded-Proto&quot;); scheme != &quot;&quot; {
-		return scheme
-	}
-	if scheme := c.request.Header.Get(&quot;X-Forwarded-Protocol&quot;); scheme != &quot;&quot; {
-		return scheme
-	}
-	if ssl := c.request.Header.Get(&quot;X-Forwarded-Ssl&quot;); ssl == &quot;on&quot; {
-		return &quot;https&quot;
-	}
-	if scheme := c.request.Header.Get(&quot;X-Url-Scheme&quot;); scheme != &quot;&quot; {
-		return scheme
-	}
-	return &quot;http&quot;
-}
-</code></pre><p>在github issues上也有讨论，地址在这里：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>context) <span style="color:#50fa7b">Scheme</span>() <span style="color:#8be9fd">string</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#6272a4">// Can&#39;t use `r.Request.URL.Scheme`
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// See: https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> c.<span style="color:#50fa7b">IsTLS</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;https&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">if</span> scheme <span style="color:#ff79c6">:=</span> c.request.Header.<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;X-Forwarded-Proto&#34;</span>); scheme <span style="color:#ff79c6">!=</span> <span style="color:#f1fa8c">&#34;&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#ff79c6">return</span> scheme
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#ff79c6">if</span> scheme <span style="color:#ff79c6">:=</span> c.request.Header.<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;X-Forwarded-Protocol&#34;</span>); scheme <span style="color:#ff79c6">!=</span> <span style="color:#f1fa8c">&#34;&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#ff79c6">return</span> scheme
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#ff79c6">if</span> ssl <span style="color:#ff79c6">:=</span> c.request.Header.<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;X-Forwarded-Ssl&#34;</span>); ssl <span style="color:#ff79c6">==</span> <span style="color:#f1fa8c">&#34;on&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;https&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">if</span> scheme <span style="color:#ff79c6">:=</span> c.request.Header.<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;X-Url-Scheme&#34;</span>); scheme <span style="color:#ff79c6">!=</span> <span style="color:#f1fa8c">&#34;&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		<span style="color:#ff79c6">return</span> scheme
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;http&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>}
+</code></pre></div><p>在github issues上也有讨论，地址在这里：</p>
 <p><a href="https://github.com/golang/go/issues/28940">net/http: Request.URL.Scheme returns an empty string. No alternative way present to get request url scheme.</a></p>
 <h2 id="小结">小结</h2>
 <p>作为服务端接受的请求，获取<code>Scheme</code>需要特殊处理下；</p>
@@ -375,10 +373,6 @@
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

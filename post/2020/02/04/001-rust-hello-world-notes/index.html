@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -123,9 +121,9 @@
 <h4 id="heading"></h4>
 <h2 id="rustup镜像">rustup镜像</h2>
 <p>把一下代码复制到<code>.bashrc</code>或者类似文件(<code>.zshrc</code>等)然后执行<code>source .bashrc</code>或者将其添加到环境变量</p>
-<pre><code>export RUSTUP\_DIST\_SERVER=https://mirrors.sjtug.sjtu.edu.cn/rust-static
-export RUSTUP\_UPDATE\_ROOT=https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
-</code></pre><ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">export</span> RUSTUP<span style="color:#f1fa8c">\_</span>DIST<span style="color:#f1fa8c">\_</span>SERVER<span style="color:#ff79c6">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">export</span> RUSTUP<span style="color:#f1fa8c">\_</span>UPDATE<span style="color:#f1fa8c">\_</span>ROOT<span style="color:#ff79c6">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
+</code></pre></div><ul>
 <li>
 <p>可选的其他地址：</p>
 </li>
@@ -141,24 +139,24 @@ export RUSTUP\_UPDATE\_ROOT=https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
 </ul>
 <h2 id="cargo镜像">cargo镜像</h2>
 <p>Rust官方提供了<code>cargo</code>包管理工具，管理仓库为：<a href="https://crates.io">https://crates.io</a>。当我们在编译需要依赖<code>crates.io</code>的项目时，可能会由于网络问题导致依赖库下载失败。可以在<code>$HOME/.cargo/</code>下建立一个<code>config</code>文件，加入如下配置：</p>
-<pre><code>[source.crates-io] 
-registry = &quot;https://github.com/rust-lang/crates.io-index&quot; 
-replace-with = &quot;ustc&quot; 
-[source.ustc]
-registry = &quot;git://mirrors.ustc.edu.cn/crates.io-index&quot;
-</code></pre><p>如果不能使用<code>git</code>的话，可以把<code>registry</code>替换成：</p>
-<pre><code>registry = &quot;https://mirrors.ustc.edu.cn/crates.io-index&quot;
-</code></pre><h2 id="hello-world">Hello World</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">[</span>source.crates-io<span style="color:#ff79c6">]</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">registry</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;https://github.com/rust-lang/crates.io-index&#34;</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>replace-with <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;ustc&#34;</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#ff79c6">[</span>source.ustc<span style="color:#ff79c6">]</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">registry</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;git://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
+</code></pre></div><p>如果不能使用<code>git</code>的话，可以把<code>registry</code>替换成：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">registry</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;https://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
+</code></pre></div><h2 id="hello-world">Hello World</h2>
 <p>编程第一课必须是<code>hello world</code>程序，创建<code>hello_world.rs</code>写入以下代码：</p>
-<pre><code>fn main() {  
-    let s = &quot;hello world&quot;;
-    println!(&quot;{}&quot;, s); 
-}
-</code></pre><p>然后编译运行：</p>
-<pre><code>rustc hello_world.rs
-./hello_world  
-//输出：hello world
-</code></pre><p>嗯，第一个Rust程序已经成功运行了。😁</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#8be9fd;font-style:italic">let</span> s <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;hello world&#34;</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}&#34;</span>, s); 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>然后编译运行：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustc hello_world.rs
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>./hello_world  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>//输出：hello world
+</code></pre></div><p>嗯，第一个Rust程序已经成功运行了。😁</p>
 <p>简单分析下：</p>
 <ul>
 <li>Rust源代码文件使用<code>.rs</code>结尾；</li>
@@ -181,20 +179,20 @@ registry = &quot;git://mirrors.ustc.edu.cn/crates.io-index&quot;
 <p>默认情况下，用户不需要导入标准库，编译器会自动引入，系统会在每个 crate 开头自动插入一句话：</p>
 </li>
 </ul>
-<pre><code>use std::prelude::\*
-</code></pre><h2 id="format格式说明">Format格式说明</h2>
-<pre><code>fn main() {  
-println!(&quot;{}&quot;, 1);                          //默认打印用法 
-println!(&quot;{:o}&quot;, 9);                        //八进制 
-println!(&quot;{:x}&quot;, 255);                      //十六进制，小写
-println!(&quot;{:X}&quot;, 255);                      //十六进制，大写 
-println!(&quot;{:p}&quot;, &amp;0);                       //指针println!(&quot;{:b}&quot;, 15);                       //二进制 
-println!(&quot;{:e}&quot;, 10000f32);                 //科学计数，小写 
-println!(&quot;{:E}&quot;, 10000f32);                 //科学计数，大写 
-println!(&quot;{:?}&quot;, &quot;test&quot;);                   //打印debug 
-println!(&quot;{:#?}&quot;, (&quot;test1&quot;, &quot;test2&quot;));      //带换行符和缩进的debug打印 
-println!(&quot;{a}, {b}, {b}&quot;, a=&quot;aa&quot;, b=&quot;bb&quot;);  //命名参数 }
-</code></pre><p>除了<code>println!</code> 宏，Rust还提供了其他一些宏，比如<code>format!, write!, writeln!</code>等，可以在<code>std::fmt</code>标准库内查看。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">use</span> std::prelude::\<span style="color:#ff79c6">*</span>
+</code></pre></div><h2 id="format格式说明">Format格式说明</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}&#34;</span>, <span style="color:#bd93f9">1</span>);                          <span style="color:#6272a4">//默认打印用法 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:o}&#34;</span>, <span style="color:#bd93f9">9</span>);                        <span style="color:#6272a4">//八进制 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:x}&#34;</span>, <span style="color:#bd93f9">255</span>);                      <span style="color:#6272a4">//十六进制，小写
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:X}&#34;</span>, <span style="color:#bd93f9">255</span>);                      <span style="color:#6272a4">//十六进制，大写 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:p}&#34;</span>, <span style="color:#ff79c6">&amp;</span><span style="color:#bd93f9">0</span>);                       <span style="color:#6272a4">//指针println!(&#34;{:b}&#34;, 15);                       //二进制 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:e}&#34;</span>, <span style="color:#bd93f9">10000</span><span style="color:#ff79c6">f32</span>);                 <span style="color:#6272a4">//科学计数，小写 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:E}&#34;</span>, <span style="color:#bd93f9">10000</span><span style="color:#ff79c6">f32</span>);                 <span style="color:#6272a4">//科学计数，大写 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:?}&#34;</span>, <span style="color:#f1fa8c">&#34;test&#34;</span>);                   <span style="color:#6272a4">//打印debug 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{:#?}&#34;</span>, (<span style="color:#f1fa8c">&#34;test1&#34;</span>, <span style="color:#f1fa8c">&#34;test2&#34;</span>));      <span style="color:#6272a4">//带换行符和缩进的debug打印 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{a}, {b}, {b}&#34;</span>, a<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;aa&#34;</span>, b<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;bb&#34;</span>);  <span style="color:#6272a4">//命名参数 }
+</span></code></pre></div><p>除了<code>println!</code> 宏，Rust还提供了其他一些宏，比如<code>format!, write!, writeln!</code>等，可以在<code>std::fmt</code>标准库内查看。</p>
 <h4 id="设计标准输出宏的原因">设计标准输出宏的原因：</h4>
 <ul>
 <li>更好地错误检查，编译期内即可发现错误；</li>
@@ -412,10 +410,6 @@ println!(&quot;{a}, {b}, {b}&quot;, a=&quot;aa&quot;, b=&quot;bb&quot;);  //命�
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

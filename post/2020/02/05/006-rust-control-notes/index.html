@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -97,30 +95,30 @@
         <div class="post-content">
             <h2 id="if表达式"><code>if</code>表达式</h2>
 <p>Rust的<code>if...else if ... else</code>基本语法和大多编程语言类似，这里不再赘述。</p>
-<pre><code>if 条件 {
-	//...
-} else if 条件 {
-	//...
-} else {
-	//...
-}
-</code></pre><p>注意，这里的条件表达式不包含<code>()</code>括号，直接写表达式即可：</p>
-<pre><code>let number = 3;
-if number &gt; 0 {
-    println!(&quot;number was three&quot;);
-}
-</code></pre><h2 id="在let中使用if">在<code>let</code>中使用<code>if</code></h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">if</span> 条件 {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#6272a4">//...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>} <span style="color:#ff79c6">else</span> <span style="color:#ff79c6">if</span> 条件 {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#6272a4">//...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#6272a4">//...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>注意，这里的条件表达式不包含<code>()</code>括号，直接写表达式即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> number <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">3</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">if</span> number <span style="color:#ff79c6">&gt;</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;number was three&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><h2 id="在let中使用if">在<code>let</code>中使用<code>if</code></h2>
 <p>因为 if 是一个表达式，我们可以在 let 语句的右侧使用它：</p>
-<pre><code>fn main() {
-    let condition = true;
-    let number = if condition {
-        5	
-    } else {
-        6
-    };		//不要漏掉这里的分号`;`
-    println!(&quot;number = {}&quot;, number);
-}
-</code></pre><p>这里有三点要注意：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#8be9fd;font-style:italic">let</span> condition <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#8be9fd;font-style:italic">let</span> number <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">if</span> condition {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>        <span style="color:#bd93f9">5</span>	
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    } <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>        <span style="color:#bd93f9">6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    };		<span style="color:#6272a4">//不要漏掉这里的分号`;`
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4"></span>    println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;number = {}&#34;</span>, number);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
+</code></pre></div><p>这里有三点要注意：</p>
 <ul>
 <li><code>if</code>表达式大括号最后的分号<code>;</code>不能漏掉；</li>
 <li><code>if...else</code>代码块里面的表达式不能加<code>;</code>分号；</li>
@@ -135,34 +133,34 @@ if number &gt; 0 {
 </ul>
 <h4 id="loop循环"><code>loop</code>循环</h4>
 <p><code>loop</code>其实就是个死循环，除非明确告诉要求停止。</p>
-<pre><code>fn main() {
-    loop {
-        println!(&quot;again!&quot;);
-    }
-}
-</code></pre><p>当然，我们可以使用<code>break</code>来停止循环，<code>break</code>还可以返回一个值。</p>
-<pre><code>fn main() {
-    let mut counter = 0;
-    let result = loop {
-        counter += 1;
-        if counter == 10 {
-            break counter * 2; //这里经测试，尾部的分号可加可不加，都可以
-        }
-    };
-    assert_eq!(result, 20);
-}
-</code></pre><h4 id="while循环"><code>while</code>循环</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#ff79c6">loop</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>        println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;again!&#34;</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+</code></pre></div><p>当然，我们可以使用<code>break</code>来停止循环，<code>break</code>还可以返回一个值。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#ff79c6">mut</span> counter <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#8be9fd;font-style:italic">let</span> result <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">loop</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        counter <span style="color:#ff79c6">+=</span> <span style="color:#bd93f9">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#ff79c6">if</span> counter <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">10</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>            <span style="color:#ff79c6">break</span> counter <span style="color:#ff79c6">*</span> <span style="color:#bd93f9">2</span>; <span style="color:#6272a4">//这里经测试，尾部的分号可加可不加，都可以
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>        }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    };
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    assert_eq<span style="color:#ff79c6">!</span>(result, <span style="color:#bd93f9">20</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+</code></pre></div><h4 id="while循环"><code>while</code>循环</h4>
 <p>在程序中计算循环的条件也很常见。当条件为真，执行循环。当条件不再为真，调用 break 停止循环。这个循环类型可以通过组合 <code>loop、if、else 和 break</code> 来实现。</p>
 <p>然而，这个模式太常用了，Rust 为此内置了一个语言结构，它被称为 <code>while 循环</code>。</p>
 <h4 id="for循环"><code>for</code>循环</h4>
 <p>Rust也提供了更加常用的<code>for</code>循环：</p>
-<pre><code>fn main() {
-    let a = [10, 20, 30, 40, 50];
-    for element in a.iter() {
-        println!(&quot;the value is: {}&quot;, element);
-    }
-}
-</code></pre><p>循环中也可以使用<code>continue</code>和<code>break</code>语法。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#8be9fd;font-style:italic">let</span> a <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">10</span>, <span style="color:#bd93f9">20</span>, <span style="color:#bd93f9">30</span>, <span style="color:#bd93f9">40</span>, <span style="color:#bd93f9">50</span>];
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#ff79c6">for</span> element <span style="color:#ff79c6">in</span> a.iter() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>        println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;the value is: {}&#34;</span>, element);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
+</code></pre></div><p>循环中也可以使用<code>continue</code>和<code>break</code>语法。</p>
 
         </div>
 
@@ -375,10 +373,6 @@ if number &gt; 0 {
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

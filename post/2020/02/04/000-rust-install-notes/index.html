@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -98,24 +96,24 @@
             <p>今天正式开始学Rust。</p>
 <h2 id="安装">安装</h2>
 <p>学习一门新语言，第一件事当然是先安装。官方推荐使用<code>rustup</code>工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可：</p>
-<pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-</code></pre><p>其实就是，先下载安装<code>rustup</code>，然后使用<code>rustip</code>来安装Rust。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>curl <span style="color:#ff79c6">--</span>proto &#39;=https&#39; <span style="color:#ff79c6">--</span>tlsv1<span style="color:#bd93f9">.2</span> <span style="color:#ff79c6">-</span>sSf https:<span style="color:#6272a4">//sh.rustup.rs | sh
+</span></code></pre></div><p>其实就是，先下载安装<code>rustup</code>，然后使用<code>rustip</code>来安装Rust。</p>
 <h2 id="环境变量">环境变量</h2>
 <p>安装脚本自动将 Rust 加入系统 PATH 环境变量中，在下一次登录时生效。如果你希望立刻就开始使用 Rust 而不重启终端，在 shell 中运行如下命令，手动将 Rust 加入系统 PATH 变量中：</p>
-<pre><code>source $HOME/.cargo/env
-</code></pre><p>或者，可以在 <code>~/.bash_profile</code> 文件中增加如下行：</p>
-<pre><code>export PATH=&quot;$HOME/.cargo/bin:$PATH&quot;
-</code></pre><h2 id="更新">更新</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>source $HOME<span style="color:#ff79c6">/</span>.cargo<span style="color:#ff79c6">/</span>env
+</code></pre></div><p>或者，可以在 <code>~/.bash_profile</code> 文件中增加如下行：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>export PATH=<span style="color:#f1fa8c">&#34;$HOME/.cargo/bin:$PATH&#34;</span>
+</code></pre></div><h2 id="更新">更新</h2>
 <p>我们使用<code>rustup</code>来管理安装Rust，当我们已经安装好<code>rustup</code>后，使用以下命令来更新Rust版本。</p>
-<pre><code>rustup update
-</code></pre><h2 id="卸载">卸载</h2>
-<pre><code>rustup self uninstall
-</code></pre><p>此时，Rust和<code>rustup</code>都会被卸载掉。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustup update
+</code></pre></div><h2 id="卸载">卸载</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustup self uninstall
+</code></pre></div><p>此时，Rust和<code>rustup</code>都会被卸载掉。</p>
 <h2 id="查看版本">查看版本</h2>
 <p>使用<code>rustc -V</code>或者<code>rustc --version</code>可查看安装的Rust版本号：</p>
-<pre><code>rustc -V 
-// rustc 1.40.0 (73528e339 2019-12-16)
-</code></pre>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustc <span style="color:#ff79c6">-</span>V 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">// rustc 1.40.0 (73528e339 2019-12-16)
+</span></code></pre></div>
         </div>
 
         
@@ -327,10 +325,6 @@
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

@@ -17,7 +17,7 @@
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/strings-builder-source-note/</guid>
-      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ str := []string{&amp;quot;aa&amp;quot;, &amp;quot;bb&amp;quot;, &amp;quot;cc&amp;quot;} ss := &amp;quot;&amp;quot; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内</description>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Tue, 14 Apr 2020 11:53:21 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/go-hijack-note/</guid>
-      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &amp;quot;CONNECT&amp;quot; { w.Header().Set(&amp;quot;Content-Type&amp;quot;, &amp;quot;text/plain; charset=utf-8&amp;quot;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &amp;quot;405 must CONNECT\n&amp;quot;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&amp;quot;rpc hijacking &amp;quot;, req.RemoteAddr, &amp;quot;: &amp;quot;, err.Error()) return } io.WriteString(conn, &amp;quot;HTTP/1.0 &amp;quot;+connected+&amp;quot;\n\n&amp;quot;) server.ServeConn(conn) } 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就是说 Golang 的内置 HTTP 库和 HTTPServer 库将不</description>
+      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &amp;#34;HTTP/1.0 &amp;#34;+connected+&amp;#34;\n\n&amp;#34;) 15 server.ServeConn(conn) 16} 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就</description>
     </item>
     
     <item>
@@ -53,7 +53,7 @@
       <pubDate>Wed, 05 Feb 2020 10:00:51 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/006-rust-control-notes/</guid>
-      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 if 条件 { //... } else if 条件 { //... } else { //... } 注意，这里的条件表达式不包含()括号，直接写表达式即可： let number = 3; if number &amp;gt; 0 { println!(&amp;quot;number was three&amp;quot;); } 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用它： fn main()</description>
+      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这里的条件表达式不包含()括号，直接写表达式即可： 1let number = 3; 2if number &amp;gt; 0 { 3 println!(&amp;#34;number was three&amp;#34;); 4} 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用</description>
     </item>
     
     <item>
@@ -62,7 +62,7 @@
       <pubDate>Wed, 05 Feb 2020 09:59:52 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</guid>
-      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； fn test_function(a: i32, b: bool) -&amp;gt; u32 { //... } 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体由</description>
+      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32, b: bool) -&amp;gt; u32 { 2 //... 3} 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体</description>
     </item>
     
     <item>
@@ -71,7 +71,7 @@
       <pubDate>Wed, 05 Feb 2020 09:51:09 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/004-rust-types-notes/</guid>
-      <description>前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 let guess: u32 = &amp;quot;42&amp;quot;.parse().expect(&amp;quot;Not a number!&amp;quot;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8</description>
+      <description>前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 1let guess: u32 = &amp;#34;42&amp;#34;.parse().expect(&amp;#34;Not a number!&amp;#34;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8</description>
     </item>
     
     <item>
@@ -80,7 +80,7 @@
       <pubDate>Tue, 04 Feb 2020 09:49:40 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</guid>
-      <description>变量声明 语法格式： let 变量名: 变量类型 = 变量值; let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 let x: i32; println!(&amp;quot;x = {}&amp;quot;, x); //运行报错：use of possibly-uninitialized</description>
+      <description>变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 1let x: i32; 2println!(&amp;#34;x = {}&amp;#34;, x); 3//运行报错：use of</description>
     </item>
     
     <item>
@@ -107,7 +107,7 @@
       <pubDate>Tue, 04 Feb 2020 09:40:42 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/000-rust-install-notes/</guid>
-      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境</description>
+      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &amp;#39;=https&amp;#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境</description>
     </item>
     
     <item>
@@ -116,7 +116,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： func main() { http.HandleFunc(&amp;quot;/foo&amp;quot;, func(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, &amp;quot;Scheme:&amp;quot;, r.URL.Scheme) }) log.Fatal(http.ListenAndServe(&amp;quot;:9000&amp;quot;, nil)) } 当我们请求http://127.0.0.1:9000/foo</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &amp;#34;Scheme:&amp;#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&amp;#34;:9000&amp;#34;, nil)) 6} 当我们请求http://127.0.0.1:9000</description>
     </item>
     
     <item>

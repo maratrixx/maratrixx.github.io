@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -99,28 +97,28 @@
 <p>有的时候上游传过来的字段是<code>string</code>类型的，但是我们却想用变成<code>int</code>来使用。 本来用一个<code>json:&quot;,string&quot;</code> 就可以支持了，如果不知道golang的这些小技巧，就要大费周章了。</p>
 <p>但是，用这个小技巧有个坑，最近踩到了，简单记录下。</p>
 <p>首先，我们定义一个User结构体：</p>
-<pre><code>type User struct {
-	Age int `json:&quot;age,string&quot;`
-}
-</code></pre><p>假设我们的上游json数据为：</p>
-<pre><code>{
-	&quot;age&quot;: &quot;18&quot;
-}
-</code></pre><p>那么，我们很方便的使用Go解析出来：</p>
-<pre><code>var u User
-if err := json.Unmarshal([]byte(jsonData), &amp;u); err != nil {
-	panic(err)
-}
-fmt.Printf(&quot;%+v\n&quot;, u)
-
-//输出：{Age:18}
-</code></pre><p>如果我们拿到的上游json数据为：</p>
-<pre><code>{
-	&quot;age&quot;: &quot;&quot;
-}
-</code></pre><p>再次使用上面的Go代码去解析，直接就会panic报错：</p>
-<pre><code>panic: json: invalid use of ,string struct tag, trying to unmarshal &quot;&quot; into int
-</code></pre><p><strong>所以，我们能够使用<code>json:&quot;,string&quot;</code>特性的前提是保证上游的json数据值不能为空</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> User <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Age <span style="color:#8be9fd">int</span> <span style="color:#f1fa8c">`json:&#34;age,string&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>假设我们的上游json数据为：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#f1fa8c">&#34;age&#34;</span>: <span style="color:#f1fa8c">&#34;18&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>那么，我们很方便的使用Go解析出来：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">var</span> u User
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">:=</span> json.<span style="color:#50fa7b">Unmarshal</span>([]<span style="color:#8be9fd;font-style:italic">byte</span>(jsonData), <span style="color:#ff79c6">&amp;</span>u); err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;%+v\n&#34;</span>, u)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4">//输出：{Age:18}
+</span></code></pre></div><p>如果我们拿到的上游json数据为：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#f1fa8c">&#34;age&#34;</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>再次使用上面的Go代码去解析，直接就会panic报错：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>panic: json: invalid use of ,<span style="color:#8be9fd">string</span> <span style="color:#8be9fd;font-style:italic">struct</span> tag, trying to unmarshal <span style="color:#f1fa8c">&#34;&#34;</span> into <span style="color:#8be9fd">int</span>
+</code></pre></div><p><strong>所以，我们能够使用<code>json:&quot;,string&quot;</code>特性的前提是保证上游的json数据值不能为空</strong></p>
 <p>那这个问题该怎么解决呢？两种方案：</p>
 <ul>
 <li>使用<code>interface{}</code>类型来定义</li>
@@ -128,19 +126,19 @@ fmt.Printf(&quot;%+v\n&quot;, u)
 </ul>
 <p>第一种方案属于最「low」那种，不多说，我们说下<code>jsoniter</code>如何做到的。</p>
 <p>首先，我们去掉<code>json:&quot;,string&quot;</code>的标签：</p>
-<pre><code>type User struct {
-	Age int `json:&quot;age&quot;`
-}
-</code></pre><p>然后，我们的Go程序改为：</p>
-<pre><code>var u User
-json := jsoniter.ConfigCompatibleWithStandardLibrary
-extra.RegisterFuzzyDecoders() 
-if err := json.Unmarshal([]byte(jsonData), &amp;u); err != nil {
-panic(err)
-}
-fmt.Printf(&quot;%+v\n&quot;, u)
-//正常输出：{Age:0}
-</code></pre><p>其实是<code>extra.RegisterFuzzyDecoders() </code>这个方法来启动模糊模式来支持 PHP 传递过来的 JSON。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> User <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Age <span style="color:#8be9fd">int</span> <span style="color:#f1fa8c">`json:&#34;age&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>然后，我们的Go程序改为：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">var</span> u User
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>json <span style="color:#ff79c6">:=</span> jsoniter.ConfigCompatibleWithStandardLibrary
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>extra.<span style="color:#50fa7b">RegisterFuzzyDecoders</span>() 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">:=</span> json.<span style="color:#50fa7b">Unmarshal</span>([]<span style="color:#8be9fd;font-style:italic">byte</span>(jsonData), <span style="color:#ff79c6">&amp;</span>u); err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;%+v\n&#34;</span>, u)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4">//正常输出：{Age:0}
+</span></code></pre></div><p>其实是<code>extra.RegisterFuzzyDecoders() </code>这个方法来启动模糊模式来支持 PHP 传递过来的 JSON。</p>
 <h3 id="小结">小结</h3>
 <ul>
 <li>使用标准库<code>json:&quot;,string&quot;</code>时候需要保证json值不能为空</li>
@@ -358,10 +356,6 @@ fmt.Printf(&quot;%+v\n&quot;, u)
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

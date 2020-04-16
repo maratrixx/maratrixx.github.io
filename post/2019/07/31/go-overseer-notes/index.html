@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -121,39 +119,39 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 </ol>
 </blockquote>
 <p>贴一下代码，欢迎大家拍砖：</p>
-<pre><code>package main
-
-import (
-	&quot;fmt&quot;
-	&quot;net/http&quot;
-	&quot;time&quot;
-	&quot;github.com/jpillora/overseer&quot;
-	&quot;github.com/jpillora/overseer/fetcher&quot;
-)
-var BuildID = &quot;0&quot;
-
-func prog(state overseer.State) {
-	fmt.Printf(&quot;app#%s (%s) listening...\n&quot;, BuildID, state.ID)
-	http.Handle(&quot;/&quot;, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		d, _ := time.ParseDuration(r.URL.Query().Get(&quot;d&quot;))
-		time.Sleep(d)
-		fmt.Fprintf(w, &quot;app#%s (%s) says hello\n&quot;, BuildID, state.ID)
-	}))
-	http.Serve(state.Listener, nil)
-	fmt.Printf(&quot;app#%s (%s) exiting...\n&quot;, BuildID, state.ID)
-}
-
-//then create another 'main' which runs the upgrades
-//'main()' is run in the initial process
-func main() {
-	overseer.Run(overseer.Config{
-		Program: prog,
-		Address: &quot;:5001&quot;,
-		Fetcher: &amp;fetcher.File{Path: &quot;my_app_next&quot;},
-		Debug:   false, //display log of overseer actions
-	})
-}
-</code></pre><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">package</span> main
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#ff79c6">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;fmt&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;net/http&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#f1fa8c">&#34;time&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#f1fa8c">&#34;github.com/jpillora/overseer&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#f1fa8c">&#34;github.com/jpillora/overseer/fetcher&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">var</span> BuildID = <span style="color:#f1fa8c">&#34;0&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">prog</span>(state overseer.State) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;app#%s (%s) listening...\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	http.<span style="color:#50fa7b">Handle</span>(<span style="color:#f1fa8c">&#34;/&#34;</span>, http.<span style="color:#50fa7b">HandlerFunc</span>(<span style="color:#8be9fd;font-style:italic">func</span>(w http.ResponseWriter, r <span style="color:#ff79c6">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		d, _ <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">ParseDuration</span>(r.URL.<span style="color:#50fa7b">Query</span>().<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;d&#34;</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		time.<span style="color:#50fa7b">Sleep</span>(d)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		fmt.<span style="color:#50fa7b">Fprintf</span>(w, <span style="color:#f1fa8c">&#34;app#%s (%s) says hello\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	}))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	http.<span style="color:#50fa7b">Serve</span>(state.Listener, <span style="color:#ff79c6">nil</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;app#%s (%s) exiting...\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#6272a4">//then create another &#39;main&#39; which runs the upgrades
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#6272a4">//&#39;main()&#39; is run in the initial process
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	overseer.<span style="color:#50fa7b">Run</span>(overseer.Config{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		Program: prog,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		Address: <span style="color:#f1fa8c">&#34;:5001&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		Fetcher: <span style="color:#ff79c6">&amp;</span>fetcher.File{Path: <span style="color:#f1fa8c">&#34;my_app_next&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		Debug:   <span style="color:#ff79c6">false</span>, <span style="color:#6272a4">//display log of overseer actions
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
+</code></pre></div><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
 <p><strong>注意：</strong></p>
 <ul>
 <li>考虑到线上环境使用supervisor来守护golang进程，<strong>overseer</strong>可实现pid不变**，**更符合我们的需求</li>
@@ -166,8 +164,8 @@ func main() {
 <ol>
 <li>
 <p>线上环境使用supervisor来守护进程，我们在reload或着发信号重启项目时，可采用通过supervisor去获取进程id:</p>
-<pre><code>pid=$(sudo supervisorctl status ${BIN_FILE}|awk '{print $4}'|awk -F, '{print $1}')
-</code></pre></li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>pid=$(sudo supervisorctl status ${BIN_FILE}|awk &#39;{print $<span style="color:#bd93f9">4</span>}&#39;|awk <span style="color:#ff79c6">-</span>F, &#39;{print $<span style="color:#bd93f9">1</span>}&#39;)
+</code></pre></div></li>
 <li>
 <p>使用supervisor和overseer实现平滑重启后，项目在发版时候，会有两个状态：</p>
 <ul>
@@ -179,32 +177,31 @@ func main() {
 </li>
 </ul>
 <p>我们可以通过 supervisor去做判断，然后给不同的处理：</p>
-<pre><code>   
-function startOrReload() {
-    sudo supervisorctl status ${BIN_FILE} |grep RUNNING &gt; /dev/null
-    #进程没有运行则start，运行则reload
-    if [ $? -ne 0 ]; then
-        start
-    else
-        reload
-    fi
-}
-</code></pre></li>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>function <span style="color:#50fa7b">startOrReload</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    sudo supervisorctl status ${BIN_FILE} |grep RUNNING &gt; <span style="color:#ff79c6">/</span>dev<span style="color:#ff79c6">/</span>null
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    #进程没有运行则start，运行则reload
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#ff79c6">if</span> [ $? <span style="color:#ff79c6">-</span>ne <span style="color:#bd93f9">0</span> ]; then
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>        start
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#ff79c6">else</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>        reload
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>    fi
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
+</code></pre></div></li>
 <li>
 <p>新版ops是使用软链来发布项目，overseer使用软链需要注意：</p>
 <ul>
 <li>线上环境通常有两个目录，一个为固定目录current (例如：<code>/data/web/$project/current</code>),一个为历史版本目录releases(例如：<code>/data/web/$project/releases/$tag</code>)。Fetcher检测的必须为current目录，而非软链的realpath即releases目录:</li>
 </ul>
-<pre><code>file, err := exec.LookPath(os.Args[0])
-if err != nil {
-    panic(err)
-}
-binPath, err := filepath.Abs(file)
-if err != nil {
-    panic(err)
-}
-//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
-</code></pre><ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>file, err <span style="color:#ff79c6">:=</span> exec.<span style="color:#50fa7b">LookPath</span>(os.Args[<span style="color:#bd93f9">0</span>])
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>binPath, err <span style="color:#ff79c6">:=</span> filepath.<span style="color:#50fa7b">Abs</span>(file)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    <span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#6272a4">//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
+</span></code></pre></div><ul>
 <li>另外overseer第一次启动后其自身的realpath的path就不再改变了，程序中就不要再出现以当前执行文件的相对路径或者realpath取获取其它路径了，主要影响为配置文件。</li>
 </ul>
 </li>
@@ -417,10 +414,6 @@ if err != nil {
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

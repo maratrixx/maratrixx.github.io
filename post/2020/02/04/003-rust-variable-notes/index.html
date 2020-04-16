@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -97,44 +95,44 @@
         <div class="post-content">
             <h2 id="变量声明">变量声明</h2>
 <p>语法格式：</p>
-<pre><code>let 变量名: 变量类型 = 变量值;
-let var: i32 = 123;
-</code></pre><p>有几点要注意：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> 变量名: 变量类型 <span style="color:#ff79c6">=</span> 变量值;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> var: <span style="color:#8be9fd">i32</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">123</span>;
+</code></pre></div><p>有几点要注意：</p>
 <ul>
 <li>以关键字<code>let</code>开头，类型一定跟在冒号<code>:</code>后面；</li>
 <li>变量必须先声明，初始化后才能使用；</li>
 </ul>
 <h2 id="初始化">初始化</h2>
 <p>Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。</p>
-<pre><code>let x: i32;
-println!(&quot;x = {}&quot;, x);
-//运行报错：use of possibly-uninitialized `x`
-</code></pre><p>编译器会帮我们做一个执行路径的静态分析，确保变量在使用前一定被初始化。</p>
-<pre><code>let x: i32;     //声明x，不使用mut修饰
-if 条件 {
-   x = 123;    //初始化x，这里不用使用mut修饰，因为这是初始化吗，不是修改
-   println!(&quot;x = {}&quot;, x);
-}
-//如果条件不满足，则x未被初始化
-//但是只要下面不适用x就不会报错
-</code></pre><h2 id="可变性">可变性</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> x: <span style="color:#8be9fd">i32</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;x = {}&#34;</span>, x);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4">//运行报错：use of possibly-uninitialized `x`
+</span></code></pre></div><p>编译器会帮我们做一个执行路径的静态分析，确保变量在使用前一定被初始化。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> x: <span style="color:#8be9fd">i32</span>;     <span style="color:#6272a4">//声明x，不使用mut修饰
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#ff79c6">if</span> 条件 {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>   x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">123</span>;    <span style="color:#6272a4">//初始化x，这里不用使用mut修饰，因为这是初始化吗，不是修改
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>   println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;x = {}&#34;</span>, x);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4">//如果条件不满足，则x未被初始化
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4">//但是只要下面不适用x就不会报错
+</span></code></pre></div><h2 id="可变性">可变性</h2>
 <p>Rust中变量默认是不可变的，比如下面运行会报错：</p>
-<pre><code>let x: i32 = 123;
-x = 456;
-//运行报错：cannot assign twice to immutable variable
-</code></pre><p>如果想让变量可写，可以使用关键字<code>mut</code>。</p>
-<pre><code>let mut x: i32 = 123;
-x = 456;
-</code></pre><p>此时，变量才是可读写的。
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> x: <span style="color:#8be9fd">i32</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">123</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">456</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4">//运行报错：cannot assign twice to immutable variable
+</span></code></pre></div><p>如果想让变量可写，可以使用关键字<code>mut</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> <span style="color:#ff79c6">mut</span> x: <span style="color:#8be9fd">i32</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">123</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">456</span>;
+</code></pre></div><p>此时，变量才是可读写的。
 实际上，<code>let</code>语句在这里引入了模式解构，<code>mut x</code>应该被视为一个组合，还可以使用这个方式声明多个变量。</p>
-<pre><code>let (mut a, mut b) = (1, 2);
-let Piont{x: ref a, y: ref b} = p;
-</code></pre><h2 id="隐藏性">隐藏性</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> (<span style="color:#ff79c6">mut</span> a, <span style="color:#ff79c6">mut</span> b) <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>);
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> Piont{x: <span style="color:#50fa7b">ref</span> a, y: <span style="color:#50fa7b">ref</span> b} <span style="color:#ff79c6">=</span> p;
+</code></pre></div><h2 id="隐藏性">隐藏性</h2>
 <p>看下面代码：</p>
-<pre><code>let x = 5;
-let x = x + 1;
-let x = &quot;你好&quot;;
-</code></pre><p>我们可以定义一个与之前变量同名的变量，而且不会报错，新变量会隐藏之前的变量，我们称之为第一个变量被第二个变量隐藏了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> x <span style="color:#ff79c6">=</span> x <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">1</span>;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#8be9fd;font-style:italic">let</span> x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;你好&#34;</span>;
+</code></pre></div><p>我们可以定义一个与之前变量同名的变量，而且不会报错，新变量会隐藏之前的变量，我们称之为第一个变量被第二个变量隐藏了。</p>
 <h2 id="隐藏性和mut的区别">隐藏性和mut的区别</h2>
 <ul>
 <li>当对同名变量重新赋值时，如果没有使用<code>let</code>会导致编译错误；</li>
@@ -360,10 +358,6 @@ let x = &quot;你好&quot;;
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

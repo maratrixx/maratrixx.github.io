@@ -17,7 +17,7 @@
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/strings-builder-source-note/</guid>
-      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ str := []string{&amp;quot;aa&amp;quot;, &amp;quot;bb&amp;quot;, &amp;quot;cc&amp;quot;} ss := &amp;quot;&amp;quot; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内</description>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Tue, 14 Apr 2020 11:53:21 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/go-hijack-note/</guid>
-      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &amp;quot;CONNECT&amp;quot; { w.Header().Set(&amp;quot;Content-Type&amp;quot;, &amp;quot;text/plain; charset=utf-8&amp;quot;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &amp;quot;405 must CONNECT\n&amp;quot;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&amp;quot;rpc hijacking &amp;quot;, req.RemoteAddr, &amp;quot;: &amp;quot;, err.Error()) return } io.WriteString(conn, &amp;quot;HTTP/1.0 &amp;quot;+connected+&amp;quot;\n\n&amp;quot;) server.ServeConn(conn) } 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就是说 Golang 的内置 HTTP 库和 HTTPServer 库将不</description>
+      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &amp;#34;HTTP/1.0 &amp;#34;+connected+&amp;#34;\n\n&amp;#34;) 15 server.ServeConn(conn) 16} 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就</description>
     </item>
     
     <item>
@@ -44,7 +44,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： func main() { http.HandleFunc(&amp;quot;/foo&amp;quot;, func(w http.ResponseWriter, r *http.Request) { fmt.Fprintln(w, &amp;quot;Scheme:&amp;quot;, r.URL.Scheme) }) log.Fatal(http.ListenAndServe(&amp;quot;:9000&amp;quot;, nil)) } 当我们请求http://127.0.0.1:9000/foo</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &amp;#34;Scheme:&amp;#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&amp;#34;:9000&amp;#34;, nil)) 6} 当我们请求http://127.0.0.1:9000</description>
     </item>
     
     <item>

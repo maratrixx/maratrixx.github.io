@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -99,155 +97,155 @@
         <div class="post-content">
             <h2 id="背景之字符串拼接">背景之字符串拼接</h2>
 <p>在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？</p>
-<pre><code>str := []string{&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;}
-ss := &quot;&quot;
-for _, s := range str {
-	ss += s
-}
-fmt.Println(ss)
-</code></pre><p>相信大部分人都会使用<code>+</code>操作符或者<code>fmt.Sprinf</code>进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内存分配、数据拷贝等操作，在高并发系统中不得不考虑更优的解决方案。所以一开始我经常使用<code>bytes.Buffer</code>。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>str <span style="color:#ff79c6">:=</span> []<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;aa&#34;</span>, <span style="color:#f1fa8c">&#34;bb&#34;</span>, <span style="color:#f1fa8c">&#34;cc&#34;</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>ss <span style="color:#ff79c6">:=</span> <span style="color:#f1fa8c">&#34;&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">for</span> _, s <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> str {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	ss <span style="color:#ff79c6">+=</span> s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>fmt.<span style="color:#50fa7b">Println</span>(ss)
+</code></pre></div><p>相信大部分人都会使用<code>+</code>操作符或者<code>fmt.Sprinf</code>进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内存分配、数据拷贝等操作，在高并发系统中不得不考虑更优的解决方案。所以一开始我经常使用<code>bytes.Buffer</code>。</p>
 <h2 id="使用-bytesbuffer">使用 bytes.Buffer</h2>
-<pre><code>str := []string{&quot;aa&quot;, &quot;bb&quot;, &quot;cc&quot;}
-var buf bytes.Buffer
-for _, s := range str {
-	buf.WriteString(s)
-}
-fmt.Println(buf.String())
-</code></pre><p><code>bytes.Buffer</code>内部使用<code>[]byte</code>来存储写入的数据（包括<code>string</code>、<code>byte</code>、<code>rune</code>类型），从而一定程度避免了每次数据写入都重新分配内存和数据拷贝操作。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>str <span style="color:#ff79c6">:=</span> []<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;aa&#34;</span>, <span style="color:#f1fa8c">&#34;bb&#34;</span>, <span style="color:#f1fa8c">&#34;cc&#34;</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">var</span> buf bytes.Buffer
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">for</span> _, s <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> str {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	buf.<span style="color:#50fa7b">WriteString</span>(s)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>fmt.<span style="color:#50fa7b">Println</span>(buf.<span style="color:#50fa7b">String</span>())
+</code></pre></div><p><code>bytes.Buffer</code>内部使用<code>[]byte</code>来存储写入的数据（包括<code>string</code>、<code>byte</code>、<code>rune</code>类型），从而一定程度避免了每次数据写入都重新分配内存和数据拷贝操作。</p>
 <p>但要注意<code>buf.String()</code>方法会进行<code>[]byte</code>到<code>string</code>的类型转换，最终还是会导致一次内存申请和数据拷贝。看一下源码实现：</p>
-<pre><code>func (b *Buffer) String() string {
-	if b == nil {
-		// Special case, useful in debugging.
-		return &quot;&lt;nil&gt;&quot;
-	}
-	return string(b.buf[b.off:]) //发生类型转换
-}
-</code></pre><p>接下来就该<code>strings.Builder</code>出场了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Buffer) <span style="color:#50fa7b">String</span>() <span style="color:#8be9fd">string</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#ff79c6">if</span> b <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		<span style="color:#6272a4">// Special case, useful in debugging.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;&lt;nil&gt;&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">string</span>(b.buf[b.off:]) <span style="color:#6272a4">//发生类型转换
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>接下来就该<code>strings.Builder</code>出场了。</p>
 <h2 id="使用-stringsbuilder">使用 strings.Builder</h2>
 <p>为了改进<code>bytes.Buffer</code>拼接的性能，在 Go 1.10 及以后，我们可以使用性能更强的 <code>strings.Builder</code> 完成字符串的拼接操作。</p>
-<pre><code>var builder strings.Builder
-for _, s := range str {
-	builder.WriteString(s)
-}
-fmt.Println(builder.String())
-</code></pre><h2 id="benchmark">Benchmark</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">var</span> builder strings.Builder
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">for</span> _, s <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> str {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	builder.<span style="color:#50fa7b">WriteString</span>(s)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>fmt.<span style="color:#50fa7b">Println</span>(builder.<span style="color:#50fa7b">String</span>())
+</code></pre></div><h2 id="benchmark">Benchmark</h2>
 <p>这里我们做下以上使用方式的性能对比：</p>
-<pre><code>func BenchmarkPlus(b *testing.B) {
-	var s string
-	for i := 0; i &lt; b.N; i++ {
-		s += &quot;hello world&quot;
-		_ = s
-	}
-}
-
-func BenchmarkFormat(b *testing.B) {
-	var s string
-	for i := 0; i &lt; b.N; i++ {
-		s = fmt.Sprintf(&quot;%s%s&quot;, s, &quot;hello world&quot;)
-		_ = s
-	}
-}
-func BenchmarkBuffer(b *testing.B) {
-	var buf bytes.Buffer
-	for i := 0; i &lt; b.N; i++ {
-		buf.WriteString(&quot;hello world&quot;)
-		_ = buf.String()
-	}
-}
-
-//buf.Bytes()仅作为对比buf.String()
-func BenchmarkBufferBytes(b *testing.B) {
-	var buf bytes.Buffer
-	for i := 0; i &lt; b.N; i++ {
-		buf.WriteString(&quot;hello world&quot;)
-		_ = buf.Bytes()
-	}
-}
-
-func BenchmarkBuilder(b *testing.B) {
-	var builder strings.Builder
-	for i := 0; i &lt; b.N; i++ {
-		builder.WriteString(&quot;hello world&quot;)
-		_ = builder.String()
-	}
-}
-
-go test -benchmem -run=^$  -bench=. -v -count=1
-
-BenchmarkPlus-4          	  110467	    123486 ns/op	  611592 B/op	       1 allocs/op
-BenchmarkFormat-4        	   62427	    158490 ns/op	  692120 B/op	       4 allocs/op
-BenchmarkBuffer-4        	   87292	    104293 ns/op	  484132 B/op	       1 allocs/op
-BenchmarkBufferBytes-4   	47784844	        26.4 ns/op	      26 B/op	       0 allocs/op
-BenchmarkBuilder-4       	59271824	        35.4 ns/op	      66 B/op	       0 allocs/op
-</code></pre><p>从压测结果来看，<code>strings.Builder</code>性能最强，<code>BenchmarkBufferBytes</code>和<code>BenchmarkBuffer</code>为啥差别这么大，原因就在于<code>buf.String()</code>会发生一次类型转换，比较耗性能，开发中我们可以使用<code>buf.Bytes()</code>返回字节切片来规避这个问题。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkPlus</span>(b <span style="color:#ff79c6">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#8be9fd;font-style:italic">var</span> s <span style="color:#8be9fd">string</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; b.N; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		s <span style="color:#ff79c6">+=</span> <span style="color:#f1fa8c">&#34;hello world&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		_ = s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkFormat</span>(b <span style="color:#ff79c6">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#8be9fd;font-style:italic">var</span> s <span style="color:#8be9fd">string</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; b.N; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		s = fmt.<span style="color:#50fa7b">Sprintf</span>(<span style="color:#f1fa8c">&#34;%s%s&#34;</span>, s, <span style="color:#f1fa8c">&#34;hello world&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		_ = s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkBuffer</span>(b <span style="color:#ff79c6">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#8be9fd;font-style:italic">var</span> buf bytes.Buffer
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; b.N; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>		buf.<span style="color:#50fa7b">WriteString</span>(<span style="color:#f1fa8c">&#34;hello world&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		_ = buf.<span style="color:#50fa7b">String</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#6272a4">//buf.Bytes()仅作为对比buf.String()
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkBufferBytes</span>(b <span style="color:#ff79c6">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#8be9fd;font-style:italic">var</span> buf bytes.Buffer
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; b.N; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		buf.<span style="color:#50fa7b">WriteString</span>(<span style="color:#f1fa8c">&#34;hello world&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		_ = buf.<span style="color:#50fa7b">Bytes</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkBuilder</span>(b <span style="color:#ff79c6">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	<span style="color:#8be9fd;font-style:italic">var</span> builder strings.Builder
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; b.N; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>		builder.<span style="color:#50fa7b">WriteString</span>(<span style="color:#f1fa8c">&#34;hello world&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>		_ = builder.<span style="color:#50fa7b">String</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span><span style="color:#ff79c6">go</span> test <span style="color:#ff79c6">-</span>benchmem <span style="color:#ff79c6">-</span>run=^$  <span style="color:#ff79c6">-</span>bench=. <span style="color:#ff79c6">-</span>v <span style="color:#ff79c6">-</span>count=<span style="color:#bd93f9">1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>BenchmarkPlus<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>          	  <span style="color:#bd93f9">110467</span>	    <span style="color:#bd93f9">123486</span> ns<span style="color:#ff79c6">/</span>op	  <span style="color:#bd93f9">611592</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">1</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span>BenchmarkFormat<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>        	   <span style="color:#bd93f9">62427</span>	    <span style="color:#bd93f9">158490</span> ns<span style="color:#ff79c6">/</span>op	  <span style="color:#bd93f9">692120</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">4</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>BenchmarkBuffer<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>        	   <span style="color:#bd93f9">87292</span>	    <span style="color:#bd93f9">104293</span> ns<span style="color:#ff79c6">/</span>op	  <span style="color:#bd93f9">484132</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">1</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>BenchmarkBufferBytes<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>   	<span style="color:#bd93f9">47784844</span>	        <span style="color:#bd93f9">26.4</span> ns<span style="color:#ff79c6">/</span>op	      <span style="color:#bd93f9">26</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>BenchmarkBuilder<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>       	<span style="color:#bd93f9">59271824</span>	        <span style="color:#bd93f9">35.4</span> ns<span style="color:#ff79c6">/</span>op	      <span style="color:#bd93f9">66</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
+</code></pre></div><p>从压测结果来看，<code>strings.Builder</code>性能最强，<code>BenchmarkBufferBytes</code>和<code>BenchmarkBuffer</code>为啥差别这么大，原因就在于<code>buf.String()</code>会发生一次类型转换，比较耗性能，开发中我们可以使用<code>buf.Bytes()</code>返回字节切片来规避这个问题。</p>
 <p>接下来，我们看下<code>strings.Builder</code>底层是如何实现的。</p>
 <h2 id="源码阅读">源码阅读</h2>
 <p>源码文件在<code>github.com/golang/go/src/strings/builder.go</code>。</p>
 <p><code>strings.Builder</code> 支持的方法是 <code>bytes.Buffer</code> 的子集，仔细看了一下，它实现了<code>io.Writer</code>接口，而 <code>bytes.Buffer</code> 实现了<code>io.Reader</code>和<code>io.Writer</code>两个接口。</p>
 <h4 id="stringsbuilder-结构体">strings.Builder 结构体</h4>
-<pre><code>type Builder struct {
-	addr *Builder // of receiver, to detect copies by value
-	buf  []byte 
-}
-</code></pre><p>从结构体可以看出数据是存在<code>[]byte</code>中的，与 <code>bytes.Buffer</code> 思路类似，既然 <code>string</code> 在构建过程中，会不断地被销毁和重建，那么就通过底层使用一个 <code>buf []byte</code> 来存放字符串的内容，从而尽量避免这个问题。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> Builder <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	addr <span style="color:#ff79c6">*</span>Builder <span style="color:#6272a4">// of receiver, to detect copies by value
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	buf  []<span style="color:#8be9fd">byte</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>从结构体可以看出数据是存在<code>[]byte</code>中的，与 <code>bytes.Buffer</code> 思路类似，既然 <code>string</code> 在构建过程中，会不断地被销毁和重建，那么就通过底层使用一个 <code>buf []byte</code> 来存放字符串的内容，从而尽量避免这个问题。</p>
 <p>注意里面还有个<code>addr</code>字段，等下会讲。</p>
 <h4 id="写入操作方法">写入操作方法</h4>
 <p>提供了四种写入方法：</p>
-<pre><code>func (b *Builder) WriteString(s string) (int, error) {	//写入字符串
-	b.copyCheck()
-	b.buf = append(b.buf, s...)
-	return len(s), nil
-}
-func (b *Builder) Write(p []byte) (int, error) 		//写入字节切片
-func (b *Builder) WriteByte(c byte) error  			//写入字节
-func (b *Builder) WriteRune(r rune) (int, error)  	//写入Rune
-</code></pre><p>对于写操作，其实就是简单的把数据追加到<code>buf []byte</code>中，利用<code>append</code>来进行底层的自动扩容。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">WriteString</span>(s <span style="color:#8be9fd">string</span>) (<span style="color:#8be9fd">int</span>, <span style="color:#8be9fd">error</span>) {	<span style="color:#6272a4">//写入字符串
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>	b.<span style="color:#50fa7b">copyCheck</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	b.buf = <span style="color:#8be9fd;font-style:italic">append</span>(b.buf, s<span style="color:#ff79c6">...</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">len</span>(s), <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">Write</span>(p []<span style="color:#8be9fd">byte</span>) (<span style="color:#8be9fd">int</span>, <span style="color:#8be9fd">error</span>) 		<span style="color:#6272a4">//写入字节切片
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">WriteByte</span>(c <span style="color:#8be9fd">byte</span>) <span style="color:#8be9fd">error</span>  			<span style="color:#6272a4">//写入字节
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">WriteRune</span>(r <span style="color:#8be9fd">rune</span>) (<span style="color:#8be9fd">int</span>, <span style="color:#8be9fd">error</span>)  	<span style="color:#6272a4">//写入Rune
+</span></code></pre></div><p>对于写操作，其实就是简单的把数据追加到<code>buf []byte</code>中，利用<code>append</code>来进行底层的自动扩容。</p>
 <p>注意这里的每个写入方法开头都调用了<code>copyCheck</code>，和上面的<code>addr</code>字段是一回事，我们等会讲。</p>
 <h4 id="grow-扩容">Grow 扩容</h4>
 <p>和<code>bytes.Buffer</code>类似，<code>strings.Builder</code>也提供了<code>Grow</code>方法，可以让我们手动进行底层空间的扩容。当然，<code>Grow</code>会先判断空间是否够用，不够的话会进行扩容：</p>
-<pre><code>buf := make([]byte, len(b.buf), 2*cap(b.buf)+n)
-copy(buf, b.buf)
-b.buf = buf
-</code></pre><h4 id="string-黑科技">String() 黑科技</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>buf <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">make</span>([]<span style="color:#8be9fd">byte</span>, <span style="color:#8be9fd;font-style:italic">len</span>(b.buf), <span style="color:#bd93f9">2</span><span style="color:#ff79c6">*</span><span style="color:#8be9fd;font-style:italic">cap</span>(b.buf)<span style="color:#ff79c6">+</span>n)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">copy</span>(buf, b.buf)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>b.buf = buf
+</code></pre></div><h4 id="string-黑科技">String() 黑科技</h4>
 <p><code>strings.Builder</code>之所以性能高，原因就在这了，其他的和<code>bytes.Buffer</code>并无太大差别。</p>
-<pre><code>// String returns the accumulated string.
-func (b *Builder) String() string {
-	return *(*string)(unsafe.Pointer(&amp;b.buf))
-}
-</code></pre><p>解决 <code>bytes.Buffer</code> 存在的 <code>[]byte</code> 到 <code>string</code> 类型转换和内存拷贝问题，这里使用了一个 <code>unsafe.Pointer</code> 的指针转换操作，实现了直接将 <code>buf []byte</code> 转换为 <code>string</code> 类型，同时避免了内存申请、分配和销毁的问题。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// String returns the accumulated string.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">String</span>() <span style="color:#8be9fd">string</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">*</span>(<span style="color:#ff79c6">*</span><span style="color:#8be9fd">string</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>b.buf))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>解决 <code>bytes.Buffer</code> 存在的 <code>[]byte</code> 到 <code>string</code> 类型转换和内存拷贝问题，这里使用了一个 <code>unsafe.Pointer</code> 的指针转换操作，实现了直接将 <code>buf []byte</code> 转换为 <code>string</code> 类型，同时避免了内存申请、分配和销毁的问题。</p>
 <p>当然我们也可以进行<code>string</code>到<code>[]byte</code>的零内存拷贝和申请转换：</p>
-<pre><code>func StringToBytes(str string) []byte {
-	s := (*[2]uintptr)(unsafe.Pointer(&amp;str))
-	h := [3]uintptr{s[0], s[1], s[1]}
-	return *(*[]byte)(unsafe.Pointer(&amp;h))
-}
-</code></pre><h4 id="reset">Reset()</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">StringToBytes</span>(str <span style="color:#8be9fd">string</span>) []<span style="color:#8be9fd">byte</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	s <span style="color:#ff79c6">:=</span> (<span style="color:#ff79c6">*</span>[<span style="color:#bd93f9">2</span>]<span style="color:#8be9fd">uintptr</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>str))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	h <span style="color:#ff79c6">:=</span> [<span style="color:#bd93f9">3</span>]<span style="color:#8be9fd">uintptr</span>{s[<span style="color:#bd93f9">0</span>], s[<span style="color:#bd93f9">1</span>], s[<span style="color:#bd93f9">1</span>]}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">*</span>(<span style="color:#ff79c6">*</span>[]<span style="color:#8be9fd">byte</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>h))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+</code></pre></div><h4 id="reset">Reset()</h4>
 <p><code>strings.Builder</code>同样提供了<code>Reset方法</code>，但和<code>bytes.Buffer()</code>实现的方式不同：</p>
-<pre><code>// Reset resets the Builder to be empty.
-func (b *Builder) Reset() {
-	b.addr = nil
-	b.buf = nil
-}
-</code></pre><p>看下<code>bytes.Buffer()</code>的实现：</p>
-<pre><code>// Reset resets the buffer to be empty,
-// but it retains the underlying storage for use by future writes.
-// Reset is the same as Truncate(0).
-func (b *Buffer) Reset() {
-	b.buf = b.buf[:0]
-	b.off = 0
-	b.lastRead = opInvalid
-}
-</code></pre><p>所以，我们没办法对<code>strings.Builder</code>申请的内存进行复用。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// Reset resets the Builder to be empty.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">Reset</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	b.addr = <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	b.buf = <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+</code></pre></div><p>看下<code>bytes.Buffer()</code>的实现：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// Reset resets the buffer to be empty,
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">// but it retains the underlying storage for use by future writes.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4">// Reset is the same as Truncate(0).
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Buffer) <span style="color:#50fa7b">Reset</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	b.buf = b.buf[:<span style="color:#bd93f9">0</span>]
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	b.off = <span style="color:#bd93f9">0</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	b.lastRead = opInvalid
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+</code></pre></div><p>所以，我们没办法对<code>strings.Builder</code>申请的内存进行复用。</p>
 <h4 id="不允许复制">不允许复制</h4>
 <p>开头我们提到了结构体里面的<code>addr</code>字段，这里我们详细说下，首先看下<code>copyCheck()</code>方法的实现：</p>
-<pre><code>func (b *Builder) copyCheck() {
-	if b.addr == nil {
-		b.addr = (*Builder)(noescape(unsafe.Pointer(b)))
-	} else if b.addr != b {
-		panic(&quot;strings: illegal use of non-zero Builder copied by value&quot;)
-	}
-}
-</code></pre><p>上面我们说到，程序在每次进行写入操作时，都会调用<code>copyCheck()</code>来检查：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (b <span style="color:#ff79c6">*</span>Builder) <span style="color:#50fa7b">copyCheck</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#ff79c6">if</span> b.addr <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		b.addr = (<span style="color:#ff79c6">*</span>Builder)(<span style="color:#50fa7b">noescape</span>(unsafe.<span style="color:#50fa7b">Pointer</span>(b)))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	} <span style="color:#ff79c6">else</span> <span style="color:#ff79c6">if</span> b.addr <span style="color:#ff79c6">!=</span> b {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;strings: illegal use of non-zero Builder copied by value&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
+</code></pre></div><p>上面我们说到，程序在每次进行写入操作时，都会调用<code>copyCheck()</code>来检查：</p>
 <ul>
 <li>当第一次调用时，会把当前<code>strings.Builder</code>实例的指针存入<code>addr</code>；</li>
 <li>后续每次调用，都会检查当前实例的指针是否和<code>addr</code>相等，不相等会发生<code>panic</code>；</li>
@@ -257,18 +255,18 @@ func (b *Buffer) Reset() {
 <p>当然，从源码来看，在调用任何写入方法之前是可以进行copy的，此时还未进行<code>copyCheck</code>检查。</p>
 <h2 id="最佳实践">最佳实践</h2>
 <p>一般 Go 标准库中使用的方式都是会逐步被推广的，成为某些场景下的最佳实践方式。</p>
-<pre><code>// 在不进行内存分配的情况下，将 []byte 转换为 string
-func BytesToString(b []byte) string {
-	return *(*string)(unsafe.Pointer(&amp;b))
-}
-
-// 在不进行内存分配的情况下，将 string 转换为 []byte
-func StringToBytes(str string) []byte {
-	s := (*[2]uintptr)(unsafe.Pointer(&amp;str))
-	h := [3]uintptr{s[0], s[1], s[1]}
-	return *(*[]byte)(unsafe.Pointer(&amp;h))
-}
-</code></pre><h2 id="小结">小结</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 在不进行内存分配的情况下，将 []byte 转换为 string
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BytesToString</span>(b []<span style="color:#8be9fd">byte</span>) <span style="color:#8be9fd">string</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">*</span>(<span style="color:#ff79c6">*</span><span style="color:#8be9fd">string</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>b))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4">// 在不进行内存分配的情况下，将 string 转换为 []byte
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">StringToBytes</span>(str <span style="color:#8be9fd">string</span>) []<span style="color:#8be9fd">byte</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	s <span style="color:#ff79c6">:=</span> (<span style="color:#ff79c6">*</span>[<span style="color:#bd93f9">2</span>]<span style="color:#8be9fd">uintptr</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>str))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	h <span style="color:#ff79c6">:=</span> [<span style="color:#bd93f9">3</span>]<span style="color:#8be9fd">uintptr</span>{s[<span style="color:#bd93f9">0</span>], s[<span style="color:#bd93f9">1</span>], s[<span style="color:#bd93f9">1</span>]}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">*</span>(<span style="color:#ff79c6">*</span>[]<span style="color:#8be9fd">byte</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>h))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
+</code></pre></div><h2 id="小结">小结</h2>
 <p>本文通过在日常开发中使用到的字符接拼接方式进行了性能对比测试，抛出各个使用方式的问题点，从而引出从Go1.10官方发布的高性能<code>strings.Builder</code>，最后对<code>strings.Builder</code>源码和底层实现进行了解析。</p>
 <p>关于究竟使用哪种方式呢？各有利弊，我认为：<strong><code>bytes.Buffer</code>和<code>strings.Builder</code>使用哪种都可以</strong>。</p>
 <h5 id="推荐使用bytesbuffer">推荐使用<code>bytes.Buffer</code></h5>
@@ -511,10 +509,6 @@ func StringToBytes(str string) []byte {
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 

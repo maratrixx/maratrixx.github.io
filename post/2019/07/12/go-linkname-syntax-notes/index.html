@@ -31,8 +31,6 @@
 
     
     
-        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
-    
 </head>
 
 
@@ -106,68 +104,67 @@
 <p>这个指令告诉编译器为函数或者变量<code>localname</code>使用<code>importpath.name</code>作为目标文件的符号名。因为这个指令破坏了类型系统和包的模块化，所以它只能在 import &ldquo;unsafe&rdquo; 的情况下才能使用。</p>
 </blockquote>
 <p>只看文档有没有云里雾里？我们来看标准库<code>time.Sleep</code>代码实例：</p>
-<pre><code>// Sleep pauses the current goroutine for at least the duration d.
-// A negative or zero duration causes Sleep to return immediately.
-func Sleep(d Duration)
-
-</code></pre><p>这个函数我们经常会用到，但是却没有函数体，而且同样在当前目录下也没有汇编语言的代码实现。那么，在哪里实现的呢？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// Sleep pauses the current goroutine for at least the duration d.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">// A negative or zero duration causes Sleep to return immediately.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Sleep</span>(d Duration)
+</code></pre></div><p>这个函数我们经常会用到，但是却没有函数体，而且同样在当前目录下也没有汇编语言的代码实现。那么，在哪里实现的呢？</p>
 <p>实际上，这个函数在Go也是在标准库中实现的，它是runtime库中的一个unexported（未导出）函数。</p>
-<pre><code>// timeSleep puts the current goroutine to sleep for at least ns nanoseconds.
-//go:linkname timeSleep time.Sleep
-func timeSleep(ns int64) {
-  ...
-}
-</code></pre><p>什么？未导出的函数竟然可以被外部访问？是的，这里要归功于<code>go:linkname</code>这个命令了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// timeSleep puts the current goroutine to sleep for at least ns nanoseconds.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">//go:linkname timeSleep time.Sleep
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">timeSleep</span>(ns <span style="color:#8be9fd">int64</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#ff79c6">...</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
+</code></pre></div><p>什么？未导出的函数竟然可以被外部访问？是的，这里要归功于<code>go:linkname</code>这个命令了。</p>
 <h2 id="如何用golinkname">如何用<code>go:linkname</code></h2>
 <p>我们写一个简单的代码来说明如何使用<code>go:linkname</code>，代码结构如下：</p>
-<pre><code>linkname
-    ├── aa
-    │   ├── aa.go
-    │   └── aa.s
-    ├── bb
-    │   └── bb.go
-    └── main.go
-</code></pre><p>首先，我们编写<code>aa.go</code>文件：</p>
-<pre><code>package aa
-
-import _ &quot;linkname/bb&quot;
-
-func Hello() string
-</code></pre><p>这里有一点有注意：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>linkname
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    ├── aa
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    │   ├── aa.<span style="color:#ff79c6">go</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    │   └── aa.s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    ├── bb
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    │   └── bb.<span style="color:#ff79c6">go</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    └── main.<span style="color:#ff79c6">go</span>
+</code></pre></div><p>首先，我们编写<code>aa.go</code>文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">package</span> aa
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">import</span> _ <span style="color:#f1fa8c">&#34;linkname/bb&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Hello</span>() <span style="color:#8be9fd">string</span>
+</code></pre></div><p>这里有一点有注意：</p>
 <ul>
 <li>必须引入<code>linkname/bb</code>包；</li>
 </ul>
 <p>然后，<code>bb.go</code>文件：</p>
-<pre><code>package bb
-
-import _ &quot;unsafe&quot;
-
-//go:linkname hello linkname/aa.Hello
-func hello() string {
-	return &quot;hello world&quot;
-}
-</code></pre><p>这里有两点注意：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">package</span> bb
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">import</span> _ <span style="color:#f1fa8c">&#34;unsafe&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4">//go:linkname hello linkname/aa.Hello
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">hello</span>() <span style="color:#8be9fd">string</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;hello world&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+</code></pre></div><p>这里有两点注意：</p>
 <ul>
 <li>必须要引入<code>unsafe</code>包；</li>
 <li>使用<code>go:linkname</code>命令指定目标变量；</li>
 </ul>
 <p>最后，<code>main</code>文件：</p>
-<pre><code>package main
-
-import (
-	&quot;fmt&quot;
-	&quot;linkname/aa&quot;
-)
-
-func main() {
-	fmt.Println(aa.Hello())
-}
-</code></pre><p>如果此时运行<code>go run main.go</code>肯定会报错：</p>
-<pre><code>linkname/aa/aa.go:5:6: missing function body
-</code></pre><p>难道我们前面讲的都是错的吗？</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">package</span> main
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#ff79c6">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;fmt&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;linkname/aa&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	fmt.<span style="color:#50fa7b">Println</span>(aa.<span style="color:#50fa7b">Hello</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+</code></pre></div><p>如果此时运行<code>go run main.go</code>肯定会报错：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>linkname/aa/aa.go:5:6: missing <span style="color:#ff79c6">function</span> body
+</code></pre></div><p>难道我们前面讲的都是错的吗？</p>
 <p>这里有一个技巧，你在<code> package aa</code>下创建一个空的文件， 文件名随意，只要文件后缀为<code>.s</code>，再运行一下<code>go run main.go</code>：</p>
-<pre><code>hello world
-</code></pre><p>原因在于Go在编译的时候会启用<code>-complete</code>编译器flag，它要求所有的函数必需包含函数体。创建一个空的汇编语言文件绕过这个限制。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>hello world
+</code></pre></div><p>原因在于Go在编译的时候会启用<code>-complete</code>编译器flag，它要求所有的函数必需包含函数体。创建一个空的汇编语言文件绕过这个限制。</p>
 <h2 id="小结">小结</h2>
 <ul>
 <li><code>go:linkname</code>可以跨包使用；</li>
@@ -384,10 +381,6 @@ func main() {
 
 
 
-
-    <script src='/js/highlight.pack.js'></script>
-
-    <script src='/js/highlight.init.js'></script>
 
 </body>
 
