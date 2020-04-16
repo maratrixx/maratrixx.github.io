@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Rust学习笔记007-所有权 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Rust学习笔记007-所有权 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-02-06T10:01:58&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-02-06T10:01:58&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Rust学习笔记007-所有权">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+        <link rel="stylesheet" href='/css/highlight/github-gist.css'>
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="http://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="http://maratrix.cn/">首页</a>
+                    
+                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Rust学习笔记007-所有权</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月6日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='http://maratrix.cn/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h2 id="什么是所有权">什么是所有权</h2>
+<p>Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。</p>
+<p>所有运行的程序都必须管理其使用计算机内存的方式：</p>
+<ul>
+<li>一些语言中具有垃圾回收机制，在程序运行时不断地寻找不再使用的内存；</li>
+<li>在另一些语言中，程序员必须亲自分配和释放内存。</li>
+<li>Rust 则选择了第三种方式：通过所有权系统管理内存，编译器在编译时会根据一系列的规则进行检查。在运行时，所有权系统的任何功能都不会减慢程序。</li>
+</ul>
+<h2 id="所有权规则">所有权规则</h2>
+<ul>
+<li>Rust中的每一个值都有一个被称为其所有者（owner）的变量；</li>
+<li>值只有一个所有者；</li>
+<li>当所有者（变量）离开作用域时，这个值将被丢弃；</li>
+</ul>
+<h2 id="变量作用域">变量作用域</h2>
+<pre><code>{                     		 // s 在这里无效, 它尚未声明
+    let s = &quot;hello&quot;;  		 // 从此处起，s 是有效的
+ 	//...				 	 // 使用 s
+}                      		 // 此作用域已结束，s 不再有效
+</code></pre><h2 id="string类型"><code>String</code>类型</h2>
+<p><code>String</code>类型被分配到堆上，所以能够存储在编译时未知大小的文本。可以使用 <code>from</code> 函数基于字符串字面值来创建 <code>String</code>，如下：</p>
+<pre><code>let s = String::from(&quot;hello&quot;);
+</code></pre><p>这两个冒号<code>（::）</code>是运算符，允许将特定的 <code>from</code> 函数置于 <code>String</code> 类型的命名空间下，而不需要使用类似 string_from 这样的名字。</p>
+<p>修改此类字符串 ：</p>
+<pre><code>let mut s = String::from(&quot;hello&quot;);
+s.push_str(&quot;, world!&quot;); 	// push_str() 在字符串后追加字面值
+println!(&quot;{}&quot;, s); 			// 将打印 `hello, world!`
+</code></pre><p>那么这里有什么区别呢？为什么 String 可变而字面值却不行呢？<strong>区别在于两个类型对内存的处理上。</strong></p>
+<h2 id="内存与分配">内存与分配</h2>
+<p>字符串字面值，我们在编译时就知道其内容，所以文本被直接硬编码进最终的可执行文件中。</p>
+<p>对于 <code>String</code> 类型，为了支持一个可变，可增长的文本片段，需要在堆上分配一块在编译时未知大小的内存来存放内容。</p>
+<p><strong>这意味着：</strong></p>
+<ul>
+<li>必须在运行时向操作系统请求内存。</li>
+<li>需要一个当我们处理完<code> String</code> 时将内存返回给操作系统的方法。</li>
+</ul>
+<p><strong>Rust 采取的策略是：内存在拥有它的变量离开作用域后就被自动释放。</strong></p>
+<p>👆上面这句话很重要，建议读三遍。</p>
+<pre><code>{
+    let s = String::from(&quot;hello&quot;); // 从此处起，s 是有效的
+    // 使用 s
+}                                  // 此作用域已结束，
+                                   // s 不再有效
+</code></pre><p>这是一个将 <code>String</code> 需要的内存返回给操作系统的很自然的位置：<strong>当 s 离开作用域的时候</strong>。</p>
+<p>当变量离开作用域，Rust 为我们调用一个特殊的函数，这个函数叫做 <code>drop</code>。在这里 <code>String</code> 的作者可以放置释放内存的代码。Rust 在结尾的 <code>}</code> 处自动调用 <code>drop</code>。</p>
+<h4 id="数据移动">数据移动</h4>
+<pre><code>let x = 5;
+let y = x;
+</code></pre><p>我们大致可以猜到这在干什么：“将 <code>5</code> 绑定到 <code>x</code>；接着生成一个值 <code>x</code> 的拷贝并绑定到 <code>y</code>”。现在有了两个变量，<code>x</code> 和 <code>y</code>，都等于 <code>5</code>。</p>
+<p>现在看看这个 String 版本：</p>
+<pre><code>let s1 = String::from(&quot;hello&quot;);
+let s2 = s1;
+</code></pre><p>这看起来与上面的代码非常类似，所以我们可能会假设他们的运行方式也是类似的：也就是说，第二行可能会生成一个 s1 的拷贝并绑定到 s2 上。<strong>不过，事实上并不完全是这样。</strong></p>
+<p>👇下面这张图展示了<code>String</code>类型的底层存储由三部分组成：</p>
+<ul>
+<li>一个指向存放字符串内容内存的指针</li>
+<li>一个长度</li>
+<li>一个容量
+这一组数据存储在栈上。右侧则是堆上存放内容的内存部分。<img src="https://img-blog.csdnimg.cn/20200206094829919.png#pic_center" alt="在这里插入图片描述">
+当我们将 s1 赋值给 s2，<code>String</code> 的数据被复制了，这意味着我们从栈上拷贝了它的指针、长度和容量。我们并没有复制指针指向的堆上数据。换句话说，内存中数据的表现如下图所示：
+<img src="https://img-blog.csdnimg.cn/20200206095522672.png#pic_center" alt="在这里插入图片描述"></li>
+</ul>
+<p>之前我们提到过当变量离开作用域后，Rust 自动调用 <code>drop</code> 函数并清理变量的堆内存。不过上图展示了两个数据指针指向了同一位置。这就有了一个问题：当 s2 和 s1 离开作用域，他们都会尝试释放相同的内存。这是一个叫做 <strong>二次释放</strong>的错误，也是之前提到过的内存安全性 bug 之一。两次释放（相同）内存会导致内存污染，它可能会导致潜在的安全漏洞。</p>
+<p>为了确保内存安全，Rust的处理是，<strong>与其尝试拷贝被分配的内存，Rust 则认为 s1 不再有效，因此 Rust 不需要在 s1 离开作用域后清理任何东西。</strong></p>
+<p>看看在 s2 被创建之后尝试使用 s1 会发生什么：</p>
+<pre><code>let s1 = String::from(&quot;hello&quot;);
+let s2 = s1;
+println!(&quot;s1 = {}, s2 = {}&quot;, s1, s2);
+</code></pre><p>你会得到一个类似如下的错误，因为 Rust 禁止你使用无效的引用。</p>
+<pre><code>error[E0382]: borrow of moved value: `s1`
+ --&gt; src/main.rs:4:31
+  |
+2 |     let s1 = String::from(&quot;hello&quot;);
+  |         -- move occurs because `s1` has type `std::string::String`, which does not implement the `Copy` trait
+3 |     let s2 = s1;
+  |              -- value moved here
+4 |     println!(&quot;s1 = {}, s2 = {}&quot;, s1, s2);
+  |                                  ^^ value borrowed here after move
+</code></pre><p>如果你在其他语言中听说过术语 <code>浅拷贝（shallow copy）和 深拷贝（deep copy）</code>，那么拷贝指针、长度和容量而不拷贝数据可能听起来像<code>浅拷贝</code>。</p>
+<p>这种 Rust 使第一个变量无效的操作被称为 <strong><code>移动（move）</code></strong>，而不是浅拷贝。</p>
+<p>那么当s1被移动到s2时，究竟发生了什么？
+<img src="https://img-blog.csdnimg.cn/20200206101225900.png#pic_center" alt="在这里插入图片描述"></p>
+<p>这样就解决了我们的问题！因为只有 s2 是有效的，当其离开作用域，它就释放自己的内存，完毕。</p>
+<p>另外，这里还隐含了一个设计选择：<strong>Rust 永远也不会自动创建数据的 “深拷贝”</strong>。因此，任何 自动 的复制可以被认为对运行时性能影响较小。</p>
+<h4 id="克隆">克隆</h4>
+<p>如果确实需要复制<code>String</code>堆上的数据，可以使用<code>clone</code>方法。</p>
+<pre><code>let s1 = String::from(&quot;hello&quot;);
+let s2 = s1.clone();
+println!(&quot;s1 = {}, s2 = {}&quot;, s1, s2);
+</code></pre><p>运行可以正常输出。</p>
+<p>但是要注意，当调用<code>clone</code>方法时可能比较消耗资源。</p>
+<h4 id="拷贝">拷贝</h4>
+<p>继续讨论下面的一段代码：</p>
+<pre><code>let x = 5;
+let y = x;
+println!(&quot;x = {}, y = {}&quot;, x, y);
+</code></pre><p>运行发现也没报错，和我们上面介绍的很矛盾：没有调<code>clone</code>，x也没被移动到y中。</p>
+<p>原因是这种在编译时就已知大小的类型会被存储在栈上，拷贝也相当快速，就没必要在创建变量 y 后使 x 无效，即相当于自动调用了<code>clone</code>。</p>
+<p><strong><code>Copy trait </code></strong>
+如果一个类型拥有<code>Copy trait</code>，一个旧的变量在将其赋值给其他变量后仍然可用（比如上面代码里面<code>x</code>）。Rust 不允许自身或其任何部分实现了<code>Drop trait</code> 的类型使用 <code>Copy trait</code>。</p>
+<p>那么什么类型是<code> Copy</code> 的呢？可以查看给定类型的文档来确认，不过作为一个通用的规则，<strong>任何简单标量值的组合可以是 Copy 的，不需要分配内存或某种形式资源的类型是 Copy 的。</strong></p>
+<p>如下是一些 Copy 的类型：</p>
+<ul>
+<li>所有整数类型，比如 <code>u32</code>。</li>
+<li>布尔类型<code>bool</code>，它的值是 true 和 false。</li>
+<li>所有浮点数类型，比如 <code>f64</code>。</li>
+<li>字符类型，<code>char</code>。</li>
+<li>元组，当且仅当其包含的类型也都是 Copy 的时候。比如，<code>(i32, i32)</code> 是 Copy 的，但 <code>(i32, String) </code>就不是。</li>
+</ul>
+<h2 id="所有权与函数">所有权与函数</h2>
+<p>将值传递给函数在语义上与给变量赋值相似，向函数传递值可能会移动或者复制，就像赋值语句一样。</p>
+<pre><code>fn main() {
+    let s = String::from(&quot;hello&quot;);  // s 进入作用域
+
+    takes_ownership(s);             // s 的值移动到函数里 ...
+                                    // ... 所以到这里不再有效
+
+    let x = 5;                      // x 进入作用域
+
+    makes_copy(x);                  // x 应该移动函数里，
+                                    // 但 i32 是 Copy 的，所以在后面可继续使用 x
+
+} // 这里, x 先移出了作用域，然后是 s。但因为 s 的值已被移走，
+  // 所以不会有特殊操作
+
+fn takes_ownership(some_string: String) { // some_string 进入作用域
+    println!(&quot;{}&quot;, some_string);
+} // 这里，some_string 移出作用域并调用 `drop` 方法。占用的内存被释放
+
+fn makes_copy(some_integer: i32) { // some_integer 进入作用域
+    println!(&quot;{}&quot;, some_integer);
+} // 这里，some_integer 移出作用域。不会有特殊操作
+</code></pre><h2 id="返回值和作用域">返回值和作用域</h2>
+<p>返回值也可以转移所有权。</p>
+<pre><code>fn main() {
+    let s1 = gives_ownership();         // gives_ownership 将返回值
+                                        // 移给 s1
+
+    let s2 = String::from(&quot;hello&quot;);     // s2 进入作用域
+
+    let s3 = takes_and_gives_back(s2);  // s2 被移动到
+                                        // takes_and_gives_back 中, 
+                                        // 它也将返回值移给 s3
+} // 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
+  // 所以什么也不会发生。s1 移出作用域并被丢弃
+
+fn gives_ownership() -&gt; String {             // gives_ownership 将返回值移动给
+                                             // 调用它的函数
+
+    let some_string = String::from(&quot;hello&quot;); // some_string 进入作用域.
+
+    some_string                              // 返回 some_string 并移出给调用的函数
+}
+
+// takes_and_gives_back 将传入字符串并返回该值
+fn takes_and_gives_back(a_string: String) -&gt; String { // a_string 进入作用域
+
+    a_string  // 返回 a_string 并移出给调用的函数
+}
+</code></pre><p>变量的所有权总是遵循相同的模式：</p>
+<ul>
+<li>将值赋给另一个变量时移动它，除非变量类型实现了<code>Copy trait</code>注解。</li>
+<li>当持有堆中数据值的变量离开作用域时，其值将通过<code> drop</code> 被清理掉，除非数据被移动为另一个变量所有。</li>
+</ul>
+<h4 id="多值返回">多值返回</h4>
+<p>函数或者方法可以使用<code>元组</code>来实现多值返回。</p>
+<pre><code>fn main() {
+    let s1 = String::from(&quot;hello&quot;);
+    let (s2, len) = calculate_length(s1);
+    println!(&quot;The length of '{}' is {}.&quot;, s2, len);
+}
+
+fn calculate_length(s: String) -&gt; (String, usize) {
+    let length = s.len(); // len() 返回字符串的长度
+    (s, length)
+}
+</code></pre>
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/02/05/006-rust-control-notes/">Rust学习笔记006-控制流</a></li>
+        
+        <li><a href="/post/2020/02/05/005-rust-functions-notes/">Rust学习笔记005-函数</a></li>
+        
+        <li><a href="/post/2020/02/05/004-rust-types-notes/">Rust学习笔记004-数据类型</a></li>
+        
+        <li><a href="/post/2020/02/04/003-rust-variable-notes/">Rust学习笔记003-变量与可变性</a></li>
+        
+        <li><a href="/post/2020/02/04/002-rust-notes/">Rust学习笔记002-编程概念</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='http://maratrix.cn/tags/rust'>rust</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+    </li>
+    
+    <li>
+        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="http://maratrix.cn/tags/go/">go</a>
+    
+    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    
+    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="http://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+    <script src='/js/highlight.pack.js'></script>
+
+    <script src='/js/highlight.init.js'></script>
+
+</body>
+
+</html>
