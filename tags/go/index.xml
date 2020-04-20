@@ -6,10 +6,19 @@
     <description>Recent content in go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 14 Apr 2020 11:55:41 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 20 Apr 2020 21:56:22 +0800</lastBuildDate>
     
 	<atom:link href="http://maratrix.cn/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Go中如何实现禁止拷贝</title>
+      <link>http://maratrix.cn/post/2020/04/20/go-nocopy-notes/</link>
+      <pubDate>Mon, 20 Apr 2020 21:56:22 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/04/20/go-nocopy-notes/</guid>
+      <description>背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式： 1// 结构体 2type Builder struct { 3 addr *Builder // addr 保存了 Builder 对象的地址 4</description>
+    </item>
     
     <item>
       <title>strings.Builder 源码阅读与分析</title>

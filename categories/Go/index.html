@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月20日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式： 1// 结构体 2type Builder struct { 3 addr *Builder // addr 保存了 Builder 对象的地址 4……
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">strings.Builder 源码阅读与分析</a>
             </h1>
         </header>
@@ -266,6 +289,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
+    </li>
+    
+    <li>
         <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
     </li>
     
@@ -301,10 +328,6 @@
         <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
     </li>
     
-    <li>
-        <a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -314,7 +337,7 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="http://maratrix.cn/categories/Go/">Go (7)</a></li>
+    <li><a href="http://maratrix.cn/categories/Go/">Go (8)</a></li>
     
     <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
