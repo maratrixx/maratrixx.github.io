@@ -17,7 +17,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &amp;#34;Scheme:&amp;#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&amp;#34;:9000&amp;#34;, nil)) 6} 当我们请求http://127.0.0.1:9000</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Thu, 05 Sep 2019 10:15:11 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</guid>
-      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&amp;quot;,string&amp;quot; 就可以支持了，如果不知道golang的这些小技巧，就要大费周章</description>
+      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想</description>
     </item>
     
   </channel>

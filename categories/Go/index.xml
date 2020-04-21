@@ -17,7 +17,7 @@
       <pubDate>Mon, 20 Apr 2020 21:56:22 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/20/go-nocopy-notes/</guid>
-      <description>背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式： 1// 结构体 2type Builder struct { 3 addr *Builder // addr 保存了 Builder 对象的地址 4</description>
+      <description>背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式：</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/strings-builder-source-note/</guid>
-      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、</description>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大</description>
     </item>
     
     <item>
@@ -35,7 +35,7 @@
       <pubDate>Tue, 14 Apr 2020 11:53:21 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/go-hijack-note/</guid>
-      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &amp;#34;HTTP/1.0 &amp;#34;+connected+&amp;#34;\n\n&amp;#34;) 15 server.ServeConn(conn) 16} 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就</description>
+      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err</description>
     </item>
     
     <item>
@@ -44,7 +44,7 @@
       <pubDate>Tue, 14 Apr 2020 11:47:28 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/</guid>
-      <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:</description>
+      <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前</description>
     </item>
     
     <item>
@@ -53,7 +53,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &amp;#34;Scheme:&amp;#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&amp;#34;:9000&amp;#34;, nil)) 6} 当我们请求http://127.0.0.1:9000</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不</description>
     </item>
     
     <item>
@@ -62,7 +62,7 @@
       <pubDate>Thu, 05 Sep 2019 10:15:11 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</guid>
-      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&amp;quot;,string&amp;quot; 就可以支持了，如果不知道golang的这些小技巧，就要大费周章</description>
+      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想</description>
     </item>
     
     <item>
@@ -71,7 +71,7 @@
       <pubDate>Wed, 31 Jul 2019 10:12:16 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/07/31/go-overseer-notes/</guid>
-      <description>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endless是比较像的，实现步骤如下： 监听信号 收到信号时fork子进程（使用相同的启动命令），将服务监听的socket文件描述符传递给子进程 子进程</description>
+      <description>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endl</description>
     </item>
     
     <item>
@@ -80,7 +80,7 @@
       <pubDate>Fri, 12 Jul 2019 10:10:42 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</guid>
-      <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in files that have imported &amp;ldquo;unsafe&amp;rdquo;. 翻译过来就是： 这个指令告诉编译器为函数或者变量localname使用i</description>
+      <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “</description>
     </item>
     
   </channel>

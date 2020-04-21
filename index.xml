@@ -17,7 +17,7 @@
       <pubDate>Mon, 20 Apr 2020 21:56:22 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/20/go-nocopy-notes/</guid>
-      <description>背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式： 1// 结构体 2type Builder struct { 3 addr *Builder // addr 保存了 Builder 对象的地址 4</description>
+      <description>背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式：</description>
     </item>
     
     <item>
@@ -26,7 +26,7 @@
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/strings-builder-source-note/</guid>
-      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、</description>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大</description>
     </item>
     
     <item>
@@ -35,7 +35,7 @@
       <pubDate>Tue, 14 Apr 2020 11:53:21 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/go-hijack-note/</guid>
-      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &amp;#34;HTTP/1.0 &amp;#34;+connected+&amp;#34;\n\n&amp;#34;) 15 server.ServeConn(conn) 16} 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就</description>
+      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err</description>
     </item>
     
     <item>
@@ -44,7 +44,7 @@
       <pubDate>Tue, 14 Apr 2020 11:47:28 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/</guid>
-      <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:</description>
+      <description>Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前</description>
     </item>
     
     <item>
@@ -71,7 +71,7 @@
       <pubDate>Thu, 06 Feb 2020 10:01:58 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/</guid>
-      <description>什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语言中具有垃圾回收机制，在程序运行时不断地寻找不再使用的内存； 在另一些语言中，程序员必须亲自分配和释放内存。 Rust 则选择了第三种方式：通过所有权系</description>
+      <description>什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语</description>
     </item>
     
     <item>
@@ -80,7 +80,7 @@
       <pubDate>Wed, 05 Feb 2020 10:00:51 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/006-rust-control-notes/</guid>
-      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这里的条件表达式不包含()括号，直接写表达式即可： 1let number = 3; 2if number &amp;gt; 0 { 3 println!(&amp;#34;number was three&amp;#34;); 4} 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用</description>
+      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这</description>
     </item>
     
     <item>
@@ -89,7 +89,7 @@
       <pubDate>Wed, 05 Feb 2020 09:59:52 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</guid>
-      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32, b: bool) -&amp;gt; u32 { 2 //... 3} 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体</description>
+      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处；</description>
     </item>
     
     <item>
@@ -98,7 +98,7 @@
       <pubDate>Wed, 05 Feb 2020 09:51:09 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/05/004-rust-types-notes/</guid>
-      <description>前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 1let guess: u32 = &amp;#34;42&amp;#34;.parse().expect(&amp;#34;Not a number!&amp;#34;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8</description>
+      <description>前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多</description>
     </item>
     
     <item>
@@ -107,7 +107,7 @@
       <pubDate>Tue, 04 Feb 2020 09:49:40 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</guid>
-      <description>变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 1let x: i32; 2println!(&amp;#34;x = {}&amp;#34;, x); 3//运行报错：use of</description>
+      <description>变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才</description>
     </item>
     
     <item>
@@ -116,7 +116,7 @@
       <pubDate>Tue, 04 Feb 2020 09:45:34 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/002-rust-notes/</guid>
-      <description>标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个字符。单独的_不是标识符。 其它字符是字母数字或者 _。 原始标识符 有时出于某种原因你</description>
+      <description>标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字</description>
     </item>
     
     <item>
@@ -125,7 +125,7 @@
       <pubDate>Tue, 04 Feb 2020 09:45:20 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/</guid>
-      <description>Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。 版本和发布策略 语义化版本号 Rust编译器的版本号采用了“语义化版本号”规划。版本格式为：主版本号</description>
+      <description>Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言</description>
     </item>
     
     <item>
@@ -134,7 +134,7 @@
       <pubDate>Tue, 04 Feb 2020 09:40:42 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2020/02/04/000-rust-install-notes/</guid>
-      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &amp;#39;=https&amp;#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境</description>
+      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执</description>
     </item>
     
     <item>
@@ -143,7 +143,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &amp;#34;Scheme:&amp;#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&amp;#34;:9000&amp;#34;, nil)) 6} 当我们请求http://127.0.0.1:9000</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不</description>
     </item>
     
     <item>
@@ -152,7 +152,7 @@
       <pubDate>Thu, 05 Sep 2019 10:15:11 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</guid>
-      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&amp;quot;,string&amp;quot; 就可以支持了，如果不知道golang的这些小技巧，就要大费周章</description>
+      <description>工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想</description>
     </item>
     
     <item>
@@ -161,7 +161,7 @@
       <pubDate>Wed, 31 Jul 2019 10:12:16 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/07/31/go-overseer-notes/</guid>
-      <description>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endless是比较像的，实现步骤如下： 监听信号 收到信号时fork子进程（使用相同的启动命令），将服务监听的socket文件描述符传递给子进程 子进程</description>
+      <description>为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endl</description>
     </item>
     
     <item>
@@ -170,7 +170,7 @@
       <pubDate>Fri, 12 Jul 2019 10:10:42 +0800</pubDate>
       
       <guid>http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</guid>
-      <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in files that have imported &amp;ldquo;unsafe&amp;rdquo;. 翻译过来就是： 这个指令告诉编译器为函数或者变量localname使用i</description>
+      <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “</description>
     </item>
     
     <item>

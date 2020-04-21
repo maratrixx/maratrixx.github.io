@@ -93,7 +93,7 @@
         </div>
         
         <div class="post-content">
-            什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语言中具有垃圾回收机制，在程序运行时不断地寻找不再使用的内存； 在另一些语言中，程序员必须亲自分配和释放内存。 Rust 则选择了第三种方式：通过所有权系……
+            什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -116,7 +116,7 @@
         </div>
         
         <div class="post-content">
-            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这里的条件表达式不包含()括号，直接写表达式即可： 1let number = 3; 2if number &gt; 0 { 3 println!(&#34;number was three&#34;); 4} 在let中使用if 因为 if 是一个表达式，我们可以在 let 语句的右侧使用……
+            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -139,7 +139,7 @@
         </div>
         
         <div class="post-content">
-            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32, b: bool) -&gt; u32 { 2 //... 3} 函数参数 函数可以定义多个参数，使用逗号,分隔； 参数是函数签名的一部分； 参数必须指定类型； 包含语句和表达式的函数体 函数体……
+            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处；……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -162,7 +162,7 @@
         </div>
         
         <div class="post-content">
-            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会报错。 1let guess: u32 = &#34;42&#34;.parse().expect(&#34;Not a number!&#34;); 标量类型 整型 浮点型 布尔类型 字符类型 整型 长度 有符号 无符号 8bit i8 u8……
+            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -185,7 +185,7 @@
         </div>
         
         <div class="post-content">
-            变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被使用。使用未初始化的变量，不能被编译通过。 1let x: i32; 2println!(&#34;x = {}&#34;, x); 3//运行报错：use of……
+            变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -208,7 +208,7 @@
         </div>
         
         <div class="post-content">
-            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个字符。单独的_不是标识符。 其它字符是字母数字或者 _。 原始标识符 有时出于某种原因你……
+            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -231,7 +231,7 @@
         </div>
         
         <div class="post-content">
-            Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。 版本和发布策略 语义化版本号 Rust编译器的版本号采用了“语义化版本号”规划。版本格式为：主版本号……
+            Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -254,7 +254,7 @@
         </div>
         
         <div class="post-content">
-            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rustup，然后使用rustip来安装Rust。 环境变量 安装脚本自动将 Rust 加入系统 PATH 环境……
+            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/000-rust-install-notes/">阅读全文</a></p>
         </div>
     </article>
