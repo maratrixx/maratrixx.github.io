@@ -6,10 +6,19 @@
     <description>Recent content in Go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 20 Apr 2020 21:56:22 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 21 Apr 2020 11:55:18 +0800</lastBuildDate>
     
 	<atom:link href="http://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Go源码阅读 | sync.Once设计与实现</title>
+      <link>http://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/</link>
+      <pubDate>Tue, 21 Apr 2020 11:55:18 +0800</pubDate>
+      
+      <guid>http://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/</guid>
+      <description>介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&amp;#34;Only once&amp;#34;) 4} 5done := make(chan bool) 6for i := 0; i &amp;lt; 10; i++ {</description>
+    </item>
     
     <item>
       <title>Go中如何实现禁止拷贝</title>

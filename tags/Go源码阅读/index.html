@@ -6,20 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>搜索 | MARATRIX BLOG</title>
-    <meta property="og:title" content="搜索 - MARATRIX BLOG">
+    <title>Go源码阅读 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go源码阅读 - MARATRIX BLOG">
     <meta property="og:type" content="article">
         
         
     <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
-    <meta name="description" content="搜索页面">
+    <meta name="description" content="Go源码阅读">
         
     <meta name="author" content="maratrix">
-    <meta property="og:url" content="http://maratrix.cn/search/">
+    <meta property="og:url" content="http://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
+    <link rel="alternate" type="application/rss+xml+xml" href="http://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" title="MARATRIX BLOG" />
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
@@ -65,71 +66,71 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
+    
     <h3 class="archive-title">
-        搜索
-        <span class="keyword">哈哈</span>
-        的结果
+        包含标签
+        <span class="keyword">Go源码阅读</span>
+        的文章
     </h3>
+    
 
+    
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="链接">标题</a>
+                <a href="http://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
-            2019年12月01日
+            2020年4月21日
         </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
         <div class="post-content">
-            概要……
-            <p class="readmore"><a href="链接">阅读全文</a></p>
+            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
         </div>
     </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">strings.Builder 源码阅读与分析</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月14日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            
+            <a href='http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>源码阅读</a>
+            
+        </div>
+        
+        <div class="post-content">
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
+            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
+        </div>
+    </article>
+    
+
+    
+
+
+
+
 
 </div>
-
-<script type="text/javascript">
-
-    var getUrlParameter = function getUrlParameter(sParam) {
-        var sPageURL = window.location.search.substring(1),
-            sURLVariables = sPageURL.split('&'),
-            sParameterName,
-            i;
-
-        for (i = 0; i < sURLVariables.length; i++) {
-            sParameterName = sURLVariables[i].split('=');
-
-            if (sParameterName[0] === sParam) {
-                return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
-            }
-        }
-    };
-
-    $(document).ready(function () {
-        var q = getUrlParameter("q");
-        $("span.keyword").text(q);
-        $("article.post").remove();
-        $.ajax({
-            url: 'http:\/\/maratrix.cn\/index.xml',
-            dataType: "xml",
-            success: function (data) {
-                $(data).find("item").each(function () {
-                    var item = $(this);
-                    var title = item.find("title").text();
-                    if (title.toLowerCase().indexOf(q.toLowerCase()) >= 0) {
-                        var url = item.find("link").text();
-                        var searchItem = `<article class="post"><header><h1 class="post-title"><a href="` + url + `">` + title + `</a></h1></header>`;
-                        var pubDate = new Date(item.find("pubDate").text())
-                        searchItem += `<date class="post-meta meta-date">` + pubDate.getFullYear() + `年` + (pubDate.getMonth() + 1) + `月` + pubDate.getDate() + `日</date>`;
-                        searchItem += `<div class="post-content">` + item.find("description").text() + `……<p class="readmore"><a href="` + url + `">阅读全文</a></p></div></article>`;
-
-                        $("div.res-cons").append(searchItem);
-                    }
-                });
-            }
-        });
-    });
-</script>
 
                 </div>
 
@@ -268,17 +269,6 @@
     </div>
 </footer>
 
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
 
 
 <a id="rocket" href="#top"></a>
