@@ -95,7 +95,7 @@
         </div>
         
         <div class="post-content">
-            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前……
+            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值……
             <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
         </div>
     </article>

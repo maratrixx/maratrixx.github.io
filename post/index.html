@@ -86,7 +86,7 @@
         </div>
         
         <div class="post-content">
-            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式：……
+            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
     </article>
@@ -113,7 +113,7 @@
         </div>
         
         <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大……
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
     </article>
@@ -138,7 +138,7 @@
         </div>
         
         <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err……
+            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
     </article>
@@ -165,7 +165,7 @@
         </div>
         
         <div class="post-content">
-            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前……
+            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
     </article>
@@ -190,7 +190,7 @@
         </div>
         
         <div class="post-content">
-            什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语……
+            什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语言中具有垃圾回收机制，在程序运行时不断地寻找不再使用的内存；……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/">阅读全文</a></p>
     </article>
@@ -215,7 +215,7 @@
         </div>
         
         <div class="post-content">
-            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这……
+            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if 条件 { 2 //... 3} else if 条件 { 4 //... 5} else { 6 //... 7} 注意，这里的条件表达式不包含()括号，直接写表达式即可： 1let number = 3; 2if number……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/">阅读全文</a></p>
     </article>
@@ -240,7 +240,7 @@
         </div>
         
         <div class="post-content">
-            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处；……
+            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32, b: bool) -&gt; u32 { 2 //... 3} 函数参数 函数可以定义多个参数，使用逗号……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">阅读全文</a></p>
     </article>
@@ -265,7 +265,7 @@
         </div>
         
         <div class="post-content">
-            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多……
+            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/">阅读全文</a></p>
     </article>
@@ -290,7 +290,7 @@
         </div>
         
         <div class="post-content">
-            变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才……
+            变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
     </article>
@@ -315,7 +315,7 @@
         </div>
         
         <div class="post-content">
-            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字……
+            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个……
         </div>
         <p class="readmore"><a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/">阅读全文</a></p>
     </article>

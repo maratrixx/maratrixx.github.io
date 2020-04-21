@@ -93,7 +93,7 @@
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不……
+            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w……
             <p class="readmore"><a href="http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -116,7 +116,7 @@
         </div>
         
         <div class="post-content">
-            工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想……
+            工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&quot;,str……
             <p class="readmore"><a href="http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">阅读全文</a></p>
         </div>
     </article>
