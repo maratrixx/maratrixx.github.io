@@ -21,7 +21,7 @@
     </item>
     
     <item>
-      <title>strings.Builder 源码阅读与分析</title>
+      <title>Go源码阅读 | strings.Builder设计与实现</title>
       <link>http://maratrix.cn/post/2020/04/14/strings-builder-source-note/</link>
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
