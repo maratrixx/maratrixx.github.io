@@ -199,18 +199,23 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		<span style="color:#ff79c6">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    }
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#ff79c6">if</span> <span style="color:#ff79c6">*</span>statep <span style="color:#ff79c6">!=</span> state {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>    <span style="color:#6272a4">// 重置计数器为0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">*</span>statep = <span style="color:#bd93f9">0</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>	<span style="color:#ff79c6">for</span> ; w <span style="color:#ff79c6">!=</span> <span style="color:#bd93f9">0</span>; w<span style="color:#ff79c6">--</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>        <span style="color:#6272a4">//根据waiter计数依次释放信号，唤醒阻塞等待的waiter
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span><span style="color:#6272a4"></span>		<span style="color:#50fa7b">runtime_Semrelease</span>(semap, <span style="color:#ff79c6">false</span>, <span style="color:#bd93f9">0</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    <span style="color:#6272a4">//这时 Goroutine 已经将计数器清零，且等待器大于零（并发调用导致）
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">//这时不允许出现并发使用导致的状态突变，否则就应该 panic
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">//- Add 不能与 Wait 并发调用
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">//- Wait 在计数器已经归零的情况下，不能再继续增加等待器了
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">//仍然检查来保证 WaitGroup 不会被滥用
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> <span style="color:#ff79c6">*</span>statep <span style="color:#ff79c6">!=</span> state {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>    <span style="color:#6272a4">// 重置计数器为0
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">*</span>statep = <span style="color:#bd93f9">0</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>	<span style="color:#ff79c6">for</span> ; w <span style="color:#ff79c6">!=</span> <span style="color:#bd93f9">0</span>; w<span style="color:#ff79c6">--</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>        <span style="color:#6272a4">//根据waiter计数依次释放信号，唤醒阻塞等待的waiter
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#6272a4"></span>		<span style="color:#50fa7b">runtime_Semrelease</span>(semap, <span style="color:#ff79c6">false</span>, <span style="color:#bd93f9">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
 </code></pre></div><h4 id="done">Done</h4>
 <p>Done 方法其实就是 Add(-1):</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (wg <span style="color:#ff79c6">*</span>WaitGroup) <span style="color:#50fa7b">Done</span>() {
