@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Go源码阅读 | sync.WaitGroup设计与实现 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go源码阅读 | sync.WaitGroup设计与实现 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-04-25T20:50:34&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-04-25T20:50:34&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Go源码阅读 | sync.WaitGroup设计与实现">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go源码阅读 | sync.WaitGroup设计与实现</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月25日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h3 id="前言">前言</h3>
+<p>当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup。</p>
+<h3 id="使用实例">使用实例</h3>
+<p>看一个 Go 官方提供的使用实例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> wg sync.WaitGroup
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">var</span> urls = []<span style="color:#8be9fd">string</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#f1fa8c">&#34;http://www.golang.org/&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;http://www.google.com/&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;http://www.somestupidname.com/&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#ff79c6">for</span> _, url <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> urls {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	wg.<span style="color:#50fa7b">Add</span>(<span style="color:#bd93f9">1</span>)   <span style="color:#6272a4">// 增加一个任务
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">go</span> <span style="color:#8be9fd;font-style:italic">func</span>(url <span style="color:#8be9fd">string</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		<span style="color:#ff79c6">defer</span> wg.<span style="color:#50fa7b">Done</span>() <span style="color:#6272a4">//任务完成
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>		http.<span style="color:#50fa7b">Get</span>(url)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}(url)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>wg.<span style="color:#50fa7b">Wait</span>()   <span style="color:#6272a4">//阻塞等待所有任务完成
+</span></code></pre></div><p>可以看到，使用非常简单。</p>
+<p><code>Add</code>方法用于增加一个任务，<code>Done</code>方法在完成该任务时调用，<code>Wait</code>方法用于阻塞等待所有任务完成。</p>
+<h3 id="信号量">信号量</h3>
+<p>sync.WaitGroup 源码是基于计数器状态和信号量来实现的，看下维基百科的<a href="https://zh.wikipedia.org/wiki/%E4%BF%A1%E5%8F%B7%E9%87%8F">信号量介绍</a>。</p>
+<p>信号量是一个同步对象，用于保持在 0 至指定最大值之间的一个计数值：</p>
+<ul>
+<li>当线程完成一次对该 semaphore 对象的等待时，该计数值 -1；</li>
+<li>当线程完成一次对该 semaphore 对象的释放时，该计数值 +1；</li>
+</ul>
+<h3 id="源码分析">源码分析</h3>
+<p>接下来，我们看下 sync.WaitGroup 的源码是如何实现的。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>本文基于：go1.14
+</code></pre></div><h4 id="结构体">结构体</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> WaitGroup <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#6272a4">// noCopy 标记不可复制，使用 go vet 作为检测使用，并因此只能进行指针传递，从而保证全局唯一
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>    noCopy noCopy
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    <span style="color:#6272a4">// 64位值：高32位为计数器，低32位为等待计数。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 不使用64位值是因为32位的编译器不能确保64位原子操作的位对齐 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 一个uit32占4个byte，我们分配了12个byte对齐的8个byte作为计数，剩下4个用于信号量的存储
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4"></span>    state1 [<span style="color:#bd93f9">3</span>]<span style="color:#8be9fd">uint32</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
+</code></pre></div><p>sync.WaiyGroup 的结构也很简单，只包含了 noCopy 和 state1 两个字段。</p>
+<p>noCopy 使用 go vet 来做静态检查，当发生复制时会报错提示，但不影响程序编译运行，这里需要注意一下。noCopy 的实现原理分析请移步👉<a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">这篇博客</a>。</p>
+<p>state1 的使用就比较值得推敲了，sync.WaitGroup 是通过原子操作信号量和计数器来实现的，而信号量和计数器都保存在 <code>[3]uint32</code> 内，我们看下源码是如何取的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// state 函数返回计数器状态和信号量的指针
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (wg <span style="color:#ff79c6">*</span>WaitGroup) <span style="color:#50fa7b">state</span>() (statep <span style="color:#ff79c6">*</span><span style="color:#8be9fd">uint64</span>, semap <span style="color:#ff79c6">*</span><span style="color:#8be9fd">uint32</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#6272a4">// 判定地址是否8位对齐
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> <span style="color:#8be9fd;font-style:italic">uintptr</span>(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>wg.state1))<span style="color:#ff79c6">%</span><span style="color:#bd93f9">8</span> <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#6272a4">// 前8bytes做uint64指针计数状态，后4bytes做信号量
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> (<span style="color:#ff79c6">*</span><span style="color:#8be9fd">uint64</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>wg.state1)), <span style="color:#ff79c6">&amp;</span>wg.state1[<span style="color:#bd93f9">2</span>]
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        <span style="color:#6272a4">// 后8bytes做uint64指针计数状态，前4bytes做信号量
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> (<span style="color:#ff79c6">*</span><span style="color:#8be9fd">uint64</span>)(unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>wg.state1[<span style="color:#bd93f9">1</span>])), <span style="color:#ff79c6">&amp;</span>wg.state1[<span style="color:#bd93f9">0</span>]
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
+</code></pre></div><p>state1 包含了 worker 计数器、waiter 计数器和信号量，取值逻辑是：</p>
+<ul>
+<li>worker 计数器：v 是 statep *uint64 的左 32 位</li>
+<li>waiter 计数器：w 是 statep *uint64 的右 32 位</li>
+<li>信号量：semap 是 state1 [3]uint32 的第一个字节/最后一个字节</li>
+</ul>
+<p>通过 state 方法我们可以看出，计数状态值是 <code>*uint64</code> 类型，信号量是 <code>*uint32</code> 类型，然后在使用时通过原子操作来读取，这里就涉及到<strong>内存对齐</strong>的知识点了。</p>
+<p>作为 Go 标准库自带的公共组件肯定是要考虑到不同平台的兼容问题，在 64 位平台原子操作 uint64 类型没有问题，但在 32 位平台操作 uint64 类型可能会发生报错，为什么呢？</p>
+<p>在 <a href="https://golang.org/pkg/sync/atomic/#pkg-note-BUG">atomic-bug</a> 中提到：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>On x86-32, the 64-bit functions use instructions unavailable before the Pentium MMX.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>On non-Linux ARM, the 64-bit functions use instructions unavailable before the ARMv6k core.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>On ARM, x86-32, and 32-bit MIPS, it is the caller’s responsibility to arrange <span style="color:#ff79c6">for</span> 64-bit alignment of 64-bit words accessed atomically. The first word in a variable or in an allocated struct, array, or slice can be relied upon to be 64-bit aligned.
+</code></pre></div><p>也就是说，在 32 位系统上想要原子操作 64 位字（如uint64）的话，需要由调用方保证其数据地址是 64 位对齐的，否则原子访问会有异常。那该如何保证呢？🤔</p>
+<p>在 <a href="https://golang.org/ref/spec#Package_unsafe">unsafe 包规范</a>中提到：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Computer architectures may require memory addresses to be aligned; that is, <span style="color:#ff79c6">for</span> addresses of a variable to be a multiple of a factor, the variable’s type’s alignment. The <span style="color:#ff79c6">function</span> Alignof takes an expression denoting a variable of any <span style="color:#8be9fd;font-style:italic">type</span> and returns the alignment of the <span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">type</span> of the<span style="color:#ff79c6">)</span> variable in bytes. For a variable x:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>uintptr<span style="color:#ff79c6">(</span>unsafe.Pointer<span style="color:#ff79c6">(</span>&amp;x<span style="color:#ff79c6">))</span> % unsafe.Alignof<span style="color:#ff79c6">(</span>x<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span>
+</code></pre></div><p>也就是说，如果类型 t 的对齐保证是 n，那么类型 t 的每个值的地址在运行时必须是 n 的倍数。上面的 state 方法正是基于这个规则来实现即便在 32 平台依然可以保证 uint64 是内存对齐的。</p>
+<p>那么 noCopy 和 state1 字段能否可以调换位置呢？留个思考在这里🤔。</p>
+<p>关于这块内存对齐的介绍，先说到这里，后面会单独总结篇博客来详细说明下，敬请期待~</p>
+<h4 id="add">Add</h4>
+<p>首先看 Add 方法的源码实现，可以添加或者删除 worker 的数量，参数 delta 可能为负的，这里去掉了 race 相关的代码，清爽了很多：</p>
+<ul>
+<li>worker 减少到零值，所有阻塞的 waiter 都会被释放</li>
+<li>worker 减少到负数，会发生 panic</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (wg <span style="color:#ff79c6">*</span>WaitGroup) <span style="color:#50fa7b">Add</span>(delta <span style="color:#8be9fd">int</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#6272a4">//获取计数状态和信号量的指针
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>    statep, semap <span style="color:#ff79c6">:=</span> wg.<span style="color:#50fa7b">state</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#6272a4">//statep 高32位表示worker计数，低32位表示waiter计数状态
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">//使用原子加操作worker计数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	state <span style="color:#ff79c6">:=</span> atomic.<span style="color:#50fa7b">AddUint64</span>(statep, <span style="color:#8be9fd;font-style:italic">uint64</span>(delta)<span style="color:#ff79c6">&lt;&lt;</span><span style="color:#bd93f9">32</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	v <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">int32</span>(state <span style="color:#ff79c6">&gt;&gt;</span> <span style="color:#bd93f9">32</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    w <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">uint32</span>(state)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#6272a4">//如果计数worker减少到负数，则panic
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> v &lt; <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: negative WaitGroup counter&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    <span style="color:#6272a4">//添加与等待并发调用，报panic
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> w <span style="color:#ff79c6">!=</span> <span style="color:#bd93f9">0</span> <span style="color:#ff79c6">&amp;&amp;</span> delta &gt; <span style="color:#bd93f9">0</span> <span style="color:#ff79c6">&amp;&amp;</span> v <span style="color:#ff79c6">==</span> <span style="color:#8be9fd;font-style:italic">int32</span>(delta) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    <span style="color:#6272a4">//worder计数添加成功
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> v &gt; <span style="color:#bd93f9">0</span> <span style="color:#ff79c6">||</span> w <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#ff79c6">if</span> <span style="color:#ff79c6">*</span>statep <span style="color:#ff79c6">!=</span> state {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>    <span style="color:#6272a4">// 重置计数器为0
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">*</span>statep = <span style="color:#bd93f9">0</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>	<span style="color:#ff79c6">for</span> ; w <span style="color:#ff79c6">!=</span> <span style="color:#bd93f9">0</span>; w<span style="color:#ff79c6">--</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>        <span style="color:#6272a4">//根据waiter计数依次释放信号，唤醒阻塞等待的waiter
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span><span style="color:#6272a4"></span>		<span style="color:#50fa7b">runtime_Semrelease</span>(semap, <span style="color:#ff79c6">false</span>, <span style="color:#bd93f9">0</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>
+</code></pre></div><h4 id="done">Done</h4>
+<p>Done 方法其实就是 Add(-1):</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (wg <span style="color:#ff79c6">*</span>WaitGroup) <span style="color:#50fa7b">Done</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	wg.<span style="color:#50fa7b">Add</span>(<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><h4 id="wait">Wait</h4>
+<p>Wait 方法的逻辑是修改 waiter 计数器，并阻塞等待信号量释放，同样去掉了 race 相关的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">//Wait 方法保持阻塞等待直到 worker计数减少到 0
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (wg <span style="color:#ff79c6">*</span>WaitGroup) <span style="color:#50fa7b">Wait</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#6272a4">//获取计数器状态和信号量的指针
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	statep, semap <span style="color:#ff79c6">:=</span> wg.<span style="color:#50fa7b">state</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#ff79c6">for</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        state <span style="color:#ff79c6">:=</span> atomic.<span style="color:#50fa7b">LoadUint64</span>(statep)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#6272a4">//worker计数状态
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>        v <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">int32</span>(state <span style="color:#ff79c6">&gt;&gt;</span> <span style="color:#bd93f9">32</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#6272a4">//waiter计数状态
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>		w <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">uint32</span>(state)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#ff79c6">if</span> v <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>			<span style="color:#6272a4">//当worker计数为 0 时，直接返回不需要阻塞等待
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>			<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        <span style="color:#6272a4">//原子增加 waiter 计数值，原子操作低 32 位，不需要移位
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">//通过 cas 和 for 循环这种无锁编程来保证 Wait 方法的并发调用
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> atomic.<span style="color:#50fa7b">CompareAndSwapUint64</span>(statep, state, state<span style="color:#ff79c6">+</span><span style="color:#bd93f9">1</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>            <span style="color:#6272a4">//阻塞等待信号量的释放
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>			<span style="color:#50fa7b">runtime_Semacquire</span>(semap)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>			<span style="color:#ff79c6">if</span> <span style="color:#ff79c6">*</span>statep <span style="color:#ff79c6">!=</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>				<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;sync: WaitGroup is reused before previous Wait has returned&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>            }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>            <span style="color:#6272a4">//信号量获取成功
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span>			<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>}
+</code></pre></div><h3 id="小结">小结</h3>
+<ul>
+<li>Add 操作必须早于 Wait 调用，否则会发生 panic</li>
+<li>WaitGroup 不保证 worker 的执行顺序</li>
+<li>WaitGroup 无法指定固定的 worker 数量</li>
+<li>WaitGroup 禁止拷贝，只能通过指针引用</li>
+</ul>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a></li>
+        
+        <li><a href="/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a></li>
+        
+        <li><a href="/post/2020/04/14/smooth-weighted-round-robin/">Nginx基于权重的轮询算法实现</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="Go源码阅读 | strings.Builder设计与实现">Go源码阅读 | strings.Builder设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (10)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>
