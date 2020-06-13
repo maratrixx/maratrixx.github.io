@@ -3,6 +3,11 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</loc>
+    <lastmod>2020-06-13T09:11:02+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://maratrix.cn/categories/</loc>
     <lastmod>2020-06-13T09:11:02+08:00</lastmod>
   </url>
@@ -29,11 +34,6 @@
   
   <url>
     <loc>https://maratrix.cn/tags/</loc>
-    <lastmod>2020-06-13T09:11:02+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</loc>
     <lastmod>2020-06-13T09:11:02+08:00</lastmod>
   </url>
   
