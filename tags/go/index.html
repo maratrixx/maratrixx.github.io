@@ -15,12 +15,12 @@
     <meta name="description" content="go">
         
     <meta name="author" content="maratrix">
-    <meta property="og:url" content="http://maratrix.cn/tags/go/">
+    <meta property="og:url" content="https://maratrix.cn/tags/go/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <link rel="alternate" type="application/rss+xml+xml" href="http://maratrix.cn/tags/go/index.xml" title="MARATRIX BLOG" />
+    <link rel="alternate" type="application/rss+xml+xml" href="https://maratrix.cn/tags/go/index.xml" title="MARATRIX BLOG" />
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
@@ -37,21 +37,21 @@
         <div class="col-group">
             <div class="site-name ">
                 
-                    <a id="logo" href="http://maratrix.cn/">
+                    <a id="logo" href="https://maratrix.cn/">
                         MARATRIX BLOG
                     </a>
                 
-                <p class="description">北漂民工 | 斜杠青年 | 后续...</p>
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
             </div>
             <div>
                 <nav id="nav-menu" class="clearfix">
-                    <a class="" href="http://maratrix.cn/">首页</a>
+                    <a class="" href="https://maratrix.cn/">首页</a>
                     
-                    <a  href="http://maratrix.cn/archives/" title="归档">归档</a>
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
-                    <a  href="http://maratrix.cn/about/" title="关于">关于</a>
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
                     
-                    <a  href="http://maratrix.cn/read/" title="阅读">阅读</a>
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
                     
                 </nav>
             </div>
@@ -78,7 +78,30 @@
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a>
+                <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月21日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -88,20 +111,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式： 1// 结构体 2type Builder struct { 3 addr *Builder // addr 保存了 Builder 对象的地址 4……
-            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
+            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">strings.Builder 源码阅读与分析</a>
+                <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -111,22 +134,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
-            
-            <a href='http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>源码阅读</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、……
-            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
+                <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -136,20 +157,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0 &#34;+connected+&#34;\n\n&#34;) 15 server.ServeConn(conn) 16} 这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就……
-            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
+            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">Nginx基于权重的轮询算法实现</a>
+                <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">Nginx基于权重的轮询算法实现</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -159,22 +180,22 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
-            <a href='http://maratrix.cn/categories/Nginx'>Nginx</a>
+            <a href='https://maratrix.cn/categories/Nginx'>Nginx</a>
             
         </div>
         
         <div class="post-content">
-            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值最大的节点为选中节点，并把它的当前值减去所有节点的权重总和。 例如{a:5, b:1, c:……
-            <p class="readmore"><a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
+            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">Go踩坑系列 | 为什么request.URL.Scheme取不到值</a>
+                <a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">Go踩坑系列 | 为什么request.URL.Scheme取不到值</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -184,20 +205,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w http.ResponseWriter, r *http.Request) { 3 fmt.Fprintln(w, &#34;Scheme:&#34;, r.URL.Scheme) 4 }) 5 log.Fatal(http.ListenAndServe(&#34;:9000&#34;, nil)) 6} 当我们请求http://127.0.0.1:9000……
-            <p class="readmore"><a href="http://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
+            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w……
+            <p class="readmore"><a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">Go踩坑系列 | json标准库string标签你用对了么</a>
+                <a href="https://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">Go踩坑系列 | json标准库string标签你用对了么</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -207,20 +228,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&quot;,string&quot; 就可以支持了，如果不知道golang的这些小技巧，就要大费周章……
-            <p class="readmore"><a href="http://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">阅读全文</a></p>
+            工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&quot;,str……
+            <p class="readmore"><a href="https://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2019/07/31/go-overseer-notes/">Go服务平滑重启实践</a>
+                <a href="https://maratrix.cn/post/2019/07/31/go-overseer-notes/">Go服务平滑重启实践</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -230,20 +251,20 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endless是比较像的，实现步骤如下： 监听信号 收到信号时fork子进程（使用相同的启动命令），将服务监听的socket文件描述符传递给子进程 子进程……
-            <p class="readmore"><a href="http://maratrix.cn/post/2019/07/31/go-overseer-notes/">阅读全文</a></p>
+            为了实现Golang业务的平滑重载，研究了一下github上比较成熟的解决方案，找到如下三个库： grace endless overseer 大致看了一下源码，grace和endless是比较像的，实现步骤如下： 监听信号 收到信号时fork子……
+            <p class="readmore"><a href="https://maratrix.cn/post/2019/07/31/go-overseer-notes/">阅读全文</a></p>
         </div>
     </article>
     
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a>
+                <a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
@@ -253,13 +274,13 @@
         <div class="post-meta meta-category">
             |
             
-            <a href='http://maratrix.cn/categories/Go'>Go</a>
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
             
         </div>
         
         <div class="post-content">
-            什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in files that have imported &ldquo;unsafe&rdquo;. 翻译过来就是： 这个指令告诉编译器为函数或者变量localname使用i……
-            <p class="readmore"><a href="http://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
+            什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in……
+            <p class="readmore"><a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
         </div>
     </article>
     
@@ -276,10 +297,10 @@
 
                 <div id="secondary">
     <section class="widget">
-        <form id="search" action='http://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
       
       <input type="text" name="q" maxlength="20" placeholder="Search">
-      <input type="hidden" name="sitesearch" value="http://maratrix.cn/">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
       <button type="submit" class="submit icon-search"></button>
 </form>
     </section>
@@ -289,43 +310,43 @@
 <ul class="widget-list">
     
     <li>
-        <a href="http://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
+        <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="strings.Builder 源码阅读与分析">strings.Builder 源码阅读与分析</a>
+        <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+        <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="Go源码阅读 | strings.Builder设计与实现">Go源码阅读 | strings.Builder设计与实现</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+        <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
+        <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
+        <a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+        <a href="https://maratrix.cn/post/2020/02/05/006-rust-control-notes/" title="Rust学习笔记006-控制流">Rust学习笔记006-控制流</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+        <a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+        <a href="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
     </li>
     
     <li>
-        <a href="http://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+        <a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
     </li>
     
 </ul>
@@ -337,13 +358,11 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="http://maratrix.cn/categories/Go/">Go (8)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (9)</a></li>
     
-    <li><a href="http://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
-    <li><a href="http://maratrix.cn/categories/Rust/">Rust (8)</a></li>
-    
-    <li><a href="http://maratrix.cn/categories/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读 (1)</a></li>
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
     
 </ul>
     </section>
@@ -352,15 +371,15 @@
         <h3 class="widget-title">标签</h3>
 <div class="tagcloud">
     
-    <a href="http://maratrix.cn/tags/go/">go</a>
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
     
-    <a href="http://maratrix.cn/tags/go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">go踩坑系列</a>
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
     
-    <a href="http://maratrix.cn/tags/nginx/">nginx</a>
+    <a href="https://maratrix.cn/tags/go/">go</a>
     
-    <a href="http://maratrix.cn/tags/rust/">rust</a>
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
     
-    <a href="http://maratrix.cn/tags/%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">源码阅读</a>
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
     
 </div>
     </section>
@@ -393,7 +412,7 @@
     <section class="widget">
         <h3 class="widget-title">其它</h3>
         <ul class="widget-list">
-            <li><a href="http://maratrix.cn/index.xml">文章 RSS</a></li>
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
         </ul>
     </section>
 </div>
@@ -402,7 +421,7 @@
     </div>
     <footer id="footer">
     <div class="container">
-        &copy; 2020 <a href="http://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        &copy; 2020 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
         Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
         <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
         
@@ -413,6 +432,17 @@
 
 <a id="rocket" href="#top"></a>
 <script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
 
 
 
