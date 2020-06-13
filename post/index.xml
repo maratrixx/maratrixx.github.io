@@ -6,10 +6,19 @@
     <description>Recent content in Posts on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 21 Apr 2020 11:55:18 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 25 Apr 2020 20:50:34 +0800</lastBuildDate>
     
 	<atom:link href="https://maratrix.cn/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Go源码阅读 | sync.WaitGroup设计与实现</title>
+      <link>https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/</link>
+      <pubDate>Sat, 25 Apr 2020 20:50:34 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/</guid>
+      <description>前言 当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup</description>
+    </item>
     
     <item>
       <title>Go源码阅读 | sync.Once设计与实现</title>
