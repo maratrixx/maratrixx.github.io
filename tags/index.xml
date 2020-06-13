@@ -6,7 +6,7 @@
     <description>Recent content in Tags on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 25 Apr 2020 20:50:34 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 13 Jun 2020 09:11:02 +0800</lastBuildDate>
     
 	<atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,9 +14,27 @@
     <item>
       <title>go</title>
       <link>https://maratrix.cn/tags/go/</link>
-      <pubDate>Sat, 25 Apr 2020 20:50:34 +0800</pubDate>
+      <pubDate>Sat, 13 Jun 2020 09:11:02 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>go指令</title>
+      <link>https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/</link>
+      <pubDate>Sat, 13 Jun 2020 09:11:02 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>转载</title>
+      <link>https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/</link>
+      <pubDate>Sat, 13 Jun 2020 09:11:02 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/</guid>
       <description></description>
     </item>
     

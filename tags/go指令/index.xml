@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>go指令 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/</link>
+    <description>Recent content in go指令 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 13 Jun 2020 09:11:02 +0800</lastBuildDate>
+    
+	<atom:link href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>【转】简单围观一下有趣的//go:指令</title>
+      <link>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</link>
+      <pubDate>Sat, 13 Jun 2020 09:11:02 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</guid>
+      <description>前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1//go:linkname localname importpath.name 该指令指示编译器</description>
+    </item>
+    
+  </channel>
+</rss>

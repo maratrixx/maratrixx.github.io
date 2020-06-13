@@ -6,21 +6,21 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Go踩坑系列 | MARATRIX BLOG</title>
-    <meta property="og:title" content="Go踩坑系列 - MARATRIX BLOG">
+    <title>go | MARATRIX BLOG</title>
+    <meta property="og:title" content="go - MARATRIX BLOG">
     <meta property="og:type" content="article">
         
         
     <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
-    <meta name="description" content="Go踩坑系列">
+    <meta name="description" content="go">
         
     <meta name="author" content="maratrix">
-    <meta property="og:url" content="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">
+    <meta property="og:url" content="https://maratrix.cn/tags/go/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <link rel="alternate" type="application/rss+xml+xml" href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/index.xml" title="MARATRIX BLOG" />
+    <link rel="alternate" type="application/rss+xml+xml" href="https://maratrix.cn/tags/go/index.xml" title="MARATRIX BLOG" />
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
@@ -69,7 +69,7 @@
     
     <h3 class="archive-title">
         包含标签
-        <span class="keyword">Go踩坑系列</span>
+        <span class="keyword">go</span>
         的文章
     </h3>
     
@@ -78,11 +78,11 @@
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">Go踩坑系列 | 为什么request.URL.Scheme取不到值</a>
+                <a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
-            2019年9月28日
+            2019年7月12日
         </date>
         
         <div class="post-meta meta-category">
@@ -93,31 +93,8 @@
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w……
-            <p class="readmore"><a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
-        </div>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">Go踩坑系列 | json标准库string标签你用对了么</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2019年9月5日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            工作中，我们会经常用到Go自带的json标准库，使用也很简单，具体用法这里不多说。 有的时候上游传过来的字段是string类型的，但是我们却想用变成int来使用。 本来用一个json:&quot;,str……
-            <p class="readmore"><a href="https://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/">阅读全文</a></p>
+            什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in……
+            <p class="readmore"><a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
         </div>
     </article>
     
@@ -125,6 +102,26 @@
     
 
 
+
+<ol class="page-navigator">
+    
+    <li class="prev">
+        <a href="https://maratrix.cn/tags/go/">上一页</a>
+    </li>
+    
+
+    
+    <li >
+        <a href="https://maratrix.cn/tags/go/">1</a>
+    </li>
+    
+    <li  class="current">
+        <a href="https://maratrix.cn/tags/go/page/2/">2</a>
+    </li>
+    
+
+    
+</ol>
 
 
 
