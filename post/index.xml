@@ -6,10 +6,19 @@
     <description>Recent content in Posts on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sat, 13 Jun 2020 09:11:02 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 14 Jun 2020 18:36:57 +0800</lastBuildDate>
     
 	<atom:link href="https://maratrix.cn/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>如何借助Go指令生成高性能随机数</title>
+      <link>https://maratrix.cn/post/2020/06/14/go-fast-random/</link>
+      <pubDate>Sun, 14 Jun 2020 18:36:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/06/14/go-fast-random/</guid>
+      <description>如何在 Go 开发中高效而又快速地生成随机数呢？相信大家首先想到的就是使用标准库自带的 math/rand 包，或者使用开源的第三方包（比如 github.com/valyala/fastrand）来实现。 Go 运行时自带了 runtime.fastrand 函数来</description>
+    </item>
     
     <item>
       <title>[转]简单围观一下有趣的//go:指令</title>
