@@ -1,26 +1,23 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
+	<meta name="generator" content="Hugo 0.69.0" />
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Go源码阅读 | MARATRIX BLOG</title>
-    <meta property="og:title" content="Go源码阅读 - MARATRIX BLOG">
-    <meta property="og:type" content="article">
-        
-        
+    <title>MARATRIX BLOG | 不期速成，日拱一卒，浮躁时代做个专注的人</title>
+    <meta property="og:title" content="MARATRIX BLOG | 不期速成，日拱一卒，浮躁时代做个专注的人">
+    <meta property="og:type" content="website">
     <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
-    <meta name="description" content="Go源码阅读">
-        
-    <meta name="author" content="maratrix">
-    <meta property="og:url" content="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">
+    <meta name="description" content="专注于IT互联网，包括但不限于Go语言(golang)、Java、Android、Python、项目管理、抖音分析、软件架构等">
+    <meta property="og:url" content="https://maratrix.cn/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <link rel="alternate" type="application/rss+xml+xml" href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" title="MARATRIX BLOG" />
+    <link rel="alternate" type="application/rss+xml+xml" href="https://maratrix.cn/index.xml" title="MARATRIX BLOG" />
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
@@ -37,15 +34,17 @@
         <div class="col-group">
             <div class="site-name ">
                 
-                    <a id="logo" href="https://maratrix.cn/">
-                        MARATRIX BLOG
-                    </a>
+                    <h1>
+                        <a id="logo" href="https://maratrix.cn/">
+                            MARATRIX BLOG
+                        </a>
+                    </h1>
                 
                 <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
             </div>
             <div>
                 <nav id="nav-menu" class="clearfix">
-                    <a class="" href="https://maratrix.cn/">首页</a>
+                    <a class="current" href="https://maratrix.cn/">首页</a>
                     
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
@@ -67,110 +66,56 @@
                     
 <div class="res-cons">
     
-    <h3 class="archive-title">
-        包含标签
-        <span class="keyword">Go源码阅读</span>
-        的文章
-    </h3>
-    
-
-    
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/">Go源码阅读 | context.Context 设计与实现</a>
+                <a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/" title="go:linkname用法">go:linkname用法</a>
             </h1>
         </header>
         <date class="post-meta meta-date">
-            2020年7月12日
+            2019年7月12日
         </date>
         
-        <div class="post-meta meta-category">
-            |
+        <div class="post-meta">
+            <span>|</span>
             
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
             
         </div>
         
         <div class="post-content">
-            本文基于 Go1.14.2 Go 自带的 context 包设计的很巧妙，最近阅读了下源码实现，可谓是短小精悍，很值得投入时间去学习。 什么是 context Go1.7 开始引入的 context 标准库包，主要用来在协程之间传递上下文信息，包括：取消信号、超时控制、截止时间、k……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/">阅读全文</a></p>
+            什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in……
         </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月25日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            前言 当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">阅读全文</a></p>
-        </div>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月21日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
-        </div>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月14日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
-        </div>
-    </article>
-    
-
     
 
 
+
+<ol class="page-navigator">
+    
+    <li class="prev">
+        <a href="https://maratrix.cn/page/2/">上一页</a>
+    </li>
+    
+
+    
+    <li >
+        <a href="https://maratrix.cn/">1</a>
+    </li>
+    
+    <li >
+        <a href="https://maratrix.cn/page/2/">2</a>
+    </li>
+    
+    <li  class="current">
+        <a href="https://maratrix.cn/page/3/">3</a>
+    </li>
+    
+
+    
+</ol>
 
 
 

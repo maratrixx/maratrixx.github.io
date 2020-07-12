@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Go源码阅读 | context.Context 设计与实现 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go源码阅读 | context.Context 设计与实现 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-07-12T16:55:45&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-07-12T16:55:45&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Go源码阅读 | context.Context 设计与实现">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2020/07/12/go-context-source-read/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go源码阅读 | context.Context 设计与实现</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年7月12日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <blockquote>
+<p>本文基于 Go1.14.2</p>
+</blockquote>
+<p>Go 自带的 context 包设计的很巧妙，最近阅读了下源码实现，可谓是短小精悍，很值得投入时间去学习。</p>
+<h2 id="什么是-context">什么是 context</h2>
+<p>Go1.7 开始引入的 context 标准库包，主要用来在协程之间传递上下文信息，包括：取消信号、超时控制、截止时间、k-v等。</p>
+<p>随着 context 包的引入，标准库中很多接口因此加上了 context 参数，例如 <code>database/sql</code> 包，context 几乎成为了并发控制和超时控制的标准做法。</p>
+<p>由于在底层实现中使用了锁，所以在多个 goroutine 之间同时使用 context 是并发安全的。</p>
+<h2 id="源码阅读">源码阅读</h2>
+<p>在开始进行源码阅读之前，我们先整体看下 context 整体设计：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>//TODO
+</code></pre></div><h3 id="context-接口">Context 接口</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Context <span style="color:#8be9fd;font-style:italic">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#6272a4">// 返回取消时间 deadline，以及是否会被自动取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>    <span style="color:#50fa7b">Deadline</span>() (deadline time.Time, ok <span style="color:#8be9fd">bool</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#6272a4">// 当 context 被取消或者到了 deadtime，返回一个被关闭的 channel
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#6272a4">// 在 channel Done 关闭后，返回 context 取消原因
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Err</span>() <span style="color:#8be9fd">error</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#6272a4">// 获取 key 对应的 value，不存在时返回 nil
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Value</span>(key <span style="color:#8be9fd;font-style:italic">interface</span>{}) <span style="color:#8be9fd;font-style:italic">interface</span>{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+</code></pre></div><p>这里要着重说明下 <code>Done</code>，该方法返回一个只读的 channel，可以表示 context 被取消的信号：</p>
+<ul>
+<li>当 channel 未被关闭时，子协程进行读取时会发生阻塞，直到被关闭；</li>
+<li>当 channel 发生关闭时，子协程可以读到 channel 的零值，从而收到 context 取消的消息；</li>
+</ul>
+<p>正是利用关闭 channel 的这种”广播机制“，所有监听 Done 方法的子协程可以在收到信号时进行一些收尾工作，尽快退出。</p>
+<blockquote>
+<p>这里同时也要注意下，由于 channel 的底层也用到了锁，所以当大量协程在等待 <code>ctx.Done()</code> 时，实际上在争同一把大锁，可能会有性能问题。可以考虑使用 WithCancel 来复制通知 channel，减少锁竞争。</p>
+</blockquote>
+<h3 id="canceler-接口">canceler 接口</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> canceler <span style="color:#8be9fd;font-style:italic">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>只要实现了 canceler 接口就可以执行取消操作，<code>*cancelCtx</code> 和 <code>*timerCtx</code> 实现了该接口，注意是加了 <code>*</code> 号的，是这两个结构体的指针实现了 canceler 接口。</p>
+<p>Context 接口设计成这样的原因：</p>
+<ul>
+<li>“取消”操作应该是建议性，而非强制性；</li>
+<li>“取消”操作应该可传递，“取消”某个函数时，和它相关联的其他函数也应该“取消”；</li>
+</ul>
+<h3 id="emptyctx">emptyCtx</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> emptyCtx <span style="color:#8be9fd">int</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#8be9fd;font-style:italic">func</span> (<span style="color:#ff79c6">*</span>emptyCtx) <span style="color:#50fa7b">Deadline</span>() (deadline time.Time, ok <span style="color:#8be9fd">bool</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#8be9fd;font-style:italic">func</span> (<span style="color:#ff79c6">*</span>emptyCtx) <span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{} {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#8be9fd;font-style:italic">func</span> (<span style="color:#ff79c6">*</span>emptyCtx) <span style="color:#50fa7b">Err</span>() <span style="color:#8be9fd">error</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#8be9fd;font-style:italic">func</span> (<span style="color:#ff79c6">*</span>emptyCtx) <span style="color:#50fa7b">Value</span>(key <span style="color:#8be9fd;font-style:italic">interface</span>{}) <span style="color:#8be9fd;font-style:italic">interface</span>{} {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>}
+</code></pre></div><p>对于 Context 的实现源码里只有一个最基本的实现，就是私有的 emptyCtx，这实际上是一个空的 context，永远不会被 cancel，没有存储值，也没有 deadline。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	background = <span style="color:#8be9fd;font-style:italic">new</span>(emptyCtx)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	todo       = <span style="color:#8be9fd;font-style:italic">new</span>(emptyCtx)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Background</span>() Context {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">return</span> background
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">TODO</span>() Context {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">return</span> todo
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
+</code></pre></div><ul>
+<li>
+<p>background 通常用在 main 函数中，作为所有 context 的根节点。</p>
+</li>
+<li>
+<p>todo 通常用在并不知道传递什么 context 时使用。例如，调用一个需要传递 context 参数的函数，你手头并没有其他 context 可以传递，这时就可以传递 todo。这常常发生在重构进行中，给一些函数添加了一个 Context 参数，但不知道要传什么，就用 todo “占个位子”，最终要换成其他 context。</p>
+</li>
+</ul>
+<h3 id="cancelctx">cancelCtx</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> cancelCtx <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Context
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	mu       sync.Mutex            <span style="color:#6272a4">// 保护以下字段
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>	done     <span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}         <span style="color:#6272a4">// 惰性创建，当被取消时进行关闭
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>	children <span style="color:#8be9fd;font-style:italic">map</span>[canceler]<span style="color:#8be9fd;font-style:italic">struct</span>{} <span style="color:#6272a4">// 保存了可被取消的子 canceler，最终会形成树状结构
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>	err      <span style="color:#8be9fd">error</span>                 <span style="color:#6272a4">// 保存发生取消时会的错误信息
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>这是一个可被取消的 cancelCtx，实现了 canceler 接口。由于内嵌了 Context 接口，所以同时也是一个 Context，并重写了里面的 Err、Done、Value 方法。</p>
+<h4 id="value-方法实现">Value 方法实现</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>cancelCtx) <span style="color:#50fa7b">Value</span>(key <span style="color:#8be9fd;font-style:italic">interface</span>{}) <span style="color:#8be9fd;font-style:italic">interface</span>{} {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#ff79c6">if</span> key <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">&amp;</span>cancelCtxKey {   <span style="color:#6272a4">// 这里是为了在调用 parentCancelCtx 时返回可挂载的 cancelCtx
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	<span style="color:#ff79c6">return</span> c.Context.<span style="color:#50fa7b">Value</span>(key) <span style="color:#6272a4">// 递归获取 key 对应的 value
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>}
+</code></pre></div><h4 id="done-方法实现">Done 方法实现</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>cancelCtx) <span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{} {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	c.mu.<span style="color:#50fa7b">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#ff79c6">if</span> c.done <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>		c.done = <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	d <span style="color:#ff79c6">:=</span> c.done
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	c.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>	<span style="color:#ff79c6">return</span> d
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
+</code></pre></div><p>可以看出 c.done 是惰性创建的，只有调用了 Done() 方法的时候才会被创建。</p>
+<h4 id="withcancel">WithCancel</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithCancel</span>(parent Context) (ctx Context, cancel CancelFunc) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#ff79c6">if</span> parent <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;cannot create context from nil parent&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	c <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">newCancelCtx</span>(parent)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#50fa7b">propagateCancel</span>(parent, <span style="color:#ff79c6">&amp;</span>c)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">&amp;</span>c, <span style="color:#8be9fd;font-style:italic">func</span>() { c.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">true</span>, Canceled) }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">newCancelCtx</span>(parent Context) cancelCtx {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">return</span> cancelCtx{Context: parent}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
+</code></pre></div><p>WithCancel 通过参数 parent context（这通常是一个 background，作为根节点）来创建 cancelCtx。这里重点看下 propagateCancel 和 cancel 的实现。</p>
+<h4 id="propagatecancel">propagateCancel</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">propagateCancel</span>(parent Context, child canceler) {  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	done <span style="color:#ff79c6">:=</span> parent.<span style="color:#50fa7b">Done</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">if</span> done <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {    <span style="color:#6272a4">// done == nil 时，表示父节点是个空节点，永远不会被取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>done:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		<span style="color:#6272a4">// 使用 select 检查父类是否已经被取消，是的话直接递归取消子 context，否则继续执行
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>		child.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, parent.<span style="color:#50fa7b">Err</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#ff79c6">default</span>:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#6272a4">// 找到可以挂靠的父 context，实际上是找上一个父 cancelCtx
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> p, ok <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">parentCancelCtx</span>(parent); ok {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		p.mu.<span style="color:#50fa7b">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		<span style="color:#ff79c6">if</span> p.err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>			<span style="color:#6272a4">// 父节点已被取消，子节点也要被取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>			child.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, p.err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>            <span style="color:#6272a4">// 父节点未被取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#6272a4"></span>			<span style="color:#ff79c6">if</span> p.children <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>				p.children = <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">map</span>[canceler]<span style="color:#8be9fd;font-style:italic">struct</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>            }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>            <span style="color:#6272a4">// 挂载到父节点上
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#6272a4"></span>			p.children[child] = <span style="color:#8be9fd;font-style:italic">struct</span>{}{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		p.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>	} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>        atomic.<span style="color:#50fa7b">AddInt32</span>(<span style="color:#ff79c6">&amp;</span>goroutines, <span style="color:#ff79c6">+</span><span style="color:#bd93f9">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>        <span style="color:#6272a4">// 如果没有找到可取消的父 context，新启动一个协程监控父节点或子节点取消信号
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">go</span> <span style="color:#8be9fd;font-style:italic">func</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>			<span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>			<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>parent.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>				child.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, parent.<span style="color:#50fa7b">Err</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>			<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>child.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>			}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>		}()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>}
+</code></pre></div><p>propagateCancel 方法的作用就是向上寻找可以挂靠的并且可取消的父 context 节点，并把子节点挂靠上去。这样，调用父节点 cancel 方法的时候，就可以层层传递，将那些挂靠的子 context 节点同时取消。</p>
+<p>最后 else 这段代码可能比较难以理解，其实就是为了解决当找不到可以挂靠的父节点时如何取消该子节点：</p>
+<ul>
+<li><code>case &lt;- parent.Done()</code>: 表示在单独的 goroutine 监听父类的取消消息，当父类取消时执行子类取消操作；</li>
+<li><code>case &lt;- child.Done()</code>: 表示监听子类单独的取消消息，这个 case 主要是为了防止父类一直不取消时候协泄露问题；</li>
+</ul>
+<h4 id="cancel">cancel</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>cancelCtx) <span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> { <span style="color:#6272a4">// 取消错误消息不能为空
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;context: internal error: missing cancel error&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	c.mu.<span style="color:#50fa7b">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#ff79c6">if</span> c.err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> { <span style="color:#6272a4">// err 不为空说明已经取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>		c.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	c.err = err
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">if</span> c.done <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {  <span style="color:#6272a4">// c.done 未初始化时，直接服用全局已关闭的 closedchan
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>		c.done = closedchan
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		<span style="color:#8be9fd;font-style:italic">close</span>(c.done)   <span style="color:#6272a4">// 关闭 channel，广播关闭消息
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">for</span> child <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> c.children {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		<span style="color:#6272a4">// 遍历取消子 context 节点
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>		child.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	c.children = <span style="color:#ff79c6">nil</span>    <span style="color:#6272a4">// 将子节点置空，等待 gc 回收
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4"></span>	c.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#ff79c6">if</span> removeFromParent {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>		<span style="color:#50fa7b">removeChild</span>(c.Context, c)   <span style="color:#6272a4">// 当 removeFromParent == true 时，从父节点移除子 context
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>}
+</code></pre></div><p>cancel 的作用其实就以下几点：</p>
+<ul>
+<li>关闭自己 c.done，广播消息;</li>
+<li>递归取消所有子节点；</li>
+<li>从父节点删除自己；</li>
+</ul>
+<p>还有一个问题是，cancel 的第一个参数为什么有时传 true，有时传 false？</p>
+<ul>
+<li>当主动取消从 WithCancel 返回的 cancel 方法时使用 true，此时需要仅仅从父节点删除自己；</li>
+<li>当父类节点递归取消子节点时使用 false，这里不使用 true 的原因是父节点最后会执行 <code>c.children = nil</code> 操作，会销毁所有子节点；</li>
+</ul>
+<h3 id="timerctx">timerCtx</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> timerCtx <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	cancelCtx
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	timer <span style="color:#ff79c6">*</span>time.Timer 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	deadline time.Time
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>timerCtx) <span style="color:#50fa7b">Deadline</span>() (deadline time.Time, ok <span style="color:#8be9fd">bool</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#ff79c6">return</span> c.deadline, <span style="color:#ff79c6">true</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>timerCtx) <span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	c.cancelCtx.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, err)  <span style="color:#6272a4">// 调用内嵌的 cancelCtx 的取消操作
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> removeFromParent {           <span style="color:#6272a4">// 当 removeFromParent = true 时，从父节点删除自己。这里不太理解为啥不直接这样调用 `c.cancelCtx.cancel(true, err)` 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>		<span style="color:#50fa7b">removeChild</span>(c.cancelCtx.Context, c)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	c.mu.<span style="color:#50fa7b">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#ff79c6">if</span> c.timer <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> { <span style="color:#6272a4">// 停止 timer，防止在 deadline 时，会再次取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>		c.timer.<span style="color:#50fa7b">Stop</span>()  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		c.timer = <span style="color:#ff79c6">nil</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	c.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
+</code></pre></div><p>timerCtx 基于 cancelCtx，只是多了 timer 和 deadline 参数，并重写了 Deadline 和 cancel 方法。</p>
+<h4 id="withdeadline">WithDeadline</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithDeadline</span>(parent Context, d time.Time) (Context, CancelFunc) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#ff79c6">if</span> parent <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;cannot create context from nil parent&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#ff79c6">if</span> cur, ok <span style="color:#ff79c6">:=</span> parent.<span style="color:#50fa7b">Deadline</span>(); ok <span style="color:#ff79c6">&amp;&amp;</span> cur.<span style="color:#50fa7b">Before</span>(d) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		<span style="color:#6272a4">// 如果父节点 context 的 deadline 早于指定时间，直接构建一个可取消的 context。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>		<span style="color:#6272a4">// 原因是一旦父节点超时，自动调用 cancel 函数，子节点也会随之取消。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>		<span style="color:#6272a4">// 所以不用单独处理子节点的计时器时间到了之后，自动调用 cancel 函数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> <span style="color:#50fa7b">WithCancel</span>(parent)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	c <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>timerCtx{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		cancelCtx: <span style="color:#50fa7b">newCancelCtx</span>(parent),
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		deadline:  d,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#6272a4">// 挂靠到父节点上
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>    <span style="color:#50fa7b">propagateCancel</span>(parent, c)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    <span style="color:#6272a4">// 计算当前距离 deadline 的时间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>	dur <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">Until</span>(d)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	<span style="color:#ff79c6">if</span> dur <span style="color:#ff79c6">&lt;=</span> <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		c.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">true</span>, DeadlineExceeded) <span style="color:#6272a4">// deadline has already passed
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> c, <span style="color:#8be9fd;font-style:italic">func</span>() { c.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">false</span>, Canceled) }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	c.mu.<span style="color:#50fa7b">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>	<span style="color:#ff79c6">defer</span> c.mu.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#ff79c6">if</span> c.err <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>        <span style="color:#6272a4">// d 时间后，timer 会自动调用 cancel 函数，自动取消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// WithDeadline 方法的核心逻辑
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#6272a4"></span>		c.timer = time.<span style="color:#50fa7b">AfterFunc</span>(dur, <span style="color:#8be9fd;font-style:italic">func</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>			c.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">true</span>, DeadlineExceeded)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>		})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	<span style="color:#ff79c6">return</span> c, <span style="color:#8be9fd;font-style:italic">func</span>() { c.<span style="color:#50fa7b">cancel</span>(<span style="color:#ff79c6">true</span>, Canceled) }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>}
+</code></pre></div><h4 id="withtimeout">WithTimeout</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithTimeout</span>(parent Context, timeout time.Duration) (Context, CancelFunc) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#ff79c6">return</span> <span style="color:#50fa7b">WithDeadline</span>(parent, time.<span style="color:#50fa7b">Now</span>().<span style="color:#50fa7b">Add</span>(timeout))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>WithTimeout 本质还是调用 WithDeadline 方法。</p>
+<h3 id="valuectx">valueCtx</h3>
+<h4 id="结构体">结构体</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> valueCtx <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Context
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	key, val <span style="color:#8be9fd;font-style:italic">interface</span>{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>valueCtx 结构体添加 key、value 字段，用来存储 k-v 信息。</p>
+<p>valueCtx 直接将 Context 作为匿名字段，因此尽管只实现了 Value 方法，其他方法继承自父 context，但它仍然是一个 Context，这是 Go 语言的一个特点。</p>
+<h4 id="value-方法">Value 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>valueCtx) <span style="color:#50fa7b">Value</span>(key <span style="color:#8be9fd;font-style:italic">interface</span>{}) <span style="color:#8be9fd;font-style:italic">interface</span>{} {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#ff79c6">if</span> c.key <span style="color:#ff79c6">==</span> key { <span style="color:#6272a4">// 比较当前 c.key 是否是 key，是的话直接返回，否则继续递归寻找
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">return</span> c.val
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#6272a4">// 递归寻找 key 对应的 value，不存在时返回 nil
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>    <span style="color:#ff79c6">return</span> c.Context.<span style="color:#50fa7b">Value</span>(key)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+</code></pre></div><h4 id="withvalue-方法">WithValue 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithValue</span>(parent Context, key, val <span style="color:#8be9fd;font-style:italic">interface</span>{}) Context {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#ff79c6">if</span> parent <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;cannot create context from nil parent&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#ff79c6">if</span> key <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;nil key&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#6272a4">// key 必须可比较，否则 panic
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> !reflectlite.<span style="color:#50fa7b">TypeOf</span>(key).<span style="color:#50fa7b">Comparable</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;key is not comparable&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#6272a4">// 存储 k-v，并返回一个新的 valueCtx
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">return</span> <span style="color:#ff79c6">&amp;</span>valueCtx{parent, key, val}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
+</code></pre></div><p>WithValue 对 key 的要求是可比较，因为之后需要通过 key 取出 context 中的值，可比较是必须的。</p>
+<p>valueCtx 寻值过程有几点要注意：</p>
+<ul>
+<li>父节点没法获取子节点存储的值，子节点却可以获取父节点的值；</li>
+<li>递归寻找，依次比较每个父节点的 key；</li>
+<li>递归至根节点(emptyCtx)时，返回 nil，所以用 Value 方法的时候要判断结果是否为 nil；</li>
+<li>整体上而言，用 WithValue 构造的其实是一个低效率的链表；</li>
+</ul>
+<h2 id="如何使用">如何使用</h2>
+<h2 id="性能问题">性能问题</h2>
+<h2 id="小结">小结</h2>
+<h2 id="参考资料">参考资料</h2>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a></li>
+        
+        <li><a href="/post/2020/06/14/go-fast-random/">如何借助Go指令生成随机数</a></li>
+        
+        <li><a href="/post/2020/06/13/go-directive-syntax/">[转]简单围观一下有趣的//go:指令</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/context'>context</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context 设计与实现">Go源码阅读 | context.Context 设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/14/go-fast-random/" title="如何借助Go指令生成随机数">如何借助Go指令生成随机数</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/" title="[转]简单围观一下有趣的//go:指令">[转]简单围观一下有趣的//go:指令</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="Go源码阅读 | strings.Builder设计与实现">Go源码阅读 | strings.Builder设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (13)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>

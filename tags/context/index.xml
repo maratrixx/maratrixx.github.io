@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>context on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/context/</link>
+    <description>Recent content in context on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 12 Jul 2020 16:55:45 +0800</lastBuildDate>
+    
+	<atom:link href="https://maratrix.cn/tags/context/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Go源码阅读 | context.Context 设计与实现</title>
+      <link>https://maratrix.cn/post/2020/07/12/go-context-source-read/</link>
+      <pubDate>Sun, 12 Jul 2020 16:55:45 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/07/12/go-context-source-read/</guid>
+      <description>本文基于 Go1.14.2 Go 自带的 context 包设计的很巧妙，最近阅读了下源码实现，可谓是短小精悍，很值得投入时间去学习。 什么是 context Go1.7 开始引入的 context 标准库包，主要用来在协程之间传递上下文信息，包括：取消信号、超时控制、截止时间、k</description>
+    </item>
+    
+  </channel>
+</rss>
