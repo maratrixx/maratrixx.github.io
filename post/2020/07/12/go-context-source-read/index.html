@@ -108,7 +108,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Context <span style="color:#8be9fd;font-style:italic">interface</span> {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#6272a4">// 返回取消时间 deadline，以及是否会被自动取消
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>    <span style="color:#50fa7b">Deadline</span>() (deadline time.Time, ok <span style="color:#8be9fd">bool</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#6272a4">// 当 context 被取消或者到了 deadtime，返回一个被关闭的 channel
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#6272a4">// 当 context 被取消或者到了 deadline，返回一个被关闭的 channel
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#6272a4">// 在 channel Done 关闭后，返回 context 取消原因
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Err</span>() <span style="color:#8be9fd">error</span>
@@ -126,8 +126,8 @@
 </blockquote>
 <h3 id="canceler-接口">canceler 接口</h3>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> canceler <span style="color:#8be9fd;font-style:italic">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#50fa7b">Done</span>() <span style="color:#ff79c6">&lt;-</span><span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
 </code></pre></div><p>只要实现了 canceler 接口就可以执行取消操作，<code>*cancelCtx</code> 和 <code>*timerCtx</code> 实现了该接口，注意是加了 <code>*</code> 号的，是这两个结构体的指针实现了 canceler 接口。</p>
 <p>Context 接口设计成这样的原因：</p>
@@ -262,7 +262,7 @@
 <p>最后 else 这段代码可能比较难以理解，其实就是为了解决当找不到可以挂靠的父节点时如何取消该子节点：</p>
 <ul>
 <li><code>case &lt;- parent.Done()</code>: 表示在单独的 goroutine 监听父类的取消消息，当父类取消时执行子类取消操作；</li>
-<li><code>case &lt;- child.Done()</code>: 表示监听子类单独的取消消息，这个 case 主要是为了防止父类一直不取消时候协泄露问题；</li>
+<li><code>case &lt;- child.Done()</code>: 表示监听子类单独的取消消息，这个 case 主要是为了防止父类一直不取消时候协程泄露问题；</li>
 </ul>
 <h4 id="cancel">cancel</h4>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>cancelCtx) <span style="color:#50fa7b">cancel</span>(removeFromParent <span style="color:#8be9fd">bool</span>, err <span style="color:#8be9fd">error</span>) {
