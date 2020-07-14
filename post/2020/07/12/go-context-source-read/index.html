@@ -102,9 +102,7 @@
 <p>随着 context 包的引入，标准库中很多接口因此加上了 context 参数，例如 <code>database/sql</code> 包，context 几乎成为了并发控制和超时控制的标准做法。</p>
 <p>由于在底层实现中使用了锁，所以在多个 goroutine 之间同时使用 context 是并发安全的。</p>
 <h2 id="源码阅读">源码阅读</h2>
-<p>在开始进行源码阅读之前，我们先整体看下 context 整体设计：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>//TODO
-</code></pre></div><h3 id="context-接口">Context 接口</h3>
+<h3 id="context-接口">Context 接口</h3>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Context <span style="color:#8be9fd;font-style:italic">interface</span> {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#6272a4">// 返回取消时间 deadline，以及是否会被自动取消
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>    <span style="color:#50fa7b">Deadline</span>() (deadline time.Time, ok <span style="color:#8be9fd">bool</span>)
@@ -408,9 +406,112 @@
 <li>整体上而言，用 WithValue 构造的其实是一个低效率的链表；</li>
 </ul>
 <h2 id="如何使用">如何使用</h2>
+<p>context 对外暴露了一下方法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Background</span>() Context
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">TODO</span>() Context
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithCancel</span>(parent Context) (ctx Context, cancel CancelFunc)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithDeadline</span>(parent Context, deadline time.Time) (Context, CancelFunc)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithTimeout</span>(parent Context, timeout time.Duration) (Context, CancelFunc)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">WithValue</span>(parent Context, key, val <span style="color:#8be9fd;font-style:italic">interface</span>{}) Context
+</code></pre></div><p>在官方博客里提出了几点使用建议：</p>
+<ul>
+<li>不要将 Context 塞到结构体里。直接将 Context 类型作为函数的第一参数，而且一般都命名为 ctx。</li>
+<li>不要向函数传入一个 nil 的 context，如果你实在不知道传什么，标准库给你准备好了一个 context：todo。</li>
+<li>不要把本应该作为函数参数的类型塞到 context 中，context 存储的应该是一些共同的数据。例如：登陆的 session、cookie 等。</li>
+<li>同一个 context 可能会被传递到多个 goroutine，别担心，context 是并发安全的。</li>
+</ul>
+<h3 id="传递共享的数据">传递共享的数据</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> ctxKey <span style="color:#8be9fd">string</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	ctx <span style="color:#ff79c6">:=</span> context.<span style="color:#50fa7b">TODO</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	ctx = context.<span style="color:#50fa7b">WithValue</span>(ctx, <span style="color:#50fa7b">ctxKey</span>(<span style="color:#f1fa8c">&#34;name&#34;</span>), <span style="color:#f1fa8c">&#34;maratrix&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	ctx = context.<span style="color:#50fa7b">WithValue</span>(ctx, <span style="color:#50fa7b">ctxKey</span>(<span style="color:#f1fa8c">&#34;sex&#34;</span>), <span style="color:#f1fa8c">&#34;male&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;name:&#34;</span>, ctx.<span style="color:#50fa7b">Value</span>(<span style="color:#50fa7b">ctxKey</span>(<span style="color:#f1fa8c">&#34;name&#34;</span>)).(<span style="color:#8be9fd">string</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;sex:&#34;</span>, ctx.<span style="color:#50fa7b">Value</span>(<span style="color:#50fa7b">ctxKey</span>(<span style="color:#f1fa8c">&#34;sex&#34;</span>)).(<span style="color:#8be9fd">string</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+</code></pre></div><p>当我们使用 WithValue 保存数据时，官方建议：</p>
+<ul>
+<li>key 必须要有可比性；</li>
+<li>不应该是字符串或者内置的其他类型，以避免上下文包之间的使用冲突；</li>
+<li>用户应该定义自己的 key 类型；</li>
+</ul>
+<h3 id="使用-cancelctx-取消">使用 cancelCtx 取消</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	worker <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">func</span>(ctx context.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		ch <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#8be9fd;font-style:italic">struct</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	jobLoop:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#ff79c6">for</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>			<span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>			<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ch:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>				fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;job doing&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>			<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ctx.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>				fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;context cancel&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>				<span style="color:#ff79c6">break</span> jobLoop
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>			}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	ctx, cancel <span style="color:#ff79c6">:=</span> context.<span style="color:#50fa7b">WithCancel</span>(context.<span style="color:#50fa7b">TODO</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#ff79c6">go</span> <span style="color:#50fa7b">worker</span>(ctx)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#50fa7b">cancel</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	time.<span style="color:#50fa7b">Sleep</span>(time.Second)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
+</code></pre></div><p>有了 cancelCtx 就可以很方便取消 goroutine 了，核心逻辑是这里：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ch:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>        fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;job doing&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ctx.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>        fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;context cancel&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>        <span style="color:#ff79c6">break</span> jobLoop
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
+</code></pre></div><p>这里我们一边消费自己的 job channel，一边还需要监听 ctx.Done()，如果不监听 ctx.Done()，那显然也就不知道什么时候需要退出了。</p>
+<h3 id="使用-timerctx-超时取消">使用 timerCtx 超时取消</h3>
+<p>使用 WithDeadline 和 WithTimeout 都可以生成一个 timerCtx:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	ctx, cancel <span style="color:#ff79c6">:=</span> context.<span style="color:#50fa7b">WithTimeout</span>(context.<span style="color:#50fa7b">TODO</span>(), <span style="color:#bd93f9">100</span><span style="color:#ff79c6">*</span>time.Millisecond)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">defer</span> <span style="color:#50fa7b">cancel</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ctx.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		fmt.<span style="color:#50fa7b">Println</span>(ctx.<span style="color:#50fa7b">Err</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>time.<span style="color:#50fa7b">After</span>(<span style="color:#bd93f9">200</span> <span style="color:#ff79c6">*</span> time.Millisecond):
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		fmt.<span style="color:#50fa7b">Println</span>(<span style="color:#f1fa8c">&#34;after timeout&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
+</code></pre></div><p>timerCtx 有几个点需要注意：</p>
+<ul>
+<li>每次执行都会创建新的 timer</li>
+<li>子节点的 deadline 一定不会超过父节点</li>
+<li>创建过程中发现已经过期了，立刻返回</li>
+</ul>
 <h2 id="性能问题">性能问题</h2>
-<h2 id="小结">小结</h2>
+<p>如果不通过 WithCancel 来复制通知 channel，大家都使用同一个 ctx.Done，那么实际上是在争一把大锁，在一些场景可能会有性能问题。</p>
+<p>来看一个实例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	ctx, _ <span style="color:#ff79c6">:=</span> context.<span style="color:#50fa7b">WithCancel</span>(context.<span style="color:#50fa7b">TODO</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; <span style="color:#bd93f9">100</span>; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#ff79c6">go</span> <span style="color:#8be9fd;font-style:italic">func</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>			<span style="color:#ff79c6">select</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>			<span style="color:#ff79c6">case</span> <span style="color:#ff79c6">&lt;-</span>ctx.<span style="color:#50fa7b">Done</span>():
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>			}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		}()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	time.<span style="color:#50fa7b">Sleep</span>(time.Hour)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
+</code></pre></div><h2 id="小结">小结</h2>
+<p>到这里，整个 context 包的内容就全部讲完了。源码非常短，很适合学习。</p>
+<p>context 包是 Go 1.7 引入的标准库，主要用于在 goroutine 之间传递取消信号、超时时间、截止时间以及一些共享的值等。它并不是太完美，但几乎成了并发控制和超时控制的标准做法。</p>
+<p>使用上，先创建一个根节点的 context，之后根据库提供的四个函数创建相应功能的子节点 context。由于它是并发安全的，所以可以放心地传递。</p>
+<p>当使用 context 作为函数参数时，直接把它放在第一个参数的位置，并且命名为 ctx。另外，不要把 context 嵌套在自定义的类型里。</p>
+<p>最后，大家下次在看到代码里有用到 context 的，观察下是怎么使用的，肯定逃不出上面讲的几种类型。熟悉之后会发现：<strong>context 可能并不完美，但它确实简洁高效地解决了问题</strong>。</p>
 <h2 id="参考资料">参考资料</h2>
+<p><a href="https://blog.golang.org/context">Go context 官方博文</a></p>
+<p><a href="https://qcrao.com/2019/06/12/dive-into-go-context/">深度解密 Go 语言之 context</a></p>
+<p><a href="https://github.com/cch123/golang-notes/blob/master/context.md">曹大的 context 源码分析</a></p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzAxNzY0NDE3NA==&amp;mid=2247484085&amp;idx=1&amp;sn=bc0568cc55f9d134fa730f488a502aaa&amp;source=41#wechat_redirect">Go：从 context 源码领悟接口的设计</a></p>
 
         </div>
 
