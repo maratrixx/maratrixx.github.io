@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/">Go源码阅读 | channel 设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年8月25日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            本文基于 Go1.14 源码阅读 1package runtime 2 3// 此文件实现了 Go 的 channel 4 5// 变种: 6// c.sendq 和 c.recvq 中至少一个为空，除非是 unbuffered channle 和单个 goroutine 7// 阻塞在 select 语句中同时使用发送和接受的这种情况。这时 c.sendq 和 c.recvq 的长度由 8// select 语句的大小限制。 9// 10// 对于 buffered chann……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/">Go源码阅读 | context.Context设计与实现</a>
             </h1>
         </header>
@@ -193,6 +216,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
     </li>
     
@@ -228,10 +255,6 @@
         <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -241,7 +264,7 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (13)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (14)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
@@ -257,6 +280,8 @@
     <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
     
     <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
     
     <a href="https://maratrix.cn/tags/context/">context</a>
     

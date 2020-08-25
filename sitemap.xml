@@ -4,7 +4,42 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/channel/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Go/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/go/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
   </url>
   
   <url>
@@ -13,32 +48,7 @@
   </url>
   
   <url>
-    <loc>https://maratrix.cn/categories/Go/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/go/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://maratrix.cn/post/2020/07/12/go-context-source-read/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2020-07-12T16:55:45+08:00</lastmod>
   </url>
   

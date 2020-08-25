@@ -6,10 +6,19 @@
     <description>Recent content in go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 12 Jul 2020 16:55:45 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 25 Aug 2020 22:40:45 +0800</lastBuildDate>
     
 	<atom:link href="https://maratrix.cn/tags/go/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Go源码阅读 | channel 设计与实现</title>
+      <link>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</link>
+      <pubDate>Tue, 25 Aug 2020 22:40:45 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</guid>
+      <description>本文基于 Go1.14 源码阅读 1package runtime 2 3// 此文件实现了 Go 的 channel 4 5// 变种: 6// c.sendq 和 c.recvq 中至少一个为空，除非是 unbuffered channle 和单个 goroutine 7// 阻塞在 select 语句中同时使用发送和接受的这种情况。这时 c.sendq 和 c.recvq 的长度由 8// select 语句的大小限制。 9// 10// 对于 buffered chann</description>
+    </item>
     
     <item>
       <title>Go源码阅读 | context.Context设计与实现</title>
