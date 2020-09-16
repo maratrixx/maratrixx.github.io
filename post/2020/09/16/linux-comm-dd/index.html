@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Linux dd 命令使用详解 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Linux dd 命令使用详解 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2020-09-16T19:27:00&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2020-09-16T19:27:00&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Linux dd 命令使用详解">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2020/09/16/linux-comm-dd/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Linux dd 命令使用详解</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年9月16日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Linux'>Linux</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <h3 id="dd-命令介绍">dd 命令介绍</h3>
+<p>Linux dd 命令用于读取、转换并输出数据。</p>
+<p>dd 可从标准输入或文件中读取数据，根据指定的格式来转换数据，再输出到文件、设备或标准输出。</p>
+<p>dd 命令使用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。可以用于测试磁盘命令、数据备份或恢复等。</p>
+<p>参数说明:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>文件名：      输入文件名，默认为标准输入。即指定源文件。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>文件名：      输出文件名，默认为标准输出。即指定目的文件。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#8be9fd;font-style:italic">ibs</span><span style="color:#ff79c6">=</span>bytes：     一次读入bytes个字节，即指定一个块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#8be9fd;font-style:italic">obs</span><span style="color:#ff79c6">=</span>bytes：     一次输出bytes个字节，即指定一个块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>bytes：      同时设置读入/输出的块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#8be9fd;font-style:italic">cbs</span><span style="color:#ff79c6">=</span>bytes：     一次转换bytes个字节，即指定转换缓冲区大小。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#8be9fd;font-style:italic">skip</span><span style="color:#ff79c6">=</span>blocks：   从输入文件开头跳过blocks个块后再开始复制。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">seek</span><span style="color:#ff79c6">=</span>blocks：   从输出文件开头跳过blocks个块后再开始复制。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span>blocks：  仅拷贝blocks个块，块大小等于ibs指定的字节数。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>&lt;关键字&gt;：  关键字可以有以下11种：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>conversion：    用指定的参数转换文件。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    ascii：         转换ebcdic为ascii
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    ebcdic：        转换ascii为ebcdic
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    ibm：           转换ascii为alternate ebcdic
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    block：         把每一行转换为长度为cbs，不足部分用空格填充
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    unblock：       使每一行的长度都为cbs，不足部分用空格填充
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    lcase：         把大写字符转换为小写字符
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    ucase：         把小写字符转换为大写字符
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    swab：          交换输入的每对字节
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    noerror：       出错时不停止
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    notrunc：       不截短输出文件
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    sync：          将每个输入块填充到ibs个字节，不足部分用空（NUL）字符补齐。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>--help：        显示帮助信息
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>--version：     显示版本信息
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>指定数字的地方若以下列字符结尾乘以相应的数字: 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#8be9fd;font-style:italic">c</span> <span style="color:#ff79c6">=</span>1, <span style="color:#8be9fd;font-style:italic">w</span> <span style="color:#ff79c6">=</span>2, <span style="color:#8be9fd;font-style:italic">b</span> <span style="color:#ff79c6">=</span>512, <span style="color:#8be9fd;font-style:italic">kB</span> <span style="color:#ff79c6">=</span>1000, <span style="color:#8be9fd;font-style:italic">K</span> <span style="color:#ff79c6">=</span>1024, <span style="color:#8be9fd;font-style:italic">MB</span> <span style="color:#ff79c6">=</span>1000*1000, <span style="color:#8be9fd;font-style:italic">M</span> <span style="color:#ff79c6">=</span>1024*1024, <span style="color:#8be9fd;font-style:italic">xM</span> <span style="color:#ff79c6">=</span>M <span style="color:#8be9fd;font-style:italic">GB</span> <span style="color:#ff79c6">=</span>1000*1000*1000, <span style="color:#8be9fd;font-style:italic">G</span> <span style="color:#ff79c6">=</span>1024*1024*1024, and so on <span style="color:#ff79c6">for</span> T, P, E, Z, Y.
+</code></pre></div><h3 id="使用实例">使用实例</h3>
+<h5 id="1-在linux-下制作启动盘可使用如下命令">1. 在Linux 下制作启动盘，可使用如下命令：</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>boot.img <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/fd0 <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1440k 
+</code></pre></div><h5 id="2-将testfile文件中的所有英文字母转换为大写然后转成为testfile_1文件在命令提示符中使用如下命令">2. 将testfile文件中的所有英文字母转换为大写，然后转成为testfile_1文件，在命令提示符中使用如下命令：</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>testfile_2 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>testfile_1 <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
+</code></pre></div><p>其中testfile_2 的内容为：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ cat testfile_2 <span style="color:#6272a4">#testfile_2的内容</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>HELLO LINUX!  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>Linux is a free unix-type opterating system.  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>This is a linux testfile!  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>Linux <span style="color:#8be9fd;font-style:italic">test</span> 
+</code></pre></div><p>转换完成后，testfile_1 的内容如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>testfile_2 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>testfile_1 <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase <span style="color:#6272a4">#使用dd 命令，大小写转换记录了0+1 的读入</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>记录了0+1 的写出  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>95字节（95 B）已复制，0.000131446 秒，723 KB/s  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>cmd@hdd-desktop:~$ cat testfile_1 <span style="color:#6272a4">#查看转换后的testfile_1文件内容</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>HELLO LINUX!  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>LINUX IS A FREE UNIX-TYPE OPTERATING SYSTEM.  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>THIS IS A LINUX TESTFILE!  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>LINUX TEST <span style="color:#6272a4">#testfile_2中的所有字符都变成了大写字母</span> 
+</code></pre></div><h5 id="3-由标准输入设备读入字符串并将字符串转换成大写后再输出到标准输出设备使用的命令为">3. 由标准输入设备读入字符串，并将字符串转换成大写后，再输出到标准输出设备，使用的命令为：</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
+</code></pre></div><p>输入以上命令后按回车键，输入字符串，再按回车键，按组合键 Ctrl+D 退出，出现以下结果：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>Hello Linux! <span style="color:#6272a4">#输入字符串后按回车键</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>HELLO LINUX! <span style="color:#6272a4">#按组合键Ctrl+D退出，转换成大写结果</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>记录了0+1 的读入  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>记录了0+1 的写出  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>13字节（13 B）已复制，12.1558 秒，0.0 KB/s
+</code></pre></div><h5 id="4-备份-devhdb-全盘数据并利用-gzip-工具进行压缩保存到指定路径">4. 备份 /dev/hdb 全盘数据，并利用 gzip 工具进行压缩，保存到指定路径</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/hdb | gzip &gt; /root/image.gz
+</code></pre></div><h5 id="5-将压缩的备份文件恢复到指定盘">5. 将压缩的备份文件恢复到指定盘</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>gzip -dc /root/image.gz | dd <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/hdb
+</code></pre></div><h5 id="6-备份磁盘开始的-512-个字节大小的-mbr-信息到指定文件">6. 备份磁盘开始的 512 个字节大小的 MBR 信息到指定文件</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/hda <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/root/image <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">512</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> 指仅拷贝一个块
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>// <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">512</span>  指块大小为 <span style="color:#bd93f9">512</span> 个字节
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>恢复：dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/root/image <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/hda
+</code></pre></div><h5 id="7-备份软盘">7. 备份软盘</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/fd0 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>disk.img <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1440k <span style="color:#ff79c6">(</span>即块大小为1.44M<span style="color:#ff79c6">)</span>
+</code></pre></div><h5 id="8-从文件开头先跳过-skipbs-大小的内容复制-countbs-大小的内容过来用-grep-查询">8. 从文件开头先跳过 skip<em>bs 大小的内容，复制 count</em>bs 大小的内容过来用 grep 查询</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>filename <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1024</span> <span style="color:#8be9fd;font-style:italic">skip</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">3600</span> <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1200</span> | grep <span style="color:#f1fa8c">&#39;****&#39;</span>
+</code></pre></div><h5 id="9-生成一个1000m的test文件文件内容为全0因从devzero中读取devzero为0源">9. 生成一个1000M的test文件，文件内容为全0（因从/dev/zero中读取，/dev/zero为0源）</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/zero <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">test</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1M <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1000</span>
+</code></pre></div><p>但是这样为实际写入硬盘，文件产生速度取决于硬盘读写速度，如果欲产生超大文件，速度很慢。</p>
+<p>在某种场景下，我们只想让文件系统认为存在一个超大文件在此，但是并不实际写入硬盘。</p>
+<h5 id="10-生成一个100g的test文件但是并不实际占用block因此创建速度与内存速度相当">10. 生成一个100G的test文件，但是并不实际占用block，因此创建速度与内存速度相当</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/zero <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">test</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1M <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">0</span> <span style="color:#8be9fd;font-style:italic">seek</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">100000</span>
+</code></pre></div><p>seek 的作用是跳过输出文件中指定大小的部分，这就达到了创建大文件，但是并不实际写入的目的。</p>
+<p>当然，因为不实际写入硬盘，所以你在容量只有 10G 的硬盘上创建 100G 的此类文件都是可以的。</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/08/25/go-channel-source-read/">Go源码阅读 | channel 设计与实现</a></li>
+        
+        <li><a href="/post/2020/07/12/go-context-source-read/">Go源码阅读 | context.Context设计与实现</a></li>
+        
+        <li><a href="/post/2020/06/14/go-fast-random/">如何借助Go指令生成随机数</a></li>
+        
+        <li><a href="/post/2020/06/13/go-directive-syntax/">[转]简单围观一下有趣的//go:指令</a></li>
+        
+        <li><a href="/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/linux'>linux</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4'>linux命令</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/" title="Linux dd 命令使用详解">Linux dd 命令使用详解</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/14/go-fast-random/" title="如何借助Go指令生成随机数">如何借助Go指令生成随机数</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/" title="[转]简单围观一下有趣的//go:指令">[转]简单围观一下有趣的//go:指令</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="Go源码阅读 | strings.Builder设计与实现">Go源码阅读 | strings.Builder设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (14)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>

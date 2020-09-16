@@ -4,7 +4,42 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Linux/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/linux/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2020/09/16/linux-comm-dd/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
   </url>
   
   <url>
@@ -29,16 +64,6 @@
   
   <url>
     <loc>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</loc>
-    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2020-08-25T22:40:45+08:00</lastmod>
   </url>
   
@@ -110,11 +135,6 @@
   <url>
     <loc>https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/</loc>
     <lastmod>2020-04-14T11:47:28+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/</loc>
-    <lastmod>2020-04-10T00:13:27+00:00</lastmod>
   </url>
   
   <url>

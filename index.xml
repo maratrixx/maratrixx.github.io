@@ -6,10 +6,19 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 10 Apr 2020 00:13:27 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 16 Sep 2020 19:27:00 +0800</lastBuildDate>
     
 	<atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Linux dd 命令使用详解</title>
+      <link>https://maratrix.cn/post/2020/09/16/linux-comm-dd/</link>
+      <pubDate>Wed, 16 Sep 2020 19:27:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/09/16/linux-comm-dd/</guid>
+      <description>dd 命令介绍 Linux dd 命令用于读取、转换并输出数据。 dd 可从标准输入或文件中读取数据，根据指定的格式来转换数据，再输出到文件、设备或标准输出。 dd 命令使用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。可</description>
+    </item>
     
     <item>
       <title>Go源码阅读 | channel 设计与实现</title>
