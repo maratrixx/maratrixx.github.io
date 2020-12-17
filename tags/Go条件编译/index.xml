@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Go条件编译 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/</link>
+    <description>Recent content in Go条件编译 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Thu, 17 Dec 2020 23:00:41 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[转]Go语言如何使用条件编译</title>
+      <link>https://maratrix.cn/post/2020/12/17/go-cond-build/</link>
+      <pubDate>Thu, 17 Dec 2020 23:00:41 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/12/17/go-cond-build/</guid>
+      <description>当开发需要依赖底层平台或处理器体系特性的Go包时，提供对应的特定实现是非常有必要的。 Go没有预处理，没有宏定义系统，不可以像c语言那样使用#define来控制是否包含平台相关的特定代码。作为替代，Go</description>
+    </item>
+    
+  </channel>
+</rss>

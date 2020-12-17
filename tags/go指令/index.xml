@@ -6,11 +6,7 @@
     <description>Recent content in go指令 on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 14 Jun 2020 18:36:57 +0800</lastBuildDate>
-    
-	<atom:link href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 14 Jun 2020 18:36:57 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>如何借助Go指令生成随机数</title>
       <link>https://maratrix.cn/post/2020/06/14/go-fast-random/</link>

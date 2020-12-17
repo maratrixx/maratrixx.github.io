@@ -3,8 +3,48 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://maratrix.cn/post/2020/12/17/go-cond-build/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Go/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/go/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/</loc>
+    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
   </url>
   
   <url>
@@ -28,32 +68,7 @@
   </url>
   
   <url>
-    <loc>https://maratrix.cn/</loc>
-    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
-    <lastmod>2020-09-16T19:27:00+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://maratrix.cn/tags/channel/</loc>
-    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/categories/Go/</loc>
-    <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/go/</loc>
     <lastmod>2020-08-25T22:40:45+08:00</lastmod>
   </url>
   

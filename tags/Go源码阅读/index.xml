@@ -6,11 +6,7 @@
     <description>Recent content in Go源码阅读 on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 25 Aug 2020 22:40:45 +0800</lastBuildDate>
-    
-	<atom:link href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 25 Aug 2020 22:40:45 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Go源码阅读 | channel 设计与实现</title>
       <link>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</link>
