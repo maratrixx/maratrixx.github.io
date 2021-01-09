@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>uber-go/ratelimit 源码阅读 | MARATRIX BLOG</title>
+    <meta property="og:title" content="uber-go/ratelimit 源码阅读 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-01-06T23:13:10&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-01-06T23:13:10&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="uber-go/ratelimit 源码阅读">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">uber-go/ratelimit 源码阅读</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月6日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>限流器是微服务中不可缺少的组件，起着保护下游服务负载过高、保证服务稳定性的作用。</p>
+<p>限流器的实现方式有很多，最常见的有漏桶、令牌桶两种：</p>
+<ol>
+<li>漏桶是指我们有一个一直装满了水的桶，每过固定的一段时间即向外漏一滴水。如果你接到了这滴水，那么你就可以继续服务请求，如果没有接到，那么就需要等待下一滴水。</li>
+<li>令牌桶则是指匀速向桶中添加令牌，服务请求时需要从桶中获取令牌，令牌的数目可以按照需要消耗的资源进行相应的调整。如果没有令牌，可以选择等待，或者放弃。</li>
+</ol>
+<p>uber 开源了一套 go 语言限流组件 <a href="https://github.com/uber-go/ratelimit">ratelimit</a> ，是基于漏桶实现的，下面我们总结下该组件的使用方式和源码分析。</p>
+<h3 id="如何使用">如何使用</h3>
+<p>看下官方给出的例子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    rl <span style="color:#ff79c6">:=</span> ratelimit.<span style="color:#50fa7b">New</span>(<span style="color:#bd93f9">100</span>) <span style="color:#6272a4">// per second
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    prev <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">Now</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; <span style="color:#bd93f9">10</span>; i<span style="color:#ff79c6">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        now <span style="color:#ff79c6">:=</span> rl.<span style="color:#50fa7b">Take</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        fmt.<span style="color:#50fa7b">Println</span>(i, now.<span style="color:#50fa7b">Sub</span>(prev))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        prev = now
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    }
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#6272a4">// Output:
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 0 0
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 1 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 2 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 3 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 4 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 5 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 6 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 7 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 8 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 9 10ms
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>首先，通过 <code>ratelimit.New</code> 创建一个限流器对象，参数 100 表示每秒允许通过的请求数，也就是每个请求的间隔为 10ms。然后依次遍历调用 <code>Take</code> 方法，可以看出请求间隔确实为 10ms，没问题。</p>
+<h4 id="new-方法">New 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">New</span>(rate <span style="color:#8be9fd">int</span>, opts <span style="color:#ff79c6">...</span>Option) Limiter
+</code></pre></div><p>该方法返回一个限流器对象。</p>
+<p>第一个参数 rate 为请求限制数，默认窗口为 1 秒，会通过 <code>perRequest: config.per / time.Duration(rate)</code>换算成单个请求间隔。</p>
+<p>第二个参数为可选参数，提供了几个选项：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>WithoutSlack	<span style="color:#6272a4">// 不使用松弛量，可以理解为不容忍任何突发请求
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>WithClock	<span style="color:#6272a4">// 使用自定义的 Clock
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>Per			<span style="color:#6272a4">// Per 自定义时间窗口，默认的时间窗口为 1 秒
+</span></code></pre></div><h4 id="take-方法">Take 方法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">Take</span>() time.Time	
+</code></pre></div><p>Take 方法会阻塞请求，直到满足限速要求（RPS）才返回成功。真实限流中，我们也是主要通过调用 Take 方法来达到限流目的的。</p>
+<h3 id="实现原理">实现原理</h3>
+<h4 id="limiter-接口">Limiter 接口</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> Limiter <span style="color:#8be9fd;font-style:italic">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#6272a4">// Take should block to make sure that the RPS is met.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Take</span>() time.Time
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+</code></pre></div><p>Limiter 接口即为限流器的实现接口，只包含了一个方法<code>Take</code>，凡是实现了该方法的对象都可以作为限流器来使用。</p>
+<p>该库包含了两个实现：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> unlimited <span style="color:#8be9fd;font-style:italic">struct</span>{}		<span style="color:#6272a4">// 该实现不作任何限流
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">type</span> atomicLimiter <span style="color:#8be9fd;font-style:italic">struct</span> {}	<span style="color:#6272a4">// 实现了限流
+</span></code></pre></div><p>下面主要研究下 atomicLimiter 是如何实现限流的。</p>
+<h4 id="config">config</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> config <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	clock    Clock         <span style="color:#6272a4">// Clock 接口
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	maxSlack time.Duration <span style="color:#6272a4">// 最大松弛量，默认为 10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>	per      time.Duration <span style="color:#6272a4">// 限速时间窗口，默认是 1 秒
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>}
+</code></pre></div><h4 id="atomiclimiter">atomicLimiter</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> atomicLimiter <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	state   unsafe.Pointer <span style="color:#6272a4">// 记录当前的限速状态，原子操作
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	padding [<span style="color:#bd93f9">56</span>]<span style="color:#8be9fd">byte</span>       <span style="color:#6272a4">// padding 用于填充 CPU 缓存行，防止伪共享缓存
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	perRequest time.Duration <span style="color:#6272a4">// 每个请求的间隔
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>	maxSlack   time.Duration <span style="color:#6272a4">// 每个请求的最大松弛量
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>	clock      Clock         <span style="color:#6272a4">// Clock 接口
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>这里容易迷惑大家的是 padding 字段，主要是用于填充 CPU 缓存行，防止伪共享缓存的。不了解的朋友可以参考这篇文章 <a href="https://mp.weixin.qq.com/s/zwhRwvUItJ70s82wAB9byQ">CPU缓存体系对Go程序的影响</a>。</p>
+<h4 id="newatomicbased">newAtomicBased</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// newAtomicBased 返回一个基于原子操作的限速器
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">newAtomicBased</span>(rate <span style="color:#8be9fd">int</span>, opts <span style="color:#ff79c6">...</span>Option) <span style="color:#ff79c6">*</span>atomicLimiter {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	config <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">buildConfig</span>(opts)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	l <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>atomicLimiter{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		perRequest: config.per <span style="color:#ff79c6">/</span> time.<span style="color:#50fa7b">Duration</span>(rate),
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		maxSlack:   <span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span> <span style="color:#ff79c6">*</span> config.maxSlack <span style="color:#ff79c6">*</span> time.Second <span style="color:#ff79c6">/</span> time.<span style="color:#50fa7b">Duration</span>(rate),
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		clock:      config.clock,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#6272a4">// 初始化状态
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	initialState <span style="color:#ff79c6">:=</span> state{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		last:     time.Time{},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		sleepFor: <span style="color:#bd93f9">0</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>  <span style="color:#6272a4">// 原子操作
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>	atomic.<span style="color:#50fa7b">StorePointer</span>(<span style="color:#ff79c6">&amp;</span>l.state, unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>initialState))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#ff79c6">return</span> l
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>}
+</code></pre></div><p>这里我们看出，newAtomicBased 的主要工作是初始化配置、计算请求间隔（perRequest）、最大松弛量（maxSlack）、保存初始化状态，还是比较简单的。</p>
+<h4 id="take-方法实现">Take 方法实现</h4>
+<p>先看下注释版的方法源码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// Take 使用阻塞来保证多次 Take 调用的平均时间达到给定的 RPS
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (t <span style="color:#ff79c6">*</span>atomicLimiter) <span style="color:#50fa7b">Take</span>() time.Time {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>  <span style="color:#8be9fd;font-style:italic">var</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		newState state
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		taken    <span style="color:#8be9fd">bool</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		interval time.Duration
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>  
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#ff79c6">for</span> !taken {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		now <span style="color:#ff79c6">:=</span> t.clock.<span style="color:#50fa7b">Now</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#6272a4">// 原子加载
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>		previousStatePointer <span style="color:#ff79c6">:=</span> atomic.<span style="color:#50fa7b">LoadPointer</span>(<span style="color:#ff79c6">&amp;</span>t.state)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		oldState <span style="color:#ff79c6">:=</span> (<span style="color:#ff79c6">*</span>state)(previousStatePointer)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		newState = state{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>			last:     now,							<span style="color:#6272a4">// 保存当前时间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>			sleepFor: oldState.sleepFor,<span style="color:#6272a4">// 保存上一次剩余的时间 
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		<span style="color:#6272a4">// 如果是首次调用，直接放行
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> oldState.last.<span style="color:#50fa7b">IsZero</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>			taken = atomic.<span style="color:#50fa7b">CompareAndSwapPointer</span>(<span style="color:#ff79c6">&amp;</span>t.state, previousStatePointer, unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>newState))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>			<span style="color:#ff79c6">continue</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		<span style="color:#6272a4">// sleepFor 通过 perRequest 和上次请求花费的时间来计算应该 sleep 多长时间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#6272a4"></span>		<span style="color:#6272a4">// 由于请求的间隔可能会很长，导致 sleepFor 可能为负数，所以需要在不同的请求之间累加，用于后续请求抵消
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#6272a4"></span>		newState.sleepFor <span style="color:#ff79c6">+=</span> t.perRequest <span style="color:#ff79c6">-</span> now.<span style="color:#50fa7b">Sub</span>(oldState.last)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>		<span style="color:#6272a4">// 我们不应该让 sleepFor 负数值变得太小
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span><span style="color:#6272a4"></span>		<span style="color:#6272a4">// 因为这意味着在短时间内放慢很多速度的服务将在此之后获得更高的RPS。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> newState.sleepFor &lt; t.maxSlack {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>			newState.sleepFor = t.maxSlack
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>		<span style="color:#6272a4">// 如果 sleepFor &gt; 0 说明无法抵消之前请求的时间，需要休眠一段时间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> newState.sleepFor &gt; <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>			newState.last = newState.last.<span style="color:#50fa7b">Add</span>(newState.sleepFor)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>      interval, newState.sleepFor = newState.sleepFor, <span style="color:#bd93f9">0</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>		}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>		<span style="color:#6272a4">// 通过 for + cas 实现无锁化编程（lock free）
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span><span style="color:#6272a4"></span>		taken = atomic.<span style="color:#50fa7b">CompareAndSwapPointer</span>(<span style="color:#ff79c6">&amp;</span>t.state, previousStatePointer, unsafe.<span style="color:#50fa7b">Pointer</span>(<span style="color:#ff79c6">&amp;</span>newState))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>	<span style="color:#6272a4">// sleep
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48</span><span style="color:#6272a4"></span>	t.clock.<span style="color:#50fa7b">Sleep</span>(interval)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span>	<span style="color:#ff79c6">return</span> newState.last
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span>
+</code></pre></div><p>Take 方法通过使用 for 循环 + cas 来实现无锁化编程（lock free），进而提升性能，这也是 go 标准库源码中常用的手段，可以学习下。</p>
+<h4 id="最大松弛量">最大松弛量</h4>
+<p>我们讲到，传统的漏桶算法，每个请求的间隔是固定的。然而，在实际上的互联网应用中，流量经常是突发性的。对于这种情况，uber-go 对 Leaky Bucket 做了一些改良，引入了最大松弛量 (maxSlack) 的概念。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210109220222.png" alt=""></p>
+<p>请求 1 完成后，15ms 后，请求 2 才到来，可以对请求 2 立即处理。请求 2 完成后，5ms 后，请求 3 到来，这个时候距离上次请求还不足 10ms，因此还需要等待 5ms。</p>
+<p>但是，对于这种情况，实际上三个请求一共消耗了 25ms 才完成，并不是预期的 20ms。在 uber-go 实现的 ratelimit 中，可以把之前间隔比较长的请求的时间，匀给后面的使用，保证每秒请求数 (RPS) 即可。</p>
+<p>对于以上 case，因为请求 2 相当于多等了 5ms，我们可以把这 5ms 移给请求 3 使用。加上请求 3 本身就是 5ms 之后过来的，一共刚好 10ms，所以请求 3 无需等待，直接可以处理。此时三个请求也恰好一共是 20ms。</p>
+<p>如下图：
+<img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210109220502.png" alt=""></p>
+<p>在 ratelimit 的对应实现中很简单，是把每个请求多余出来的等待时间累加起来，以给后面的抵消使用。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>newState.sleepFor <span style="color:#ff79c6">+=</span> t.perRequest <span style="color:#ff79c6">-</span> now.<span style="color:#50fa7b">Sub</span>(oldState.last)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">if</span> newState.sleepFor &lt; t.maxSlack {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>  newState.sleepFor = t.maxSlack
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#ff79c6">if</span> newState.sleepFor &gt; <span style="color:#bd93f9">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>  newState.last = newState.last.<span style="color:#50fa7b">Add</span>(newState.sleepFor)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>  interval, newState.sleepFor = newState.sleepFor, <span style="color:#bd93f9">0</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+</code></pre></div><p>注意：这里跟上述代码不同的是，这里是 <code>+=</code>。而同时 <code>t.perRequest - now.Sub(t.last)</code> 是可能为负值的，负值代表请求间隔时间比预期的长。</p>
+<ul>
+<li>
+<p>当 <code>t.sleepFor &gt; 0</code>，代表此前的请求多余出来的时间，无法完全抵消此次的所需量，因此需要 sleep 相应时间, 同时将 <code>t.sleepFor</code> 置为 0。</p>
+</li>
+<li>
+<p>当 <code>t.sleepFor &lt; 0</code>，说明此次请求间隔大于预期间隔，将多出来的时间累加到 <code>t.sleepFor</code> 即可。</p>
+</li>
+</ul>
+<p>但是，对于某种情况，请求 1 完成后，请求 2 过了很久到达 (好几个小时都有可能)，那么此时对于请求 2 的请求间隔 <code>now.Sub(t.last)</code>，会非常大。以至于即使后面大量请求瞬时到达，也无法抵消完这个时间。那这样就失去了限流的意义。</p>
+<p>为了防止这种情况，ratelimit 就引入了最大松弛量 (maxSlack) 的概念, 该值为负值，表示允许抵消的最长时间，防止以上情况的出现。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">if</span> t.sleepFor &lt; t.maxSlack {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  t.sleepFor = t.maxSlack
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
+</code></pre></div><p>ratelimit 中 maxSlack 的值为 <code>-10 * time.Second / time.Duration(rate)</code>, 是十个请求的间隔大小。我们也可以理解为 ratelimit 允许的最大瞬时请求为 10。</p>
+<h3 id="小结">小结</h3>
+<p>本篇主要介绍了基于漏桶算法实现的限流组件 uber-go/ratelimit 的使用和源码实现。</p>
+<p>整体看下来，还是比较简单的，主要的知识点有：</p>
+<ul>
+<li>结构体中填充 CPU 缓存行，防止伪共享缓存（false sharing）</li>
+<li>for + cas 实现无锁化编程（lock free）</li>
+<li>引入最大松弛量，用于后续请求的抵消操作</li>
+</ul>
+<p>thanks</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2020/12/17/go-cond-build/">[转]Go语言如何使用条件编译</a></li>
+        
+        <li><a href="/post/2020/08/25/go-channel-source-read/">Go源码阅读 | channel 设计与实现</a></li>
+        
+        <li><a href="/post/2020/07/12/go-context-source-read/">Go源码阅读 | context.Context设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a></li>
+        
+        <li><a href="/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/Go'>Go</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8'>限流器</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/" title="uber-go/ratelimit 源码阅读">uber-go/ratelimit 源码阅读</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/31/2020-summary/" title="再见2020">再见2020</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/" title="Linux dd 命令使用详解">Linux dd 命令使用详解</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/14/go-fast-random/" title="如何借助Go指令生成随机数">如何借助Go指令生成随机数</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/" title="[转]简单围观一下有趣的//go:指令">[转]简单围观一下有趣的//go:指令</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (16)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>

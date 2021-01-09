@@ -6,7 +6,16 @@
     <description>Recent content in Go源码阅读 on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 25 Aug 2020 22:40:45 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 06 Jan 2021 23:13:10 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>uber-go/ratelimit 源码阅读</title>
+      <link>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</link>
+      <pubDate>Wed, 06 Jan 2021 23:13:10 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</guid>
+      <description>限流器是微服务中不可缺少的组件，起着保护下游服务负载过高、保证服务稳定性的作用。 限流器的实现方式有很多，最常见的有漏桶、令牌桶两种： 漏桶是指我们有一个一直装满了水的桶，每过固定的一段时间即向外漏一滴水</description>
+    </item>
+    
     <item>
       <title>Go源码阅读 | channel 设计与实现</title>
       <link>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</link>
