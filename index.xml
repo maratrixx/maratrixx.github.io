@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 06 Jan 2021 23:13:10 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 10 Jan 2021 23:12:12 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>juju/ratelimit 令牌桶限流器设计与实现</title>
+      <link>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</link>
+      <pubDate>Sun, 10 Jan 2021 23:12:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</guid>
+      <description>上一篇 我们介绍了基于漏桶算法的限流器 - uber-go/ratelimit，为了应对突发流量，它做了最大松弛量的改良。本篇文章继续介绍另外一种限流器：令牌桶（Token Bucket）。 什么是令牌桶 漏桶的</description>
+    </item>
+    
     <item>
       <title>uber-go/ratelimit 漏桶限流器设计与实现</title>
       <link>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</link>
