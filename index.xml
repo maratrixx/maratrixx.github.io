@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 10 Jan 2021 23:12:12 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 15 Jan 2021 09:36:47 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title> Google Protobuf IDL 编译器使用笔记</title>
+      <link>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</link>
+      <pubDate>Fri, 15 Jan 2021 09:36:47 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</guid>
+      <description>背景 Protobuf 是 google 开源的高性能序列化库，支持 C++、C#、Dart、Java、Go、Python、Rust 等语言，同时也是跨平台的。 Protobuf 包含序列化格式的定义、各种语言的库以及一个 IDL 编译器。正常情况下你需要定义 proto</description>
+    </item>
+    
     <item>
       <title>juju/ratelimit 令牌桶限流器设计与实现</title>
       <link>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</link>
