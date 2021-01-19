@@ -17,7 +17,7 @@
     </item>
     
     <item>
-      <title>juju/ratelimit 令牌桶限流器设计与实现</title>
+      <title>juju/ratelimit 令牌桶限流器分析</title>
       <link>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</link>
       <pubDate>Sun, 10 Jan 2021 23:12:12 +0800</pubDate>
       
@@ -26,7 +26,7 @@
     </item>
     
     <item>
-      <title>uber-go/ratelimit 漏桶限流器设计与实现</title>
+      <title>uber-go/ratelimit 漏桶限流器分析</title>
       <link>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</link>
       <pubDate>Wed, 06 Jan 2021 23:13:10 +0800</pubDate>
       

@@ -213,7 +213,7 @@
 <p>这里需要注意的是，返回值参数列表的第一个和第二个参数是互斥的，也就是说:</p>
 <ul>
 <li>如果 Entry 执行 pass，那么 Sentinel 会返回(*base.SentinelEntry, nil)；</li>
-<li>如果Entry执行blocked，那么Sentinel会返回(nil, *base.BlockError)；</li>
+<li>如果 Entry 执行 blocked，那么 Sentinel 会返回(nil, *base.BlockError)；</li>
 </ul>
 <p>目前支持以下埋点配置：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">WithTrafficType</span>(entryType base.TrafficType)
@@ -279,9 +279,9 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/2021/01/10/juju-ratelimit-read/">juju/ratelimit 令牌桶限流器设计与实现</a></li>
+        <li><a href="/post/2021/01/10/juju-ratelimit-read/">juju/ratelimit 令牌桶限流器分析</a></li>
         
-        <li><a href="/post/2021/01/06/uber-go-ratelimit-read/">uber-go/ratelimit 漏桶限流器设计与实现</a></li>
+        <li><a href="/post/2021/01/06/uber-go-ratelimit-read/">uber-go/ratelimit 漏桶限流器分析</a></li>
         
         <li><a href="/post/2021/01/15/how-to-use-protoc-notes/"> Google Protobuf IDL 编译器使用笔记</a></li>
         
@@ -347,11 +347,11 @@
     </li>
     
     <li>
-        <a href="https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/" title="juju/ratelimit 令牌桶限流器设计与实现">juju/ratelimit 令牌桶限流器设计与实现</a>
+        <a href="https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/" title="juju/ratelimit 令牌桶限流器分析">juju/ratelimit 令牌桶限流器分析</a>
     </li>
     
     <li>
-        <a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/" title="uber-go/ratelimit 漏桶限流器设计与实现">uber-go/ratelimit 漏桶限流器设计与实现</a>
+        <a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/" title="uber-go/ratelimit 漏桶限流器分析">uber-go/ratelimit 漏桶限流器分析</a>
     </li>
     
     <li>
