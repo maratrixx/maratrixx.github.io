@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 15 Jan 2021 09:36:47 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 19 Jan 2021 08:11:23 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>sentinel-go 之流量控制</title>
+      <link>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</link>
+      <pubDate>Tue, 19 Jan 2021 08:11:23 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</guid>
+      <description>最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。 sentinel-go</description>
+    </item>
+    
     <item>
       <title> Google Protobuf IDL 编译器使用笔记</title>
       <link>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</link>

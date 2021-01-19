@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>sentinel-go 之流量控制 | MARATRIX BLOG</title>
+    <meta property="og:title" content="sentinel-go 之流量控制 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2021-01-19T08:11:23&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2021-01-19T08:11:23&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="sentinel-go 之流量控制">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">sentinel-go 之流量控制</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月19日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。</p>
+<p>sentinel-go 是阿里开源的限流熔断组件库，已经通过双十一的考验，可以保证该组件的稳定性和有效性，毕竟有大厂的背书，所以我们也考虑使用该组件。</p>
+<h3 id="初始化">初始化</h3>
+<h4 id="下载-sentinel-go">下载 sentinel-go</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>v <span style="color:#ff79c6">-</span>u github.com<span style="color:#ff79c6">/</span>alibaba<span style="color:#ff79c6">/</span>sentinel<span style="color:#ff79c6">-</span>golang
+</code></pre></div><h4 id="初始化函数">初始化函数</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 创建默认配置对象
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span>config.<span style="color:#50fa7b">NewDefaultConfig</span>() 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4">// 从环境变量指定的配置文件以及环境变量中读取相应配置来初始化 Sentinel，若环境变量不存在则使用默认值。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>api.<span style="color:#50fa7b">InitDefault</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4">// 从给定的 YAML 文件中读取相应配置来初始化 Sentinel。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>api.<span style="color:#50fa7b">Init</span>(configPath <span style="color:#8be9fd">string</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4">// 用户硬编码配置对象*config.Entity来初始化Sentinel。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>api.<span style="color:#50fa7b">InitWithConfig</span>(confEntity <span style="color:#ff79c6">*</span>config.Entity)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4">// 使用自定义的 parser 解析器来加载配置，内部还是调用的 InitWithConfig
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>api.<span style="color:#50fa7b">InitWithParser</span>(configBytes []<span style="color:#8be9fd">byte</span>, parser <span style="color:#8be9fd;font-style:italic">func</span>([]<span style="color:#8be9fd">byte</span>) (<span style="color:#ff79c6">*</span>config.Entity, <span style="color:#8be9fd">error</span>))
+</code></pre></div><p>通用配置项加载策略和配置项可以参考 <a href="https://github.com/alibaba/sentinel-golang/wiki/%E5%90%AF%E5%8A%A8%E9%85%8D%E7%BD%AE">配置方式使用文档</a></p>
+<h4 id="示例代码">示例代码</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#f1fa8c">&#34;github.com/alibaba/sentinel-golang/api&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">initSentinel</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	err <span style="color:#ff79c6">:=</span> api.<span style="color:#50fa7b">Init</span>(confPath)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#6272a4">// 初始化 Sentinel 失败
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
+</code></pre></div><h3 id="配置规则">配置规则</h3>
+<p>流控规则定义：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Rule <span style="color:#8be9fd;font-style:italic">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#6272a4">// 规则的唯一 ID，可选配置
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>    ID <span style="color:#8be9fd">string</span> <span style="color:#f1fa8c">`json:&#34;id,omitempty&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#6272a4">// 资源名，规则的作用目标
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>    Resource               <span style="color:#8be9fd">string</span>                 <span style="color:#f1fa8c">`json:&#34;resource&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#6272a4">// 当前流量控制器的 Token 计算策略。Direct 表示直接使用字段 Threshold 作为阈值；WarmUp 表示使用预热方式计算 Token 的阈值。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// v1.0.2 新增 MemoryAdaptive，表示根据内存使用情况自适应限流阈值
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>    TokenCalculateStrategy TokenCalculateStrategy <span style="color:#f1fa8c">`json:&#34;tokenCalculateStrategy&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#6272a4">// 表示流量控制器的控制策略；Reject表示超过阈值直接拒绝，Throttling表示匀速排队。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>	ControlBehavior        ControlBehavior        <span style="color:#f1fa8c">`json:&#34;controlBehavior&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#6272a4">// 表示流控阈值；如果字段 StatIntervalInMs 是1000(也就是1秒)，那么Threshold就表示QPS，流量控制器也就会依据资源的QPS来做流控。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>    Threshold        <span style="color:#8be9fd">float64</span>          <span style="color:#f1fa8c">`json:&#34;threshold&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#6272a4">// 调用关系限流策略，CurrentResource表示使用当前规则的resource做流控；AssociatedResource表示使用关联的resource做流控，关联的resource在字段 RefResource 定义；
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>    RelationStrategy RelationStrategy <span style="color:#f1fa8c">`json:&#34;relationStrategy&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#6272a4">// 关联的resource；
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>	RefResource      <span style="color:#8be9fd">string</span>           <span style="color:#f1fa8c">`json:&#34;refResource&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    <span style="color:#6272a4">// 匀速排队的最大等待时间，该字段仅仅对 Throttling ControlBehavior生效；
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>    MaxQueueingTimeMs <span style="color:#8be9fd">uint32</span> <span style="color:#f1fa8c">`json:&#34;maxQueueingTimeMs&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#6272a4">// 预热的时间长度，该字段仅仅对 WarmUp 的TokenCalculateStrategy生效；
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>    WarmUpPeriodSec   <span style="color:#8be9fd">uint32</span> <span style="color:#f1fa8c">`json:&#34;warmUpPeriodSec&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    <span style="color:#6272a4">// 预热的因子，默认是3，该值的设置会影响预热的速度，该字段仅仅对 WarmUp 的TokenCalculateStrategy生效；
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>	WarmUpColdFactor  <span style="color:#8be9fd">uint32</span> <span style="color:#f1fa8c">`json:&#34;warmUpColdFactor&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#6272a4">// 规则对应的流量控制器的独立统计结构的统计周期。如果StatIntervalInMs是1000，也就是统计QPS。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#6272a4"></span>	StatIntervalInMs <span style="color:#8be9fd">uint32</span> <span style="color:#f1fa8c">`json:&#34;statIntervalInMs&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    <span style="color:#6272a4">// v1.0.2 新增，当 TokenCalculateStrategy 为 MemoryAdaptive 时生效
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 自适应流量控制算法相关参数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 限制条件：LowMemUsageThreshold &gt; HighMemUsageThreshold &amp;&amp; MemHighWaterMarkBytes &gt; MemLowWaterMarkBytes
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 当前使用内存 &lt;= MemLowWaterMarkBytes，则 threshold = LowMemUsageThreshold
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 当前使用内存 &gt;= MemHighWaterMarkBytes，则threshold = HighMemUsageThreshold
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// 当前使用内存在 (MemLowWaterMarkBytes, MemHighWaterMarkBytes) 之间，threshold 也在(HighMemUsageThreshold, LowMemUsageThreshold)之间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span><span style="color:#6272a4"></span>	LowMemUsageThreshold  <span style="color:#8be9fd">int64</span> <span style="color:#f1fa8c">`json:&#34;lowMemUsageThreshold&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	HighMemUsageThreshold <span style="color:#8be9fd">int64</span> <span style="color:#f1fa8c">`json:&#34;highMemUsageThreshold&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	MemLowWaterMarkBytes  <span style="color:#8be9fd">int64</span> <span style="color:#f1fa8c">`json:&#34;memLowWaterMarkBytes&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	MemHighWaterMarkBytes <span style="color:#8be9fd">int64</span> <span style="color:#f1fa8c">`json:&#34;memHighWaterMarkBytes&#34;`</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>}
+</code></pre></div><blockquote>
+<p>这里特别强调一下 StatIntervalInMs 和 Threshold 这两个字段，这两个字段决定了流量控制器的灵敏度。以 Direct + Reject 的流控策略为例，流量控制器的行为就是在 StatIntervalInMs 周期内，允许的最大请求数量是 Threshold。</p>
+<p>比如，如果 StatIntervalInMs 是 10000，Threshold 是 10000，那么流量控制器的行为就是 10s 内运行最多 10000 次访问。</p>
+</blockquote>
+<p>更多流控配置项说明可以查看<a href="https://sentinelguard.io/zh-cn/docs/golang/flow-control.html">官方文档</a>。</p>
+<h4 id="常见场景的规则配置">常见场景的规则配置</h4>
+<h5 id="基于-qps-对某个资源限流">基于 QPS 对某个资源限流</h5>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Resource:                <span style="color:#f1fa8c">&#34;some-test&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    TokenCalculateStrategy:  flow.Direct,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    ControlBehavior:         flow.Reject,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    Threshold:               <span style="color:#bd93f9">500</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    StatIntervalInMs:        <span style="color:#bd93f9">1000</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
+</code></pre></div><p>上面示例中的 5 个字段是必填的，其中 StatIntervalInMs 必须是 1000，表示统计周期是 1s，那么 Threshold 所配置的值也就是 QPS 的阈值。</p>
+<h5 id="基于一定统计间隔时间来控制总的请求数">基于一定统计间隔时间来控制总的请求数</h5>
+<p>这个场景就是想在一定统计周期内控制请求的总量，比如 StatIntervalInMs 配置 10000，Threshold 配置 10000，这种配置意思就是控制 10s 内最大请求数是  10000。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Resource:                <span style="color:#f1fa8c">&#34;some-test&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    TokenCalculateStrategy:  flow.Direct,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    ControlBehavior:         flow.Reject,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    Threshold:               <span style="color:#bd93f9">10000</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    StatIntervalInMs:        <span style="color:#bd93f9">10000</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
+</code></pre></div><p>注意：这种流控配置对于脉冲类型的流量抵抗力很弱，有极大潜在风险压垮系统。</p>
+<h5 id="毫秒级别流控">毫秒级别流控</h5>
+<p>针对一些流量曲在毫秒级别波动非常大的场景(类似于脉冲)，建议 StatIntervalInMs 的配置在毫秒级别，除非特殊场景，建议配置的值为 100ms 的倍数，比如 100，200 这种。这种相当于缩小了统计周期，将 QPS 的周期缩小了10倍，控制周期降低到了 100ms。这种配置能够很好的应对脉冲流量，保障系统稳定性。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Resource:                <span style="color:#f1fa8c">&#34;some-test&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    TokenCalculateStrategy:  flow.Direct,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    ControlBehavior:         flow.Reject,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    Threshold:               <span style="color:#bd93f9">80</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    StatIntervalInMs:        <span style="color:#bd93f9">100</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
+</code></pre></div><p>上面限制了 100ms 的阈值是 80，实际 QPS 大概是 800。</p>
+<p>注意：这种配置也是有缺点的，脉冲流量很大可能造成有损(会拒绝很多流量)。</p>
+<h5 id="脉冲流量无损">脉冲流量无损</h5>
+<p>针对前面第三点场景，如果既想控制流量曲线，又想无损，一般做法是通过匀速排队的控制策略，平滑掉流量。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Resource:                <span style="color:#f1fa8c">&#34;some-test&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    TokenCalculateStrategy:  flow.Direct,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    ControlBehavior:         flow.Throttling,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    Threshold:               <span style="color:#bd93f9">800</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    MaxQueueingTimeMs:       <span style="color:#bd93f9">10</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    StatIntervalInMs:        <span style="color:#bd93f9">1000</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
+</code></pre></div><h3 id="定义资源埋点">定义资源（埋点）</h3>
+<p>使用 Sentinel 的 Entry API 将业务逻辑封装起来，这一步称为“埋点”。每个埋点都有一个资源名称（resource），代表触发了这个资源的调用或访问。</p>
+<p>埋点 API 位于 api 包中：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">Entry</span>(resource <span style="color:#8be9fd">string</span>, opts <span style="color:#ff79c6">...</span>Option) (<span style="color:#ff79c6">*</span>base.SentinelEntry, <span style="color:#ff79c6">*</span>base.BlockError)
+</code></pre></div><p>其中 resource 代表埋点资源名，opts 代表埋点配置。</p>
+<p>这里需要注意的是，返回值参数列表的第一个和第二个参数是互斥的，也就是说:</p>
+<ul>
+<li>如果 Entry 执行 pass，那么 Sentinel 会返回(*base.SentinelEntry, nil)；</li>
+<li>如果Entry执行blocked，那么Sentinel会返回(nil, *base.BlockError)；</li>
+</ul>
+<p>目前支持以下埋点配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">WithTrafficType</span>(entryType base.TrafficType)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#50fa7b">WithResourceType</span>(resourceType base.ResourceType)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#50fa7b">WithBatchCount</span>(batchCount <span style="color:#8be9fd">uint32</span>) 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#50fa7b">WithFlag</span>(flag <span style="color:#8be9fd">int32</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#50fa7b">WithArgs</span>(args <span style="color:#ff79c6">...</span><span style="color:#8be9fd;font-style:italic">interface</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#50fa7b">WithSlotChain</span>(chain <span style="color:#ff79c6">*</span>base.SlotChain)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#50fa7b">WithAttachment</span>(key <span style="color:#8be9fd;font-style:italic">interface</span>{}, value <span style="color:#8be9fd;font-style:italic">interface</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#50fa7b">WithAttachments</span>(data <span style="color:#8be9fd;font-style:italic">map</span>[<span style="color:#8be9fd;font-style:italic">interface</span>{}]<span style="color:#8be9fd;font-style:italic">interface</span>{})
+</code></pre></div><p>比较常用是 <code>WithTrafficType</code>，标记该埋点资源的流量类型，其中 Inbound 参数代表入口流量，Outbound 参数代表出口流量。若不指定，默认为 Outbound。</p>
+<p>埋点 API 示例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	sentinel <span style="color:#f1fa8c">&#34;github.com/alibaba/sentinel-golang/api&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4">// sentinel 配置代码省略...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4">// Entry 方法用于埋点
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>e, b <span style="color:#ff79c6">:=</span> sentinel.<span style="color:#50fa7b">Entry</span>(<span style="color:#f1fa8c">&#34;your-resource-name&#34;</span>, sentinel.<span style="color:#50fa7b">WithTrafficType</span>(base.Inbound))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#ff79c6">if</span> b <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#6272a4">// 请求被流控，可以从 BlockError 中获取限流详情
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// block 后不需要进行 Exit()
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>} <span style="color:#ff79c6">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#6272a4">// 请求可以通过，在此处编写您的业务逻辑
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// 务必保证业务逻辑结束后 Exit，切记切记切记！！！
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>	e.<span style="color:#50fa7b">Exit</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
+</code></pre></div><p>若该次调用被拒绝，则 Entry API 会返回 BlockError 代表被 Sentinel 限流。BlockError 提供了限流原因以及触发的规则等信息，可以方便开发者获取相关信息进行记录和处理。</p>
+<h3 id="配置数据源">配置数据源</h3>
+<h4 id="硬编码方式">硬编码方式</h4>
+<p>Sentinel 支持原始的硬编码方式加载规则，可以通过各个模块的 LoadRules(rules) 函数加载规则。以流控规则为例：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>_, err = flow.<span style="color:#50fa7b">LoadRules</span>([]<span style="color:#ff79c6">*</span>flow.Rule{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		Resource:               <span style="color:#f1fa8c">&#34;some-test&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Threshold:              <span style="color:#bd93f9">10</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		TokenCalculateStrategy: flow.Direct,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		ControlBehavior:        flow.Reject,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#6272a4">// 加载规则失败，进行相关处理
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>}
+</code></pre></div><h4 id="动态数据源">动态数据源</h4>
+<p>Sentinel 提供动态数据源接口进行扩展，用户可以通过动态文件、etcd、consul、nacos 等配置中心来动态地配置规则，开发者也可使用其提供的接口扩展配置数据源。</p>
+<p>官方动态数据源开源库<a href="https://github.com/sentinel-group/sentinel-go-datasources">https://github.com/sentinel-group/sentinel-go-datasources</a>。</p>
+<h3 id="框架适配器">框架适配器</h3>
+<p>Sentinel 也提供了常用 Go 微服务框架的集成模块，包括：Gin、Echo、gRPC、go-micro、dubbo-go。</p>
+<p>官方适配器开源库<a href="https://github.com/sentinel-group/sentinel-go-adapters">https://github.com/sentinel-group/sentinel-go-adapters</a>。</p>
+<h3 id="参考">参考</h3>
+<p><a href="https://sentinelguard.io/zh-cn/docs/golang/basic-api-usage.html">sentinel-go 官方文档</a></p>
+<p><a href="https://github.com/alibaba/sentinel-golang">https://github.com/alibaba/sentinel-golang</a></p>
+<p>enjoys</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2021/01/10/juju-ratelimit-read/">juju/ratelimit 令牌桶限流器设计与实现</a></li>
+        
+        <li><a href="/post/2021/01/06/uber-go-ratelimit-read/">uber-go/ratelimit 漏桶限流器设计与实现</a></li>
+        
+        <li><a href="/post/2021/01/15/how-to-use-protoc-notes/"> Google Protobuf IDL 编译器使用笔记</a></li>
+        
+        <li><a href="/post/2020/12/31/2020-summary/">再见2020</a></li>
+        
+        <li><a href="/post/2020/12/17/go-cond-build/">[转]Go语言如何使用条件编译</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/sentinel'>sentinel</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8'>限流器</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/" title=" Google Protobuf IDL 编译器使用笔记"> Google Protobuf IDL 编译器使用笔记</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/" title="juju/ratelimit 令牌桶限流器设计与实现">juju/ratelimit 令牌桶限流器设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/" title="uber-go/ratelimit 漏桶限流器设计与实现">uber-go/ratelimit 漏桶限流器设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/31/2020-summary/" title="再见2020">再见2020</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/" title="Linux dd 命令使用详解">Linux dd 命令使用详解</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/06/14/go-fast-random/" title="如何借助Go指令生成随机数">如何借助Go指令生成随机数</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (16)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>
