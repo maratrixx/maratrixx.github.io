@@ -147,7 +147,9 @@
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// - 对于错误数策略，Threshold是错误计数的阈值。
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	Threshold <span style="color:#8be9fd">float64</span> <span style="color:#f1fa8c">`json:&#34;threshold&#34;`</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
-</code></pre></div><h3 id="场景示例">场景示例</h3>
+</code></pre></div><p><strong>补充：</strong></p>
+<p>Resource、Strategy、RetryTimeoutMs、MinRequestAmount、StatIntervalMs、Threshold 每个规则都必设的字段，MaxAllowedRtMs 是慢调用比例熔断规则必设的字段。</p>
+<h3 id="场景示例">场景示例</h3>
 <p>这里分别给出三种熔断策略规则配置的一个Sample(不可作为线上配置参考):</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 慢调用比例规则
 </span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span>rule1 <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>Rule{
