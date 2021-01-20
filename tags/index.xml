@@ -6,13 +6,22 @@
     <description>Recent content in Tags on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 19 Jan 2021 08:11:23 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 20 Jan 2021 09:25:05 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>sentinel</title>
       <link>https://maratrix.cn/tags/sentinel/</link>
-      <pubDate>Tue, 19 Jan 2021 08:11:23 +0800</pubDate>
+      <pubDate>Wed, 20 Jan 2021 09:25:05 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/sentinel/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>熔断器</title>
+      <link>https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/</link>
+      <pubDate>Wed, 20 Jan 2021 09:25:05 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/</guid>
       <description></description>
     </item>
     

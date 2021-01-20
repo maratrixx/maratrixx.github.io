@@ -6,7 +6,16 @@
     <description>Recent content in sentinel on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Tue, 19 Jan 2021 08:11:23 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/sentinel/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 20 Jan 2021 09:25:05 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/sentinel/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>sentinel-go 之熔断降级</title>
+      <link>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</link>
+      <pubDate>Wed, 20 Jan 2021 09:25:05 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</guid>
+      <description>在高可用设计中，除了流控外，对分布式系统调用链路中不稳定的资源(比如 RPC 服务等)进行熔断降级也是保障高可用的重要措施之一。 现代微服务架构基本都是分布式的，整个分布式系统由非常多的微服务组成。不同服务之间</description>
+    </item>
+    
     <item>
       <title>sentinel-go 之流量控制</title>
       <link>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</link>
