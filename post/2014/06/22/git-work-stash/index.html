@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Git工作区和暂存区 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Git工作区和暂存区 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2014-06-22T21:14:30&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2014-06-22T21:14:30&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Git工作区和暂存区">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2014/06/22/git-work-stash/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">Git工作区和暂存区</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2014年6月22日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Git'>Git</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>首先，我们要清楚Git和其他版本控制系统如SVN的一个不同之处就是有暂存区的概念。下面来看几个概念：</p>
+<h3 id="工作区">工作区</h3>
+<p>工作区就是我们在电脑里看到的目录，比如我的learngit就是一个工作区。</p>
+<h3 id="版本库">版本库</h3>
+<p>在工作区中都有一个.git隐藏文件夹，这个就是所谓的Git版本库。</p>
+<h3 id="暂存区">暂存区</h3>
+<p>Git的版本库里有很多的文件，其中比较重要的就是stage(或者index)文件，这个就是暂存区。还有Git为我们自动创建的第一个分支master，以及指向master的一个指针HEAD。</p>
+<p>前面我们知道，当我们要提交修改的文件时是分为两步的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>第一步：git add把文件添加进去，实际上是把文件修改添加到暂存区。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>第二步：git commit把文件提交给版本库，实际上是把暂存区的所有内容提交到当前的分支。
+</code></pre></div><p>因为我们创建Git版本库时，Git自动为我们创建了唯一一个master分支，所以，现在，commit就是往master分支上提交更改。</p>
+<p>可以简单理解为，需要提交的文件修改通通放到暂存区，然后，一次性提交暂存区的所有修改。</p>
+<p>一旦提交后，如果又没有对工作区做任何修改，那么工作区就是“干净”的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git status
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"># On branch master</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>nothing to commit <span style="color:#ff79c6">(</span>working directory clean<span style="color:#ff79c6">)</span>
+</code></pre></div><h3 id="小结">小结</h3>
+<p>暂存区是Git非常重要的概念，弄明白了暂存区，就弄明白了Git的很多操作到底干了什么。</p>
+
+        </div>
+
+        
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2014/06/21/git-version-reset/">Git实现版本回退功能</a></li>
+        
+        <li><a href="/post/2014/06/20/git-install/">安装分布式版本控制系统Git</a></li>
+        
+        <li><a href="/post/2014/06/19/git-create/">Git创建版本库和查看工作区状态</a></li>
+        
+        <li><a href="/post/2014/05/12/php-traits/">PHP新增语法结构Traits</a></li>
+        
+        <li><a href="/post/2014/05/11/php-static-bind/">PHP延迟静态绑定机制</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='https://maratrix.cn/tags/Git'>Git</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "your github repo"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/" title=" Google Protobuf 编译器使用笔记"> Google Protobuf 编译器使用笔记</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/" title="juju/ratelimit 令牌桶限流器分析">juju/ratelimit 令牌桶限流器分析</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/" title="uber-go/ratelimit 漏桶限流器分析">uber-go/ratelimit 漏桶限流器分析</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/31/2020-summary/" title="再见2020">再见2020</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/" title="Linux dd 命令使用详解">Linux dd 命令使用详解</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (17)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/PHP/">PHP (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (2)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Git/">Git</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/">熔断器</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+    <footer id="footer">
+    <div class="container">
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
+        
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+</body>
+
+</html>

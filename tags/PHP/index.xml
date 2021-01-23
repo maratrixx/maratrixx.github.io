@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>PHP on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/PHP/</link>
+    <description>Recent content in PHP on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 12 May 2014 20:27:10 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/PHP/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>PHP新增语法结构Traits</title>
+      <link>https://maratrix.cn/post/2014/05/12/php-traits/</link>
+      <pubDate>Mon, 12 May 2014 20:27:10 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/05/12/php-traits/</guid>
+      <description>面向对象的优势在于类的复用，继承和多态都是对类进行复用，他们一个是类级别的复用，一个是方法级别的复用。其中提到继承必提组合，有什么区别呢。组合与继承都是提高代码可重用性的手段。通过总结，可以得出继承是</description>
+    </item>
+    
+    <item>
+      <title>PHP延迟静态绑定机制</title>
+      <link>https://maratrix.cn/post/2014/05/11/php-static-bind/</link>
+      <pubDate>Sun, 11 May 2014 20:24:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/05/11/php-static-bind/</guid>
+      <description>自 PHP 5.3.0 起，PHP 增加了一个叫做后期静态绑定的功能，用于在继承范围内引用静态调用的类。准确说，后期静态绑定工作原理是存储了在上一个“非转发调用”的类名。当进行静态方法调用时，该类名即为明确指定的那个（通</description>
+    </item>
+    
+  </channel>
+</rss>
