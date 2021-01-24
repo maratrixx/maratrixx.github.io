@@ -150,7 +150,7 @@
 <p>其实方法 Do 、DoC、 Go 方法内部都是调用了 hystrix.GoC 方法，只是 Do 和 DoC 方法处理了异步的过程。</p>
 <h3 id="源码分析">源码分析</h3>
 <h4 id="流程图">流程图</h4>
-<p><img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210124191353.png" alt=""></p>
+<p><img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210124212250.png" alt=""></p>
 <h4 id="配置熔断策略">配置熔断策略</h4>
 <p>使用 hystrix-go，我们需要先配置熔断策略，该库提供了两个配置方法：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Configure</span>(cmds <span style="color:#8be9fd;font-style:italic">map</span>[<span style="color:#8be9fd">string</span>]CommandConfig)               <span style="color:#6272a4">// 添加批量配置
