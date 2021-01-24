@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 20 Jan 2021 09:25:05 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 24 Jan 2021 10:36:09 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>hystrix-go 之核心流程实现</title>
+      <link>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</link>
+      <pubDate>Sun, 24 Jan 2021 10:36:09 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</guid>
+      <description>前言 上一篇文章我们介绍了服务保护熔断器 sentinel-go 如何使用，今天介绍另外一款优秀的集限流、熔断、降级于一身的组件 hystrix-go。hystrix-go 是著名开源库 hystrix 的 Go 语言简化版本，实现了核心功能，源码实现</description>
+    </item>
+    
     <item>
       <title>sentinel-go 之熔断降级</title>
       <link>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</link>
