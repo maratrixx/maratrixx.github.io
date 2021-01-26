@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 24 Jan 2021 10:36:09 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 25 Jan 2021 22:31:12 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>hystrix-go 之断路器实现</title>
+      <link>https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</link>
+      <pubDate>Mon, 25 Jan 2021 22:31:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</guid>
+      <description>上一篇我们分析 hystrix-go 主流程时知道，对于每个 command 都有一个对应的断路器，而且在 GoC 中首先要通过 GetCircuit(name) 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。 回顾下 command 结构体： 1type command struct { 2 // ... 3 circuit</description>
+    </item>
+    
     <item>
       <title>hystrix-go 之核心流程实现</title>
       <link>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</link>
