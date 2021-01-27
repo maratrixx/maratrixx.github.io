@@ -6,11 +6,11 @@
     <description>Recent content in Tags on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 25 Jan 2021 22:31:12 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 27 Jan 2021 08:45:02 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Go源码阅读</title>
       <link>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</link>
-      <pubDate>Mon, 25 Jan 2021 22:31:12 +0800</pubDate>
+      <pubDate>Wed, 27 Jan 2021 08:45:02 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</guid>
       <description></description>
@@ -19,7 +19,7 @@
     <item>
       <title>hystrix-go</title>
       <link>https://maratrix.cn/tags/hystrix-go/</link>
-      <pubDate>Mon, 25 Jan 2021 22:31:12 +0800</pubDate>
+      <pubDate>Wed, 27 Jan 2021 08:45:02 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/hystrix-go/</guid>
       <description></description>
