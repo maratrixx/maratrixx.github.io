@@ -4,41 +4,51 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/hystrix-go/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <loc>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</loc>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2021-01-27T08:45:02+08:00</lastmod>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/</loc>
+    <lastmod>2021-01-28T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/</loc>
     <lastmod>2021-01-27T08:45:02+08:00</lastmod>
   </url>
   
@@ -49,11 +59,6 @@
   
   <url>
     <loc>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</loc>
-    <lastmod>2021-01-24T10:36:09+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/</loc>
     <lastmod>2021-01-24T10:36:09+08:00</lastmod>
   </url>
   

@@ -6,7 +6,16 @@
     <description>Recent content in 熔断器 on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 24 Jan 2021 10:36:09 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 28 Jan 2021 09:23:28 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>hystrix-go 之流量控制实现</title>
+      <link>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</link>
+      <pubDate>Thu, 28 Jan 2021 09:23:28 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</guid>
+      <description>在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &amp;lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go</description>
+    </item>
+    
     <item>
       <title>hystrix-go 之核心流程实现</title>
       <link>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</link>

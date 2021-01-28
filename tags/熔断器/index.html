@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">hystrix-go 之流量控制实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月28日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a>
+            
+        </div>
+        
+        <div class="post-content">
+            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go……
+            <p class="readmore"><a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/">hystrix-go 之核心流程实现</a>
             </h1>
         </header>
@@ -147,6 +170,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/" title="hystrix-go 之流量控制实现">hystrix-go 之流量控制实现</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/" title="hystrix-go 之统计控制器实现">hystrix-go 之统计控制器实现</a>
     </li>
     
@@ -182,10 +209,6 @@
         <a href="https://maratrix.cn/post/2020/12/31/2020-summary/" title="再见2020">再见2020</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -199,7 +222,7 @@
     
     <li><a href="https://maratrix.cn/categories/Go/">Go (17)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (5)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
     

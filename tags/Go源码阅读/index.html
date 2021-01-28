@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">hystrix-go 之流量控制实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月28日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a>
+            
+        </div>
+        
+        <div class="post-content">
+            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go……
+            <p class="readmore"><a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/">hystrix-go 之统计控制器实现</a>
             </h1>
         </header>
@@ -282,33 +305,30 @@
         </div>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月14日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
-        </div>
-    </article>
-    
 
     
 
 
+
+<ol class="page-navigator">
+    
+
+    
+    <li  class="current">
+        <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">1</a>
+    </li>
+    
+    <li >
+        <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/page/2/">2</a>
+    </li>
+    
+
+    
+    <li class="next">
+        <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/page/2/">下一页</a>
+    </li>
+    
+</ol>
 
 
 
@@ -329,6 +349,10 @@
     <section class="widget">
         <h3 class="widget-title">最近文章</h3>
 <ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/" title="hystrix-go 之流量控制实现">hystrix-go 之流量控制实现</a>
+    </li>
     
     <li>
         <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/" title="hystrix-go 之统计控制器实现">hystrix-go 之统计控制器实现</a>
@@ -366,10 +390,6 @@
         <a href="https://maratrix.cn/post/2020/12/31/2020-summary/" title="再见2020">再见2020</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -383,7 +403,7 @@
     
     <li><a href="https://maratrix.cn/categories/Go/">Go (17)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (5)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
     
