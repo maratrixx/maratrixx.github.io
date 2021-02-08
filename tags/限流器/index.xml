@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>限流器 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/</link>
+    <description>Recent content in 限流器 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 19 Jan 2021 08:11:23 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>sentinel-go 之流量控制</title>
+      <link>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</link>
+      <pubDate>Tue, 19 Jan 2021 08:11:23 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</guid>
+      <description>最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。 sentinel-go</description>
+    </item>
+    
+    <item>
+      <title>juju/ratelimit 令牌桶限流器分析</title>
+      <link>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</link>
+      <pubDate>Sun, 10 Jan 2021 23:12:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</guid>
+      <description>上一篇 我们介绍了基于漏桶算法的限流器 - uber-go/ratelimit，为了应对突发流量，它做了最大松弛量的改良。本篇文章继续介绍另外一种限流器：令牌桶（Token Bucket）。 什么是令牌桶 漏桶的</description>
+    </item>
+    
+    <item>
+      <title>uber-go/ratelimit 漏桶限流器分析</title>
+      <link>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</link>
+      <pubDate>Wed, 06 Jan 2021 23:13:10 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</guid>
+      <description>限流器是微服务中不可缺少的组件，起着保护下游服务负载过高、保证服务稳定性的作用。 什么是限流器 Web servers typically use a central in-memory key-value database, like Redis or Aerospike, for session management. A rate limiting algorithm is used to check if the user session (or IP address) has to be limited based on the information in the session cache. In case a client made too many requests within a given</description>
+    </item>
+    
+  </channel>
+</rss>

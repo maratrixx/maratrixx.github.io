@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Prometheus on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/categories/Prometheus/</link>
+    <description>Recent content in Prometheus on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 08 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Prometheus/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus学习笔记|00.简介与原理</title>
+      <link>https://maratrix.cn/post/2021/02/08/prometheus-intro/</link>
+      <pubDate>Mon, 08 Feb 2021 11:20:18 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/02/08/prometheus-intro/</guid>
+      <description>第一次接触并使用 Prometheus 是在上家公司（QTT）做一个商城项目，当然只是简单的使用并未过多的深入了解、学习。到现在，Prometheus 已经是服务监控领域的标配了，是时候深入好好研究总结一下它了。 服务治理有一</description>
+    </item>
+    
+  </channel>
+</rss>

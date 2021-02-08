@@ -6,7 +6,106 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 17 Dec 2020 23:00:41 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 08 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus学习笔记|00.简介与原理</title>
+      <link>https://maratrix.cn/post/2021/02/08/prometheus-intro/</link>
+      <pubDate>Mon, 08 Feb 2021 11:20:18 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/02/08/prometheus-intro/</guid>
+      <description>第一次接触并使用 Prometheus 是在上家公司（QTT）做一个商城项目，当然只是简单的使用并未过多的深入了解、学习。到现在，Prometheus 已经是服务监控领域的标配了，是时候深入好好研究总结一下它了。 服务治理有一</description>
+    </item>
+    
+    <item>
+      <title>hystrix-go 之流量控制实现</title>
+      <link>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</link>
+      <pubDate>Thu, 28 Jan 2021 09:23:28 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</guid>
+      <description>在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &amp;lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go</description>
+    </item>
+    
+    <item>
+      <title>hystrix-go 之统计控制器实现</title>
+      <link>https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/</link>
+      <pubDate>Wed, 27 Jan 2021 08:45:02 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/</guid>
+      <description>上一篇 我们分析断路器时有用到 metricExchange，但并未展开详细介绍，本篇我们主要介绍它以及实现原理。 metricExchange 主要是用来收集处理上报的所有事件，并对事件进行汇总处理，最后根据计算出来的一段时间内的错</description>
+    </item>
+    
+    <item>
+      <title>hystrix-go 之断路器实现</title>
+      <link>https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</link>
+      <pubDate>Mon, 25 Jan 2021 22:31:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</guid>
+      <description>上一篇我们分析 hystrix-go 主流程时知道，对于每个 command 都有一个对应的断路器，而且在 GoC 中首先要通过 GetCircuit(name) 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。 回顾下 command 结构体： 1type command struct { 2 // ... 3 circuit</description>
+    </item>
+    
+    <item>
+      <title>hystrix-go 之核心流程实现</title>
+      <link>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</link>
+      <pubDate>Sun, 24 Jan 2021 10:36:09 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</guid>
+      <description>前言 上一篇文章我们介绍了服务保护熔断器 sentinel-go 如何使用，今天介绍另外一款优秀的集限流、熔断、降级于一身的组件 hystrix-go。hystrix-go 是著名开源库 hystrix 的 Go 语言简化版本，实现了核心功能，源码实现</description>
+    </item>
+    
+    <item>
+      <title>sentinel-go 之熔断降级</title>
+      <link>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</link>
+      <pubDate>Wed, 20 Jan 2021 09:25:05 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</guid>
+      <description>在高可用设计中，除了流控外，对分布式系统调用链路中不稳定的资源(比如 RPC 服务等)进行熔断降级也是保障高可用的重要措施之一。 现代微服务架构基本都是分布式的，整个分布式系统由非常多的微服务组成。不同服务之间</description>
+    </item>
+    
+    <item>
+      <title>sentinel-go 之流量控制</title>
+      <link>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</link>
+      <pubDate>Tue, 19 Jan 2021 08:11:23 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</guid>
+      <description>最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。 sentinel-go</description>
+    </item>
+    
+    <item>
+      <title> Google Protobuf 编译器使用笔记</title>
+      <link>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</link>
+      <pubDate>Fri, 15 Jan 2021 09:36:47 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</guid>
+      <description>背景 Protobuf 是 google 开源的高性能序列化库，支持 C++、C#、Dart、Java、Go、Python、Rust 等语言，同时也是跨平台的。 Protobuf 包含序列化格式的定义、各种语言的库以及一个 IDL 编译器。正常情况下你需要定义 proto</description>
+    </item>
+    
+    <item>
+      <title>juju/ratelimit 令牌桶限流器分析</title>
+      <link>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</link>
+      <pubDate>Sun, 10 Jan 2021 23:12:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</guid>
+      <description>上一篇 我们介绍了基于漏桶算法的限流器 - uber-go/ratelimit，为了应对突发流量，它做了最大松弛量的改良。本篇文章继续介绍另外一种限流器：令牌桶（Token Bucket）。 什么是令牌桶 漏桶的</description>
+    </item>
+    
+    <item>
+      <title>uber-go/ratelimit 漏桶限流器分析</title>
+      <link>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</link>
+      <pubDate>Wed, 06 Jan 2021 23:13:10 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</guid>
+      <description>限流器是微服务中不可缺少的组件，起着保护下游服务负载过高、保证服务稳定性的作用。 什么是限流器 Web servers typically use a central in-memory key-value database, like Redis or Aerospike, for session management. A rate limiting algorithm is used to check if the user session (or IP address) has to be limited based on the information in the session cache. In case a client made too many requests within a given</description>
+    </item>
+    
+    <item>
+      <title>再见2020</title>
+      <link>https://maratrix.cn/post/2020/12/31/2020-summary/</link>
+      <pubDate>Thu, 31 Dec 2020 14:02:48 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2020/12/31/2020-summary/</guid>
+      <description>第一次正式在博客公开写年终总结，其实之前也都有写，只是随手写在了某个笔记软件上，没有统一进行归档整理，更不方便查阅，然后就开始吃灰了。这次也许是个好的开始，希望以后年年坚持写下去。 2020 年确实过的很快，感</description>
+    </item>
+    
     <item>
       <title>[转]Go语言如何使用条件编译</title>
       <link>https://maratrix.cn/post/2020/12/17/go-cond-build/</link>
@@ -239,6 +338,123 @@
       
       <guid>https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</guid>
       <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in</description>
+    </item>
+    
+    <item>
+      <title>创建与合并分支</title>
+      <link>https://maratrix.cn/post/2014/06/27/git-branch/</link>
+      <pubDate>Fri, 27 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/git-branch/</guid>
+      <description>分支就是科幻电影里面的平行宇宙，当你正在电脑前努力学习Git的时候，另一个你正在另一个平行宇宙里努力学习SVN。 如果两个平行宇宙互不干扰，那对现在的你也没啥影响。不过，在某个时间点，两个平行宇宙合并了</description>
+    </item>
+    
+    <item>
+      <title>Git远程仓库配置</title>
+      <link>https://maratrix.cn/post/2014/06/26/git-remote-set/</link>
+      <pubDate>Thu, 26 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/26/git-remote-set/</guid>
+      <description>首先，我们要了解Github这个神奇的网站，这个网站就是提供Git仓库托管服务的，所以，只要注册一个GitHub账号，就可以免费获得Git远程仓库。所以我们要先注册一个github帐号。 由于你的本地G</description>
+    </item>
+    
+    <item>
+      <title>添加远程仓库和从远程仓库克隆</title>
+      <link>https://maratrix.cn/post/2014/06/25/git-add-remote/</link>
+      <pubDate>Wed, 25 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/25/git-add-remote/</guid>
+      <description>现在，我们已经在本地创建了一个版本库，那么如何在Github创建了一个仓库，并且让这两个仓库进行远程同步呢？ 添加远程库 首先，登陆GitHub，然后，在右上角找到“Create a new repo”按钮，创建一</description>
+    </item>
+    
+    <item>
+      <title>版本库文件的管理</title>
+      <link>https://maratrix.cn/post/2014/06/24/git-version-manage/</link>
+      <pubDate>Tue, 24 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/24/git-version-manage/</guid>
+      <description>撤销修改 现在，我们查看下one.txt文件： 1$ cat one.txt 2git is the best 3I love git 4error content 假如，当我们没提交前，又想撤销这次的修改，那该怎么办呢？这时我们可以直接手动删除修改的内容，恢复到原来的版本。此时，我们可以使用gi</description>
+    </item>
+    
+    <item>
+      <title>版本库删除文件操作</title>
+      <link>https://maratrix.cn/post/2014/06/23/git-del/</link>
+      <pubDate>Mon, 23 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/23/git-del/</guid>
+      <description>首先，我们要知道在Git中任何的操作都是一个修改，那删除文件肯定也是一个修改操作了，在工作区删除一个文件可以使用rm -f file的命令来操作： 1$ rm -f one.txt 此时，Git已经知道你删除了文件，这时候的工作区和版</description>
+    </item>
+    
+    <item>
+      <title>Git工作区和暂存区</title>
+      <link>https://maratrix.cn/post/2014/06/22/git-work-stash/</link>
+      <pubDate>Sun, 22 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/22/git-work-stash/</guid>
+      <description>首先，我们要清楚Git和其他版本控制系统如SVN的一个不同之处就是有暂存区的概念。下面来看几个概念： 工作区 工作区就是我们在电脑里看到的目录，比如我的learngit就是一个工作区。 版本库 在工作区中都有</description>
+    </item>
+    
+    <item>
+      <title>Git实现版本回退功能</title>
+      <link>https://maratrix.cn/post/2014/06/21/git-version-reset/</link>
+      <pubDate>Sat, 21 Jun 2014 21:11:27 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/21/git-version-reset/</guid>
+      <description>现在，我们重新修改下文件并添加和提交到版本库： 1$ echo &amp;#39;再次添加新内容&amp;#39; &amp;gt;&amp;gt; readme.md 2$ git add ./readme.md 3$ git commit -m &amp;#39;更新内容&amp;#39; 像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就像我们</description>
+    </item>
+    
+    <item>
+      <title>安装分布式版本控制系统Git</title>
+      <link>https://maratrix.cn/post/2014/06/20/git-install/</link>
+      <pubDate>Fri, 20 Jun 2014 20:35:36 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/20/git-install/</guid>
+      <description>Git是什么？Git是世界上最先进的分布式版本控制系统。 Git有什么特点？简单说就是：高端大气上档次！ 那么什么是版本控制系统呢？自己百度去。 很多人都知道，李纳斯创建了开源的Linux，从那时起Linu</description>
+    </item>
+    
+    <item>
+      <title>Git创建版本库和查看工作区状态</title>
+      <link>https://maratrix.cn/post/2014/06/19/git-create/</link>
+      <pubDate>Thu, 19 Jun 2014 20:31:25 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/19/git-create/</guid>
+      <description>什么是版本库呢？版本库又名仓库，英文名repository，可以简单理解成一个目录，这个目录里面的所有文件都可以被Git管理起来，每个文件的修改、删除，Git都能跟踪，以便任何时刻都可以追踪历史，或者</description>
+    </item>
+    
+    <item>
+      <title>PHP新增语法结构Traits</title>
+      <link>https://maratrix.cn/post/2014/05/12/php-traits/</link>
+      <pubDate>Mon, 12 May 2014 20:27:10 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/05/12/php-traits/</guid>
+      <description>面向对象的优势在于类的复用，继承和多态都是对类进行复用，他们一个是类级别的复用，一个是方法级别的复用。其中提到继承必提组合，有什么区别呢。组合与继承都是提高代码可重用性的手段。通过总结，可以得出继承是</description>
+    </item>
+    
+    <item>
+      <title>PHP延迟静态绑定机制</title>
+      <link>https://maratrix.cn/post/2014/05/11/php-static-bind/</link>
+      <pubDate>Sun, 11 May 2014 20:24:12 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/05/11/php-static-bind/</guid>
+      <description>自 PHP 5.3.0 起，PHP 增加了一个叫做后期静态绑定的功能，用于在继承范围内引用静态调用的类。准确说，后期静态绑定工作原理是存储了在上一个“非转发调用”的类名。当进行静态方法调用时，该类名即为明确指定的那个（通</description>
+    </item>
+    
+    <item>
+      <title>[转]批判的价值</title>
+      <link>https://maratrix.cn/post/2014/05/10/critical-value/</link>
+      <pubDate>Sat, 10 May 2014 19:36:05 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/05/10/critical-value/</guid>
+      <description>Author:YinWang 总是有人告诉我，我不应该批评一些技术，特别是不应该在一些公认的“大牛”或者流行的技术头上动土。要做出自己的“成果”，这样才可以得到大家的“尊重”。首先，你可能没有发现，被我批判得最厉害的技术和人，其</description>
+    </item>
+    
+    <item>
+      <title>开心写程序，快乐过生活</title>
+      <link>https://maratrix.cn/post/2014/03/07/hello-world/</link>
+      <pubDate>Fri, 07 Mar 2014 19:28:45 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/03/07/hello-world/</guid>
+      <description>这是开通 CSDN 后的第一篇博客，呵呵，工科男就是这样，刚开始真的就是不知道该怎么去写出心中的想法和情感，也许就是碍于面子，怕被别人成为“屌丝”，希望自己可以这么坚持下去。 说实话，编程真的很枯燥，枯燥的有时会</description>
     </item>
     
     <item>
