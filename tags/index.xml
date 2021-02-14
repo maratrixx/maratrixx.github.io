@@ -6,11 +6,20 @@
     <description>Recent content in Tags on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 10 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 11 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Grafana</title>
+      <link>https://maratrix.cn/tags/Grafana/</link>
+      <pubDate>Thu, 11 Feb 2021 11:20:18 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/tags/Grafana/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>Prometheus</title>
       <link>https://maratrix.cn/tags/Prometheus/</link>
-      <pubDate>Wed, 10 Feb 2021 11:20:18 +0800</pubDate>
+      <pubDate>Thu, 11 Feb 2021 11:20:18 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/Prometheus/</guid>
       <description></description>
@@ -19,7 +28,7 @@
     <item>
       <title>监控</title>
       <link>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</link>
-      <pubDate>Wed, 10 Feb 2021 11:20:18 +0800</pubDate>
+      <pubDate>Thu, 11 Feb 2021 11:20:18 +0800</pubDate>
       
       <guid>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</guid>
       <description></description>

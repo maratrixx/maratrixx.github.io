@@ -4,41 +4,51 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/Grafana/</loc>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/Prometheus/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/categories/Prometheus/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <loc>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</loc>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/</loc>
-    <lastmod>2021-02-10T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</loc>
+    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/</loc>
     <lastmod>2021-02-10T11:20:18+08:00</lastmod>
   </url>
   

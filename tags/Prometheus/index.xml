@@ -6,7 +6,16 @@
     <description>Recent content in Prometheus on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 10 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Prometheus/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 11 Feb 2021 11:20:18 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/Prometheus/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Prometheus学习笔记|02.监控数据可视化</title>
+      <link>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</link>
+      <pubDate>Thu, 11 Feb 2021 11:20:18 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</guid>
+      <description>Prometheus UI 提供了快速验证 PromQL 以及临时可视化支持的能力，但其可视化能力却比较弱。一般情况下，我们都用 Grafana 来实现对 Prometheus 的可视化实现。 什么是Grafana Grafana 是一个开源的可视化平台，并且提供了对 Prometheus 的完整支持。 Grafana has become the wo</description>
+    </item>
+    
     <item>
       <title>Prometheus学习笔记|01.安装与快速入门</title>
       <link>https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/</link>
