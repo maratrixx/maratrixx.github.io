@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-	<meta name="generator" content="Hugo 0.79.1" />
+	<meta name="generator" content="Hugo 0.79.0" />
 
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -65,6 +65,29 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月25日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            前言 当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">阅读全文</a></p>
+    </article>
     
     <article class="post">
         <header>
@@ -275,29 +298,6 @@
         <p class="readmore"><a href="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年2月4日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Rust'>Rust</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            变量声明 语法格式： 1let 变量名: 变量类型 = 变量值; 2let var: i32 = 123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理的初始化后才能被……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
-    </article>
-    
     
 
 
@@ -330,6 +330,10 @@
         <a href="https://maratrix.cn/page/5/">5</a>
     </li>
     
+    <li >
+        <a href="https://maratrix.cn/page/6/">6</a>
+    </li>
+    
 
     
     <li class="next">
@@ -357,6 +361,10 @@
     <section class="widget">
         <h3 class="widget-title">最近文章</h3>
 <ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
+    </li>
     
     <li>
         <a href="https://maratrix.cn/post/2021/02/11/grafana-quick-start/" title="Prometheus学习笔记|02.监控数据可视化">Prometheus学习笔记|02.监控数据可视化</a>
@@ -394,10 +402,6 @@
         <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/" title=" Google Protobuf 编译器使用笔记"> Google Protobuf 编译器使用笔记</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -409,7 +413,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (17)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -456,7 +460,11 @@
     
     <a href="https://maratrix.cn/tags/context/">context</a>
     
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
     <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
     
     <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
     

@@ -6,7 +6,16 @@
     <description>Recent content in Go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 20 Jan 2021 09:25:05 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 21 Feb 2021 09:23:28 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go1.16新特性|embed静态资源嵌入[转]</title>
+      <link>https://maratrix.cn/post/2021/02/21/go-embed-syntax/</link>
+      <pubDate>Sun, 21 Feb 2021 09:23:28 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/02/21/go-embed-syntax/</guid>
+      <description>本文转自：https://colobu.com/2021/01/17/go-embed-tutorial/，并稍作修改。 Go 编译的程序非常适合部署，如果没有通过 CGO 引用其它的库的话，我们一般编译出来的可执</description>
+    </item>
+    
     <item>
       <title>sentinel-go 之熔断降级</title>
       <link>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</link>

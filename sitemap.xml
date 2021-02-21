@@ -4,21 +4,51 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://maratrix.cn/tags/Grafana/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
+    <loc>https://maratrix.cn/tags/embed/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Go/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/go/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/go1.16/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/02/21/go-embed-syntax/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2021-02-21T09:23:28+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/Grafana/</loc>
     <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
@@ -34,11 +64,6 @@
   
   <url>
     <loc>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
@@ -95,11 +120,6 @@
   <url>
     <loc>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</loc>
     <lastmod>2021-01-24T10:36:09+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/categories/Go/</loc>
-    <lastmod>2021-01-20T09:25:05+08:00</lastmod>
   </url>
   
   <url>
@@ -184,11 +204,6 @@
   
   <url>
     <loc>https://maratrix.cn/post/2020/12/17/go-cond-build/</loc>
-    <lastmod>2020-12-17T23:00:41+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/go/</loc>
     <lastmod>2020-12-17T23:00:41+08:00</lastmod>
   </url>
   

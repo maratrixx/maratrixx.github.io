@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/">Go1.16新特性|embed静态资源嵌入[转]</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年2月21日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            本文转自：https://colobu.com/2021/01/17/go-embed-tutorial/，并稍作修改。 Go 编译的程序非常适合部署，如果没有通过 CGO 引用其它的库的话，我们一般编译出来的可执……
+            <p class="readmore"><a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/">[转]Go语言如何使用条件编译</a>
             </h1>
         </header>
@@ -282,29 +305,6 @@
         </div>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月14日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
-            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
-        </div>
-    </article>
-    
 
     
 
@@ -351,6 +351,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/02/11/grafana-quick-start/" title="Prometheus学习笔记|02.监控数据可视化">Prometheus学习笔记|02.监控数据可视化</a>
     </li>
     
@@ -386,10 +390,6 @@
         <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/" title=" Google Protobuf 编译器使用笔记"> Google Protobuf 编译器使用笔记</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -401,7 +401,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (17)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -448,7 +448,11 @@
     
     <a href="https://maratrix.cn/tags/context/">context</a>
     
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
     <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
     
     <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
     
