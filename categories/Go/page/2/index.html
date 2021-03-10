@@ -78,6 +78,52 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月25日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            前言 当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">Go源码阅读 | sync.Once设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月21日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a>
             </h1>
         </header>
@@ -307,6 +353,14 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
     </li>
     
@@ -338,14 +392,6 @@
         <a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/" title="hystrix-go 之核心流程实现">hystrix-go 之核心流程实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -357,7 +403,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     

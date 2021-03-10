@@ -6,20 +6,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>go:linkname用法 | MARATRIX BLOG</title>
-    <meta property="og:title" content="go:linkname用法 - MARATRIX BLOG">
+    <title>Go1.16新特性|Module功能新变化 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go1.16新特性|Module功能新变化 - MARATRIX BLOG">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content='2019-07-12T10:10:42&#43;08:00'>
+    <meta property="article:published_time" content='2021-03-10T08:06:49&#43;08:00'>
         
         
-    <meta property="article:modified_time" content='2019-07-12T10:10:42&#43;08:00'>
+    <meta property="article:modified_time" content='2021-03-10T08:06:49&#43;08:00'>
         
     <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
-    <meta name="description" content="go:linkname用法">
+    <meta name="description" content="Go1.16新特性|Module功能新变化">
         
     <meta name="author" content="maratrix">
-    <meta property="og:url" content="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">
+    <meta property="og:url" content="https://maratrix.cn/post/2021/03/10/go1.16-module/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
@@ -72,10 +72,10 @@
     
     <article class="post">
         <header>
-            <h1 class="post-title">go:linkname用法</h1>
+            <h1 class="post-title">Go1.16新特性|Module功能新变化</h1>
         </header>
         <date class="post-meta meta-date">
-            2019年7月12日
+            2021年3月10日
         </date>
         
         <div class="post-meta">
@@ -93,88 +93,80 @@
         
         
         <div class="post-content">
-            <h2 id="什么是golinkname">什么是<code>go:linkname</code></h2>
-<p>这里引用<a href="https://golang.org/cmd/compile/">Go官方文档</a>的解释：</p>
-<blockquote>
-<p>//go:linkname localname importpath.name</p>
-<p>The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in files that have imported &ldquo;unsafe&rdquo;.</p>
-</blockquote>
-<p>翻译过来就是：</p>
-<blockquote>
-<p>这个指令告诉编译器为函数或者变量<code>localname</code>使用<code>importpath.name</code>作为目标文件的符号名。因为这个指令破坏了类型系统和包的模块化，所以它只能在 import &ldquo;unsafe&rdquo; 的情况下才能使用。</p>
-</blockquote>
-<p>只看文档有没有云里雾里？我们来看标准库<code>time.Sleep</code>代码实例：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// Sleep pauses the current goroutine for at least the duration d.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">// A negative or zero duration causes Sleep to return immediately.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Sleep</span>(d Duration)
-</code></pre></div><p>这个函数我们经常会用到，但是却没有函数体，而且同样在当前目录下也没有汇编语言的代码实现。那么，在哪里实现的呢？</p>
-<p>实际上，这个函数在Go也是在标准库中实现的，它是runtime库中的一个unexported（未导出）函数。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// timeSleep puts the current goroutine to sleep for at least ns nanoseconds.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4">//go:linkname timeSleep time.Sleep
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">timeSleep</span>(ns <span style="color:#8be9fd">int64</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>  <span style="color:#ff79c6">...</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-</code></pre></div><p>什么？未导出的函数竟然可以被外部访问？是的，这里要归功于<code>go:linkname</code>这个命令了。</p>
-<h2 id="如何用golinkname">如何用<code>go:linkname</code></h2>
-<p>我们写一个简单的代码来说明如何使用<code>go:linkname</code>，代码结构如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>linkname
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    ├── aa
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    │   ├── aa.<span style="color:#ff79c6">go</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    │   └── aa.s
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    ├── bb
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    │   └── bb.<span style="color:#ff79c6">go</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    └── main.<span style="color:#ff79c6">go</span>
-</code></pre></div><p>首先，我们编写<code>aa.go</code>文件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">package</span> aa
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">import</span> _ <span style="color:#f1fa8c">&#34;linkname/bb&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Hello</span>() <span style="color:#8be9fd">string</span>
-</code></pre></div><p>这里有一点有注意：</p>
-<ul>
-<li>必须引入<code>linkname/bb</code>包；</li>
-</ul>
-<p>然后，<code>bb.go</code>文件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">package</span> bb
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">import</span> _ <span style="color:#f1fa8c">&#34;unsafe&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4">//go:linkname hello linkname/aa.Hello
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">hello</span>() <span style="color:#8be9fd">string</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	<span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;hello world&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
-</code></pre></div><p>这里有两点注意：</p>
-<ul>
-<li>必须要引入<code>unsafe</code>包；</li>
-<li>使用<code>go:linkname</code>命令指定目标变量；</li>
-</ul>
-<p>最后，<code>main</code>文件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">package</span> main
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#ff79c6">import</span> (
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;fmt&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;linkname/aa&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	fmt.<span style="color:#50fa7b">Println</span>(aa.<span style="color:#50fa7b">Hello</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
-</code></pre></div><p>如果此时运行<code>go run main.go</code>肯定会报错：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>linkname/aa/aa.go:5:6: missing <span style="color:#ff79c6">function</span> body
-</code></pre></div><p>难道我们前面讲的都是错的吗？</p>
-<p>这里有一个技巧，你在<code> package aa</code>下创建一个空的文件， 文件名随意，只要文件后缀为<code>.s</code>，再运行一下<code>go run main.go</code>：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>hello world
-</code></pre></div><p>原因在于Go在编译的时候会启用<code>-complete</code>编译器flag，它要求所有的函数必需包含函数体。创建一个空的汇编语言文件绕过这个限制。</p>
-<h2 id="小结">小结</h2>
-<ul>
-<li><code>go:linkname</code>可以跨包使用；</li>
-<li>跨包使用时，目标方法或者变量必须导入有方法体的包，这个编译器才可以识别到链接 <code>import _ &quot;linkname/bb&quot;</code>；</li>
-<li>跨包使用时，方法体的实现包必须引发<code>unsafe</code>包；</li>
-<li><code>go build</code>无法编译<code>go:linkname</code>,必须用单独的compile命令进行编译，因为<code>go build</code>会加上<code>-complete</code>参数，这个参数会检查到没有方法体的方法，并且不通过。</li>
-</ul>
-<p>一般情况下我们不会采用这种方式，只有在很稀少的情况下，为了更好地组织我们的代码，我们才会有选择的采采用。至少，作为一个Go开发者，我们得明白通过这种方式可以绕过权限的限制。</p>
-<h5 id="参考博客">参考博客：</h5>
-<p><a href="https://colobu.com/2017/05/12/call-private-functions-in-other-packages/">突破限制,访问其它Go package中的私有函数</a></p>
+            <h3 id="module-功能默认开启">Module 功能默认开启</h3>
+<p>在 Go 1.16 版本中，Go module-aware 模式成为了默认模式 (另一种则是传统的 gopath 模式)。module-aware 模式成为默认意味着什么呢？意味着 GO111MODULE 的值默认为 on 了。</p>
+<p>这里将 Go 1.13 版本之前、Go 1.13 版本以及 Go 1.16 版本在 GO111MODULE 为不同值的情况下的行为做一下对比，这样我们可以更好的理解 go 1.16 中 module-aware 模式下的行为特性，下面我们就来做一下比对：</p>
+<table>
+<thead>
+<tr>
+<th>GO111MODULE</th>
+<th>&lt; Go 1.13</th>
+<th>Go 1.13</th>
+<th>Go 1.16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>on</td>
+<td>任何路径下都开启 module-aware 模式</td>
+<td>任何路径下都开启 module-aware 模式</td>
+<td>【默认值】：任何路径下都开启 module-aware 模式</td>
+</tr>
+<tr>
+<td>auto</td>
+<td>【默认值】：使用 GOPATH mode 还是 module-aware mode，取决于要构建的源码目录所在位置以及是否包含 go.mod 文件。如果要构建的源码目录不在以 GOPATH/src 为根的目录体系下，且包含 go.mod 文件 (两个条件缺一不可)，那么使用 module-aware mode；否则使用传统的 GOPATH mode。</td>
+<td>【默认值】：只要当前目录或父目录下有 go.mod 文件时，就开启 module-aware 模式，无论源码目录是否在 GOPATH 外面</td>
+<td>只有当前目录或父目录下有 go.mod 文件时，就开启 module-aware 模式，无论源码目录是否在 GOPATH 外面</td>
+</tr>
+<tr>
+<td>off</td>
+<td>gopath 模式</td>
+<td>gopath 模式</td>
+<td>gopath 模式</td>
+</tr>
+</tbody>
+</table>
+<p>我们看到在 Go 1.16 模式下，依然可以回归到 gopath 模式。但 Go 核心团队已经决定拒绝 “继续保留 GOPATH mode” 的提案，并计划在 Go 1.17 版本中彻底取消 gopath mode，仅保留 go module-aware mode。</p>
+<h3 id="不会自动更改-gomod-和-gosum">不会自动更改 go.mod 和 go.sum</h3>
+<p>在之前的版本中，当 go 命令发现 go.mod 或 go.sum 有问题时，比如缺少 require 指令或缺少 sum，它会尝试自动修复问题。我们收到了很多反馈，认为这种行为是出乎大家意料的，尤其是对于像 go list 这样通常不会产生副作用的命令。自动修复并不总是可取的：如果一个导入的包没有被任何需要的 Module 提供，go 命令会添加一个新的依赖关系，可能会触发普通依赖关系的升级。即使是拼写错误的导入路径也会导致（失败的）网络查找。</p>
+<p>在 Go 1.16 中，module-aware 命令在发现 go.mod 或 go.sum 中的问题后会报告一个错误，而不是尝试自动修复问题。在大多数情况下，错误信息建议使用命令来修复问题。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ go build
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>example.go:3:8: no required module provides package golang.org/x/net/html; to add it:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    go get golang.org/x/net/html
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>$ go get golang.org/x/net/html
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>$ go build
+</code></pre></div><p>和之前一样，如果存在 vendor 目录，go 命令可能会使用该目录（详见 Vendoring）。像 go get 和 go mod tidy 这样的命令仍然会修改 go.mod 和 go.sum，因为它们的主要目的是管理依赖关系。</p>
+<h3 id="在特定版本上安装可执行文件">在特定版本上安装可执行文件</h3>
+<p>go install 命令现在可以通过指定 @version 后缀来安装特定版本的可执行文件。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>go install golang.org/x/tools/gopls@v0.6.5
+</code></pre></div><p>当使用这种语法时，go install 命令会从该 Module 的制定版本安装，而忽略当前目录和父目录中的任何 go.mod 文件。(如果没有 @version 后缀，go install 会像往常一样继续运行，使用当前 Module 的 go.mod 中列出的版本要求和替换来构建程序。)</p>
+<p>并且后续，Go 团队会让 go get 将专注于分析依赖，并获取 go 包 /module，更新 go.mod/go.sum，而不再具有安装可执行 Go 程序的行为能力，这样 go get 和 go install 就会各司其职，Gopher 们也不会再被两者的重叠行为所迷惑了。现在如果不想 go get 编译安装，可使用 <code>go get -d</code>。</p>
+<h3 id="module-撤回">Module 撤回</h3>
+<p>Module 作者现在可以使用 go.mod 中的 retract 指令撤回 Module 版本。撤回的版本仍然存在，并且可以被下载（所以依赖它的构建不会中断），但在解析 @latest 这样的版本时，go 命令不会自动选择它，go get 和 go list -m -u 会打印关于现有使用版本的警告。</p>
+<p>例如，假设一个流行库 example.com/lib 的作者发布了 v1.0.5，然后发现了一个新的安全问题。他们可以在他们的 go.mod 文件中添加如下指令。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">// Remote-triggered crash in package foo. See CVE-2021-01234.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>retract v1<span style="color:#bd93f9">.0.5</span>
+</code></pre></div><p>接下来，作者可以标记并推送 v1.0.6 版本，即新的最高版本。在这之后，已经依赖 v1.0.5 的用户在检查更新或升级依赖的软件包时，就会被通知版本撤回。通知信息可能会包含来自 retract 指令上方注释的文字。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ <span style="color:#ff79c6">go</span> list <span style="color:#ff79c6">-</span>m <span style="color:#ff79c6">-</span>u all
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>example.com<span style="color:#ff79c6">/</span>lib v1<span style="color:#bd93f9">.0.0</span> (retracted)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>$ <span style="color:#ff79c6">go</span> get .
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#ff79c6">go</span>: warning: example.com<span style="color:#ff79c6">/</span>lib@v1<span style="color:#bd93f9">.0.5</span>: retracted by module author:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    Remote<span style="color:#ff79c6">-</span>triggered crash in <span style="color:#ff79c6">package</span> foo. See CVE<span style="color:#ff79c6">-</span><span style="color:#bd93f9">2021</span><span style="color:#ff79c6">-</span><span style="color:#bd93f9">01234.</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#ff79c6">go</span>: to <span style="color:#ff79c6">switch</span> to the latest unretracted version, run:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    <span style="color:#ff79c6">go</span> get example.com<span style="color:#ff79c6">/</span>lib@latest
+</code></pre></div><p>于是按照提示执行 <code>go get example.com/lib@latest</code> 即可。</p>
+<h3 id="用-govcs-控制版本管理工具">用 GOVCS 控制版本管理工具</h3>
+<p>Go 1.16 引入了一个新的配置变量 GOVCS，让用户可以指定哪些 Module 可以使用特定的版本控制工具。GOVCS 接受一个以逗号分隔的 pattern:vcslist 规则列表。pattern 是一个 path.Match 模式，匹配一个 Module 路径的一个或多个前缀元素。特殊模式 public 和 private 匹配公共和私有 Module（private 被定义为由 GOPRIVATE 中的模式匹配的 Module；public 是其他所有 Module）。vcslist 是一个以管道符分隔的允许的版本控制命令列表，或关键字 all 或 off。</p>
+<p>GOVCS 的默认值为 <code>public:git|hg,private:all</code>，即对所有公共 module 允许采用 git 或 hg 获取源码，而对私有 module 则不限制版本控制工具的使用。</p>
+<p>如果要允许使用所有工具，可像下面这样设置 GOVCS：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>GOVCS=*:all
+</code></pre></div><p>如果要禁止使用任何版本控制工具去直接获取源码（不通过 go proxy），那么可以像下面这样设置 GOVCS:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>GOVCS=*:off
+</code></pre></div><h3 id="下一步">下一步？</h3>
+<p>据 Go 官方博客介绍，Go 1.17 将开发新的 Module 功能，特别是懒惰Module加载，这将使 Module 加载过程更快、更稳定。</p>
+<h3 id="参考">参考</h3>
+<p><a href="https://tonybai.com/2021/02/25/some-changes-in-go-1-16/">Go 1.16 中值得关注的几个变化</a></p>
+<p><a href="https://blog.golang.org/go116-module-changes">Go 官方：New module changes in Go 1.16</a></p>
 
         </div>
 
@@ -187,15 +179,15 @@
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/2014/06/27/git-branch/">创建与合并分支</a></li>
+        <li><a href="/post/2021/02/21/go-embed-syntax/">Go1.16新特性|embed静态资源嵌入[转]</a></li>
         
-        <li><a href="/post/2014/06/26/git-remote-set/">Git远程仓库配置</a></li>
+        <li><a href="/post/2020/08/25/go-channel-source-read/">Go源码阅读 | channel 设计与实现</a></li>
         
-        <li><a href="/post/2014/06/25/git-add-remote/">添加远程仓库和从远程仓库克隆</a></li>
+        <li><a href="/post/2020/07/12/go-context-source-read/">Go源码阅读 | context.Context设计与实现</a></li>
         
-        <li><a href="/post/2014/06/24/git-version-manage/">版本库文件的管理</a></li>
+        <li><a href="/post/2020/06/14/go-fast-random/">如何借助Go指令生成随机数</a></li>
         
-        <li><a href="/post/2014/06/23/git-del/">版本库删除文件操作</a></li>
+        <li><a href="/post/2020/06/13/go-directive-syntax/">[转]简单围观一下有趣的//go:指令</a></li>
         
     </ul>
 </div>
@@ -206,6 +198,8 @@
             <ul class="clearfix">
                 
                 <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                
+                <li><a href='https://maratrix.cn/tags/go1.16'>go1.16</a></li>
                 
             </ul>
             

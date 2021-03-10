@@ -78,6 +78,52 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">Go中如何实现禁止拷贝</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月20日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">Go源码阅读 | strings.Builder设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年4月14日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">Go Hijack黑科技</a>
             </h1>
         </header>
@@ -261,6 +307,14 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
     </li>
     
@@ -292,14 +346,6 @@
         <a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/" title="hystrix-go 之核心流程实现">hystrix-go 之核心流程实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -311,7 +357,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     

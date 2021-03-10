@@ -69,6 +69,52 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年3月10日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1// $GOROOT/src/io/fs/fs.go 2 3// An FS……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年3月10日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            Module 功能默认开启 在 Go 1.16 版本中，Go module-aware 模式成为了默认模式 (另一种则是传统的 gopath 模式)。module-aware 模式成为默认意味着什么呢？意味着 GO111MODULE 的值默认为 on 了。 这里将 Go 1.13 版本之前、Go 1.13 版本以及 Go 1.16 版本在 GO111MODULE……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2021/03/10/go1.16-module/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
             </h1>
         </header>
@@ -250,52 +296,6 @@
         <p class="readmore"><a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2021年1月20日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            在高可用设计中，除了流控外，对分布式系统调用链路中不稳定的资源(比如 RPC 服务等)进行熔断降级也是保障高可用的重要措施之一。 现代微服务架构基本都是分布式的，整个分布式系统由非常多的微服务组成。不同服务之间……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/">阅读全文</a></p>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2021年1月19日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。 sentinel-go……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/">阅读全文</a></p>
-    </article>
-    
     
 
 
@@ -357,6 +357,14 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
     </li>
     
@@ -388,14 +396,6 @@
         <a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/" title="hystrix-go 之核心流程实现">hystrix-go 之核心流程实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -407,7 +407,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     

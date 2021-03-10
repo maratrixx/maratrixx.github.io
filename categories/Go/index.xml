@@ -6,7 +6,25 @@
     <description>Recent content in Go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 21 Feb 2021 09:23:28 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 10 Mar 2021 08:58:45 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Go1.16新特性|标准库和其他变化</title>
+      <link>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</link>
+      <pubDate>Wed, 10 Mar 2021 08:58:45 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</guid>
+      <description>支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1// $GOROOT/src/io/fs/fs.go 2 3// An FS</description>
+    </item>
+    
+    <item>
+      <title>Go1.16新特性|Module功能新变化</title>
+      <link>https://maratrix.cn/post/2021/03/10/go1.16-module/</link>
+      <pubDate>Wed, 10 Mar 2021 08:06:49 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/03/10/go1.16-module/</guid>
+      <description>Module 功能默认开启 在 Go 1.16 版本中，Go module-aware 模式成为了默认模式 (另一种则是传统的 gopath 模式)。module-aware 模式成为默认意味着什么呢？意味着 GO111MODULE 的值默认为 on 了。 这里将 Go 1.13 版本之前、Go 1.13 版本以及 Go 1.16 版本在 GO111MODULE</description>
+    </item>
+    
     <item>
       <title>Go1.16新特性|embed静态资源嵌入[转]</title>
       <link>https://maratrix.cn/post/2021/02/21/go-embed-syntax/</link>

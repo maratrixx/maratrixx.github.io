@@ -71,6 +71,56 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月20日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            在高可用设计中，除了流控外，对分布式系统调用链路中不稳定的资源(比如 RPC 服务等)进行熔断降级也是保障高可用的重要措施之一。 现代微服务架构基本都是分布式的，整个分布式系统由非常多的微服务组成。不同服务之间……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2021年1月19日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            最近考虑把工作中手头的一个鉴权服务加上限流的能力，由于接入业务方越来越多，服务的负载也越来越大，除了扩容外，服务本身也需要有限流降级的自我保护能力，避免被瞬时的流量高峰击垮，从而保障服务的高可用性。 sentinel-go……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/" title=" Google Protobuf 编译器使用笔记"> Google Protobuf 编译器使用笔记</a>
             </h1>
         </header>
@@ -268,56 +318,6 @@
     
     
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/06/14/go-fast-random/" title="如何借助Go指令生成随机数">如何借助Go指令生成随机数</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年6月14日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            如何在 Go 开发中高效而又快速地生成随机数呢？相信大家首先想到的就是使用标准库自带的 math/rand 包，或者使用开源的第三方包（比如 github.com/valyala/fastrand）来实现。 Go 运行时自带了 runtime.fastrand 函数来……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/06/14/go-fast-random/">阅读全文</a></p>
-    </article>
-    
-    
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/" title="[转]简单围观一下有趣的//go:指令">[转]简单围观一下有趣的//go:指令</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年6月13日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1//go:linkname localname importpath.name 该指令指示编译器……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/">阅读全文</a></p>
-    </article>
-    
-    
-    
 
 
 
@@ -382,6 +382,14 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
     </li>
     
@@ -413,14 +421,6 @@
         <a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/" title="hystrix-go 之核心流程实现">hystrix-go 之核心流程实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/" title="sentinel-go 之熔断降级">sentinel-go 之熔断降级</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/" title="sentinel-go 之流量控制">sentinel-go 之流量控制</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -432,7 +432,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (18)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
