@@ -108,8 +108,7 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>&lt;metric name&gt;{&lt;label name&gt;=&lt;label value&gt;, ...}
 </code></pre></div><p>主体为指标名称和标签组成：</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>api_http_requests_total{method=&#34;GET&#34;, handler=&#34;/user/info&#34;}
-</code></pre></div><h3 id="对外提供-metrics-服务">对外提供 metrics 服务</h3>
-<h3 id="counter只增不减的计数器">Counter：只增不减的计数器</h3>
+</code></pre></div><h3 id="counter只增不减的计数器">Counter：只增不减的计数器</h3>
 <p>Counter 类型的指标其工作方式和计数器一样，只增不减（除非系统发生重置）。常见的监控指标，如 http_requests_total，node_cpu 都是 Counter 类型的监控指标。 一般在定义 Counter 类型指标的名称时推荐使用 _total 作为后缀。</p>
 <p>Counter 是一个简单但有强大的工具，例如我们可以在应用程序中记录某些事件发生的次数，通过以时序的形式存储这些数据，我们可以轻松的了解该事件产生速率的变化。 PromQL 内置的聚合操作和函数可以让用户对这些数据进行进一步的分析。</p>
 <p>例如，通过 rate() 函数获取HTTP请求量的增长率：</p>
@@ -281,9 +280,45 @@
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>http_durations_seconds：分别是中位数（0.5），9 分位数（0.9）以及 99 分位数（0.99），对应 SummaryOpts.Objectives 中我们所定义的中位数，而各自的意义代表着中位数（0.5）的耗时为 17s，9 分位数为 29s，99 分位数为 29s。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>http_durations_seconds_sum：调用总耗时。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>http_durations_seconds_count：调用总次数。
+</code></pre></div><h3 id="timer计时器">Timer（计时器）</h3>
+<p>Timer 是计时功能的辅助类型，提供的观察者用于观察持续时间（以秒为单位）。</p>
+<p>Timer 通常用于通过以下方式为函数调用计时：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">TimeMe</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    timer <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">NewTimer</span>(myHistogram)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#ff79c6">defer</span> timer.<span style="color:#50fa7b">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#6272a4">// Do actual work.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>}
+</code></pre></div><p>Timer 类型包含两个方法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">NewTimer</span>(o Observer) <span style="color:#ff79c6">*</span>Timer    <span style="color:#6272a4">// NewTimer创建一个新的计时器
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (t <span style="color:#ff79c6">*</span>Timer) <span style="color:#50fa7b">ObserveDuration</span>() time.Duration     <span style="color:#6272a4">// ObserveDuration记 录自从使用 NewTimer 创建计时器以来经过的持续时间（以秒为单位）
+</span></code></pre></div><h4 id="示例-4">示例：</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	requestDuration = prometheus.<span style="color:#50fa7b">NewHistogram</span>(prometheus.HistogramOpts{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		Name:    <span style="color:#f1fa8c">&#34;example_request_duration_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Help:    <span style="color:#f1fa8c">&#34;Histogram for the runtime of a simple example function.&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		Buckets: prometheus.<span style="color:#50fa7b">LinearBuckets</span>(<span style="color:#bd93f9">0.01</span>, <span style="color:#bd93f9">0.01</span>, <span style="color:#bd93f9">10</span>),
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    funcDuration = prometheus.<span style="color:#50fa7b">NewGauge</span>(prometheus.GaugeOpts{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		Name: <span style="color:#f1fa8c">&#34;example_function_duration_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		Help: <span style="color:#f1fa8c">&#34;Duration of the last call of an example function.&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	timer1 <span style="color:#ff79c6">:=</span> prometheus.<span style="color:#50fa7b">NewTimer</span>(requestDuration)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">defer</span> timer1.<span style="color:#50fa7b">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    timer2 <span style="color:#ff79c6">:=</span> prometheus.<span style="color:#50fa7b">NewTimer</span>(prometheus.<span style="color:#50fa7b">ObserverFunc</span>(funcDuration.Set))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#ff79c6">defer</span> timer2.<span style="color:#50fa7b">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	<span style="color:#6272a4">// Do something here that takes time.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>	time.<span style="color:#50fa7b">Sleep</span>(time.<span style="color:#50fa7b">Duration</span>(rand.<span style="color:#50fa7b">NormFloat64</span>()<span style="color:#ff79c6">*</span><span style="color:#bd93f9">10000</span><span style="color:#ff79c6">+</span><span style="color:#bd93f9">50000</span>) <span style="color:#ff79c6">*</span> time.Microsecond)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
 </code></pre></div><h3 id="小结">小结</h3>
 <p>在节中我们介绍并实操了 Prometheus 的四种度量指标类型 Counter、Gauge、Histogram、Summary，这四种度量类型都极具代表性：Counter 是单调递增的计数器，Gauge 是可任意调整数值的仪表盘，Histogram 是分组区间统计，Summary 是中位数统计。</p>
 <p>其中 Histogram 和 Summary 具有一定的 “相似” 度，因为在 Histogram 指标中我们可以通过 histogram_quantile 函数计算出分位值，而 Summary 也可以计算分位值，两者区别就在于 Histogram 是在服务端计算的，而 Summary 是在客户端就进行了计算，其一个计算好了再推上去，一个直接推上去，数据维度不一样，可以做的事情也不一样，有利有弊，具体可以根据指标的实际情况做衡量。</p>
+<p>最后，单独介绍了下计时功能的辅助类型 Timer，主要用于统计持续时间。</p>
 
         </div>
 
