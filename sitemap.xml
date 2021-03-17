@@ -4,7 +4,42 @@
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/Prometheus/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Prometheus/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/03/17/go-metrics/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</loc>
+    <lastmod>2021-03-17T09:00:40+08:00</lastmod>
   </url>
   
   <url>
@@ -24,21 +59,6 @@
   
   <url>
     <loc>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2021-03-10T08:58:45+08:00</lastmod>
   </url>
   
@@ -63,22 +83,7 @@
   </url>
   
   <url>
-    <loc>https://maratrix.cn/tags/Prometheus/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/categories/Prometheus/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</loc>
-    <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</loc>
     <lastmod>2021-02-11T11:20:18+08:00</lastmod>
   </url>
   
