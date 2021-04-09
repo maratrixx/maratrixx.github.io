@@ -6,7 +6,16 @@
     <description>Recent content in Posts on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 17 Mar 2021 09:00:40 +0800</lastBuildDate><atom:link href="https://maratrix.cn/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 09 Apr 2021 09:17:14 +0800</lastBuildDate><atom:link href="https://maratrix.cn/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[转]跟我一起写 Makefile</title>
+      <link>https://maratrix.cn/post/2021/04/09/gnu-makefile/</link>
+      <pubDate>Fri, 09 Apr 2021 09:17:14 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/04/09/gnu-makefile/</guid>
+      <description>本篇文章为转载，是对原作者系列文章的总汇加上标注。 支持原创，请移步陈浩大神博客跟我一起写 Makefile。 概述 什么是 makefile？或许很多 Winodws 的程序员都不知道这个东西，因为那些 Windows 的 IDE 都为你做了这个工</description>
+    </item>
+    
     <item>
       <title>Prometheus学习笔记|03.四大度量指标了解与应用</title>
       <link>https://maratrix.cn/post/2021/03/17/go-metrics/</link>

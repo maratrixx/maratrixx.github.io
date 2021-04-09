@@ -69,6 +69,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年8月25日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            本文基于 Go1.14 源码阅读 1package runtime 2 3// 此文件实现了 Go 的 channel 4 5// 变种: 6// c.sendq 和 c.recvq 中至少一个为空，除非是 unbuffered channle 和单个 goroutine 7// 阻塞在 select 语句中同时使用发送和接受的这种情况。这时 c.sendq 和 c.recvq 的长度由 8// select 语句的大小限制。 9// 10// 对于 buffered chann……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/07/12/go-context-source-read/" title="Go源码阅读 | context.Context设计与实现">Go源码阅读 | context.Context设计与实现</a>
             </h1>
         </header>
@@ -275,29 +298,6 @@
         <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/" title="Rust学习笔记007-所有权">Rust学习笔记007-所有权</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年2月6日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Rust'>Rust</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            什么是所有权 Rust的核心功能（之一）就是所有权，其令 Rust 无需垃圾回收即可保障内存安全。 所有运行的程序都必须管理其使用计算机内存的方式： 一些语言中具有垃圾回收机制，在程序运行时不断地寻找不再使用的内存；……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/">阅读全文</a></p>
-    </article>
-    
     
 
 
@@ -363,6 +363,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
     </li>
     
@@ -398,10 +402,6 @@
         <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/" title="hystrix-go 之统计控制器实现">hystrix-go 之统计控制器实现</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/" title="hystrix-go 之断路器实现">hystrix-go 之断路器实现</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -417,7 +417,7 @@
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Linux/">Linux (1)</a></li>
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (2)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
@@ -475,6 +475,8 @@
     <a href="https://maratrix.cn/tags/linux/">linux</a>
     
     <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/makefile/">makefile</a>
     
     <a href="https://maratrix.cn/tags/nginx/">nginx</a>
     
