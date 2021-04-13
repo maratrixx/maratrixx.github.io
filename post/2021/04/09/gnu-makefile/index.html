@@ -258,6 +258,249 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>                -rm edit $(objects)
 </code></pre></div><p>前面说过，.PHONY 意思表示 clean 是一个 “伪目标”，。而在 rm 命令前面加了一个小减号的意思就是，也许某些文件出现问题，但不要管，继续做后面的事。当然，clean 的规则不要放在文件的开头，不然，这就会变成 make 的默认目标，相信谁也不愿意这样。不成文的规矩是 ——“clean 从来都是放在文件的最后”。</p>
 <p>上面就是一个 makefile 的概貌，也是 makefile 的基础，下面还有很多 makefile 的相关细节，准备好了吗？准备好了就来。</p>
+<h2 id="makefile-总述">Makefile 总述</h2>
+<h4 id="一makefile-里有什么">一、Makefile 里有什么？</h4>
+<p>Makefile 里主要包含了五个东西：显式规则、隐晦规则、变量定义、文件指示和注释。</p>
+<p>1、显式规则。显式规则说明了，如何生成一个或多的的目标文件。这是由 Makefile 的书写者明显指出，要生成的文件，文件的依赖文件，生成的命令。</p>
+<p>2、隐晦规则。由于我们的 make 有自动推导的功能，所以隐晦的规则可以让我们比较粗糙地简略地书写 Makefile，这是由 make 所支持的。</p>
+<p>3、变量的定义。在 Makefile 中我们要定义一系列的变量，变量一般都是字符串，这个有点你 C 语言中的宏，当 Makefile 被执行时，其中的变量都会被扩展到相应的引用位置上。</p>
+<p>4、文件指示。其包括了三个部分，一个是在一个 Makefile 中引用另一个 Makefile，就像 C 语言中的 include 一样；另一个是指根据某些情况指定 Makefile 中的有效部分，就像 C 语言中的预编译 #if 一样；还有就是定义一个多行的命令。有关这一部分的内容，我会在后续的部分中讲述。</p>
+<p>5、注释。Makefile 中只有行注释，和 UNIX 的 Shell 脚本一样，其注释是用 “#” 字符，这个就像 C/C++ 中的 “//” 一样。如果你要在你的 Makefile 中使用 “#” 字符，可以用反斜框进行转义，如：“/#”。</p>
+<p><strong>最后，还值得一提的是，在 Makefile 中的命令，必须要以 [Tab] 键开始。</strong></p>
+<h4 id="二makefile-的文件名">二、Makefile 的文件名</h4>
+<p>默认的情况下，make 命令会在当前目录下按顺序找寻文件名为 “GNUmakefile”、“makefile”、“Makefile” 的文件，找到了解释这个文件。在这三个文件名中，最好使用 “Makefile” 这个文件名，因为，这个文件名第一个字符为大写，这样有一种显目的感觉。最好不要用 “GNUmakefile”，这个文件是 GNU 的 make 识别的。有另外一些 make 只对全小写的 “makefile” 文件名敏感，但是基本上来说，大多数的 make 都支持 “makefile” 和 “Makefile” 这两种默认文件名。</p>
+<p>当然，你可以使用别的文件名来书写 Makefile，比如：“Make.Linux”，“Make.Solaris”，“Make.AIX” 等，如果要指定特定的 Makefile，你可以使用 make 的 “-f” 和 “&ndash;file” 参数，如：make -f Make.Linux 或 make &ndash;file Make.AIX。</p>
+<h4 id="三引用其它的-makefile">三、引用其它的 Makefile</h4>
+<p>在 Makefile 使用 include 关键字可以把别的 Makefile 包含进来，这很像 C 语言的 #include，被包含的文件会原模原样的放在当前文件的包含位置。include 的语法是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    include &lt;filename&gt;
+</code></pre></div><p>filename 可以是当前操作系统 Shell 的文件模式（可以保含路径和通配符）</p>
+<p>在 include 前面可以有一些空字符，但是绝不能是 [Tab] 键开始。include 和 &lt; filename &gt; 可以用一个或多个空格隔开。举个例子，你有这样几个 Makefile：a.mk、b.mk、c.mk，还有一个文件叫 foo.make，以及一个变量 $(bar)，其包含了 e.mk 和 f.mk，那么，下面的语句：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    include foo.make *.mk $(bar)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    等价于：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    include foo.make a.mk b.mk c.mk e.mk f.mk
+</code></pre></div><p>make 命令开始时，会把找寻 include 所指出的其它 Makefile，并把其内容安置在当前的位置。就好像 C/C++ 的 #include 指令一样。如果文件都没有指定绝对路径或是相对路径的话，make 会在当前目录下首先寻找，如果当前目录下没有找到，那么，make 还会在下面的几个目录下找：</p>
+<ul>
+<li>1、如果 make 执行时，有 “-I” 或 “&ndash;include-dir” 参数，那么 make 就会在这个参数所指定的目录下去寻找。</li>
+<li>2、如果目录 <code>&lt;prefix&gt;/include</code>（一般是：/usr/local/bin 或 /usr/include）存在的话，make 也会去找。</li>
+</ul>
+<p>如果有文件没有找到的话，make 会生成一条警告信息，但不会马上出现致命错误。它会继续载入其它的文件，一旦完成 makefile 的读取，make 会再重试这些没有找到，或是不能读取的文件，如果还是不行，make 才会出现一条致命信息。如果你想让 make 不理那些无法读取的文件，而继续执行，你可以在 include 前加一个减号 “-”。如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    -include &lt;filename&gt;
+</code></pre></div><p>其表示，无论 include 过程中出现什么错误，都不要报错继续执行。和其它版本 make 兼容的相关命令是 sinclude，其作用和这一个是一样的。</p>
+<h4 id="四环境变量-makefiles">四、环境变量 MAKEFILES</h4>
+<p>如果你的当前环境中定义了环境变量 MAKEFILES，那么，make 会把这个变量中的值做一个类似于 include 的动作。这个变量中的值是其它的 Makefile，用空格分隔。只是，它和 include 不同的是，从这个环境变中引入的 Makefile 的 “目标” 不会起作用，如果环境变量中定义的文件发现错误，make 也会不理。</p>
+<p>但是在这里我还是建议不要使用这个环境变量，因为只要这个变量一被定义，那么当你使用 make 时，所有的 Makefile 都会受到它的影响，这绝不是你想看到的。在这里提这个事，只是为了告诉大家，也许有时候你的 Makefile 出现了怪事，那么你可以看看当前环境中有没有定义这个变量。</p>
+<h4 id="五make-的工作方式">五、make 的工作方式</h4>
+<p>GNU 的 make 工作时的执行步骤入下：（想来其它的 make 也是类似）</p>
+<ul>
+<li>1、读入所有的 Makefile。</li>
+<li>2、读入被 include 的其它 Makefile。</li>
+<li>3、初始化文件中的变量。</li>
+<li>4、推导隐晦规则，并分析所有规则。</li>
+<li>5、为所有的目标文件创建依赖关系链。</li>
+<li>6、根据依赖关系，决定哪些目标要重新生成。</li>
+<li>7、执行生成命令。</li>
+</ul>
+<p>1-5 步为第一个阶段，6-7 为第二个阶段。第一个阶段中，如果定义的变量被使用了，那么，make 会把其展开在使用的位置。但 make 并不会完全马上展开，make 使用的是拖延战术，如果变量出现在依赖关系的规则中，那么仅当这条依赖被决定要使用了，变量才会在其内部展开。</p>
+<p>当然，这个工作方式你不一定要清楚，但是知道这个方式你也会对 make 更为熟悉。有了这个基础，后续部分也就容易看懂了。</p>
+<h2 id="书写规则">书写规则</h2>
+<p>规则包含两个部分，一个是依赖关系，一个是生成目标的方法。</p>
+<p>在 Makefile 中，规则的顺序是很重要的，因为，Makefile 中只应该有一个最终目标，其它的目标都是被这个目标所连带出来的，所以一定要让 make 知道你的最终目标是什么。一般来说，定义在 Makefile 中的目标可能会有很多，但是第一条规则中的目标将被确立为最终的目标。如果第一条规则中的目标有很多个，那么，第一个目标会成为最终的目标。make 所完成的也就是这个目标。</p>
+<p>好了，还是让我们来看一看如何书写规则。</p>
+<h4 id="一规则举例">一、规则举例</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    foo.o : foo.c defs.h       # foo 模块
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            cc -c -g foo.c
+</code></pre></div><p>看到这个例子，各位应该不是很陌生了，前面也已说过，foo.o 是我们的目标，foo.c 和 defs.h 是目标所依赖的源文件，而只有一个命令 “cc -c -g foo.c”（以 Tab 键开头）。这个规则告诉我们两件事：</p>
+<ul>
+<li>1、文件的依赖关系，foo.o 依赖于 foo.c 和 defs.h 的文件，如果 foo.c 和 defs.h 的文件日期要比 foo.o 文件日期要新，或是 foo.o 不存在，那么依赖关系发生。</li>
+<li>2、如果生成（或更新）foo.o 文件。也就是那个 cc 命令，其说明了，如何生成 foo.o 这个文件。（当然 foo.c 文件 include 了 defs.h 文件）</li>
+</ul>
+<h4 id="二规则的语法">二、规则的语法</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>      targets : prerequisites
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>        command
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>        ...
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>      或是这样：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>      targets : prerequisites ; command
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>            command
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>            ...
+</code></pre></div><p>targets 是文件名，以空格分开，可以使用通配符。一般来说，我们的目标基本上是一个文件，但也有可能是多个文件。</p>
+<p>command 是命令行，如果其不与 “target:prerequisites” 在一行，那么，必须以 [Tab 键] 开头，如果和 prerequisites 在一行，那么可以用分号做为分隔。（见上）</p>
+<p>prerequisites 也就是目标所依赖的文件（或依赖目标）。如果其中的某个文件要比目标文件要新，那么，目标就被认为是 “过时的”，被认为是需要重生成的。这个在前面已经讲过了。</p>
+<p>如果命令太长，你可以使用反斜框（‘/’）作为换行符。make 对一行上有多少个字符没有限制。规则告诉 make 两件事，文件的依赖关系和如何成成目标文件。</p>
+<p>一般来说，make 会以 UNIX 的标准 Shell，也就是 /bin/sh 来执行命令。</p>
+<h4 id="三在规则中使用通配符">三、在规则中使用通配符</h4>
+<p>如果我们想定义一系列比较类似的文件，我们很自然地就想起使用通配符。make 支持三各通配符：“*”，“?” 和 “[&hellip;]”。这是和 Unix 的 B-Shell 是相同的。</p>
+<p>波浪号（“~”）字符在文件名中也有比较特殊的用途。如果是 “~/test”，这就表示当前用户的 $HOME 目录下的 test 目录。而 “~hchen/test” 则表示用户 hchen 的宿主目录下的 test 目录。（这些都是 Unix 下的小知识了，make 也支持）而在 Windows 或是 MS-DOS 下，用户没有宿主目录，那么波浪号所指的目录则根据环境变量 “HOME” 而定。</p>
+<p>通配符代替了你一系列的文件，如 “<code>*.c</code>” 表示所以后缀为 c 的文件。一个需要我们注意的是，如果我们的文件名中有通配符，如：“<code>*</code>”，那么可以用转义字符 “/”，如 “<code>/*</code>” 来表示真实的 “<code>*</code>” 字符，而不是任意长度的字符串。</p>
+<p>好吧，还是先来看几个例子吧：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    clean:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>         rm -f *.o
+</code></pre></div><p>上面这个例子我不不多说了，这是操作系统 Shell 所支持的通配符。这是在命令中的通配符。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    print: *.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>         lpr -p $?
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>         touch print
+</code></pre></div><p>上面这个例子说明了通配符也可以在我们的规则中，目标 print 依赖于所有的 [.c] 文件。其中的 “$?” 是一个自动化变量，我会在后面给你讲述。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    objects = *.o
+</code></pre></div><p>上面这个例子，表示了，通符同样可以用在变量中。并不是说 [<em>.o] 会展开，不！objects 的值就是 “</em>.o”。Makefile 中的变量其实就是 C/C++ 中的宏。如果你要让通配符在变量中展开，也就是让 objects 的值是所有 [.o] 的文件名的集合，那么，你可以这样：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    objects := $(wildcard *.o)
+</code></pre></div><p>这种用法由关键字 “wildcard” 指出，关于 Makefile 的关键字，我们将在后面讨论。</p>
+<h4 id="四文件搜寻">四、文件搜寻</h4>
+<p>在一些大的工程中，有大量的源文件，我们通常的做法是把这许多的源文件分类，并存放在不同的目录中。所以，当 make 需要去找寻文件的依赖关系时，你可以在文件前加上路径，但最好的方法是把一个路径告诉 make，让 make 在自动去找。</p>
+<p>Makefile 文件中的特殊变量 “VPATH” 就是完成这个功能的，如果没有指明这个变量，make 只会在当前的目录中去找寻依赖文件和目标文件。如果定义了这个变量，那么，make 就会在当当前目录找不到的情况下，到所指定的目录中去找寻文件了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    VPATH = src:../headers
+</code></pre></div><p>上面的的定义指定两个目录，“src” 和 “../headers”，make 会按照这个顺序进行搜索。目录由 “冒号” 分隔。（当然，当前目录永远是最高优先搜索的地方）</p>
+<p>另一个设置文件搜索路径的方法是使用 make 的 “vpath” 关键字（注意，它是全小写的），这不是变量，这是一个 make 的关键字，这和上面提到的那个 VPATH 变量很类似，但是它更为灵活。它可以指定不同的文件在不同的搜索目录中。这是一个很灵活的功能。它的使用方法有三种：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>    1、vpath &lt;pattern&gt; &lt;directories&gt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    为符合模式 &lt;pattern&gt; 的文件指定搜索目录 &lt; directories&gt;。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    2、vpath &lt;pattern&gt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    清除符合模式 &lt;pattern&gt; 的文件的搜索目录。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    3、vpath
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    清除所有已被设置好了的文件搜索目录。
+</code></pre></div><p>vapth 使用方法中的 <code>&lt;pattern&gt;</code> 需要包含 “%” 字符。“%” 的意思是匹配零或若干字符，例如，“%.h” 表示所有以 “.h” 结尾的文件。<code>&lt;pattern&gt;</code> 指定了要搜索的文件集，而 <code>&lt;directories&gt;</code> 则指定了 <code>&lt;pattern&gt;</code>  的文件集的搜索的目录。例如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    vpath %.h ../headers
+</code></pre></div><p>该语句表示，要求 make 在 “../headers” 目录下搜索所有以 “.h” 结尾的文件。（如果某文件在当前目录没有找到的话）</p>
+<p>我们可以连续地使用 vpath 语句，以指定不同搜索策略。如果连续的 vpath 语句中出现了相同的 <code>&lt;pattern&gt;</code> ，或是被重复了的 <code>&lt;pattern&gt;</code> ，那么，make 会按照 vpath 语句的先后顺序来执行搜索。如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    vpath %.c foo
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    vpath %   blish
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    vpath %.c bar
+</code></pre></div><p>其表示 “.c” 结尾的文件，先在 “foo” 目录，然后是 “blish”，最后是 “bar” 目录。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    vpath %.c foo:bar
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    vpath %   blish
+</code></pre></div><p>而上面的语句则表示 “.c” 结尾的文件，先在 “foo” 目录，然后是 “bar” 目录，最后才是 “blish” 目录。</p>
+<h4 id="五伪目标">五、伪目标</h4>
+<p>最早先的一个例子中，我们提到过一个 “clean” 的目标，这是一个 “伪目标”，</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    clean:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            rm *.o temp
+</code></pre></div><p>正像我们前面例子中的 “clean” 一样，即然我们生成了许多文件编译文件，我们也应该提供一个清除它们的 “目标” 以备完整地重编译而用。 （以 “make clean” 来使用该目标）</p>
+<p>因为，我们并不生成 “clean” 这个文件。“伪目标” 并不是一个文件，只是一个标签，由于 “伪目标” 不是文件，所以 make 无法生成它的依赖关系和决定它是否要执行。我们只有通过显示地指明这个 “目标” 才能让其生效。当然，“伪目标” 的取名不能和文件名重名，不然其就失去了 “伪目标” 的意义了。</p>
+<p>当然，为了避免和文件重名的这种情况，我们可以使用一个特殊的标记 “.PHONY” 来显示地指明一个目标是 “伪目标”，向 make 说明，不管是否有这个文件，这个目标就是 “伪目标”。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    .PHONY : clean
+</code></pre></div><p>只要有这个声明，不管是否有 “clean” 文件，要运行 “clean” 这个目标，只有 “make clean” 这样。于是整个过程可以这样写：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>     .PHONY: clean
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    clean:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>            rm *.o temp
+</code></pre></div><p>伪目标一般没有依赖的文件。但是，我们也可以为伪目标指定所依赖的文件。伪目标同样可以作为 “默认目标”，只要将其放在第一个。一个示例就是，如果你的 Makefile 需要一口气生成若干个可执行文件，但你只想简单地敲一个 make 完事，并且，所有的目标文件都写在一个 Makefile 中，那么你可以使用 “伪目标” 这个特性：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>    all : prog1 prog2 prog3
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    .PHONY : all
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    prog1 : prog1.o utils.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>            cc -o prog1 prog1.o utils.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    prog2 : prog2.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>            cc -o prog2 prog2.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    prog3 : prog3.o sort.o utils.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>            cc -o prog3 prog3.o sort.o utils.o
+</code></pre></div><p>我们知道，Makefile 中的第一个目标会被作为其默认目标。我们声明了一个 “all” 的伪目标，其依赖于其它三个目标。由于伪目标的特性是，总是被执行的，所以其依赖的那三个目标就总是不如 “all” 这个目标新。所以，其它三个目标的规则总是会被决议。也就达到了我们一口气生成多个目标的目的。“.PHONY : all” 声明了 “all” 这个目标为 “伪目标”。</p>
+<p>随便提一句，从上面的例子我们可以看出，目标也可以成为依赖。所以，伪目标同样也可成为依赖。看下面的例子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>    .PHONY: cleanall cleanobj cleandiff
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    cleanall : cleanobj cleandiff
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>            rm program
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    cleanobj :
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>            rm *.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    cleandiff :
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>            rm *.diff
+</code></pre></div><p>“make clean” 将清除所有要被清除的文件。“cleanobj” 和 “cleandiff” 这两个伪目标有点像 “子程序” 的意思。我们可以输入 “make cleanall” 和 “make cleanobj” 和 “make cleandiff” 命令来达到清除不同种类文件的目的。</p>
+<h4 id="六多目标">六、多目标</h4>
+<p>Makefile 的规则中的目标可以不止一个，其支持多目标，有可能我们的多个目标同时依赖于一个文件，并且其生成的命令大体类似。于是我们就能把其合并起来。当然，多个目标的生成规则的执行命令是同一个，这可能会可我们带来麻烦，不过好在我们的可以使用一个自动化变量 “$@”（关于自动化变量，将在后面讲述），这个变量表示着目前规则中所有的目标的集合，这样说可能很抽象，还是看一个例子吧。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    bigoutput littleoutput : text.g
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            generate text.g -$(subst output,,$@) &gt; $@
+</code></pre></div><p>    上述规则等价于：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    bigoutput : text.g
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            generate text.g -big &gt; bigoutput
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    littleoutput : text.g
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>            generate text.g -little &gt; littleoutput
+</code></pre></div><p>    其中，-$(subst output,,$@) 中的 “$” 表示执行一个 Makefile 的函数，函数名为 subst，后面的为参数。关于函数，将在后面讲述。这里的这个函数是截取字符串的意思，“$@” 表示目标的集合，就像一个数组，“$@” 依次取出目标，并执于命令。</p>
+<h4 id="七静态模式">七、静态模式</h4>
+<p>静态模式可以更加容易地定义多目标的规则，可以让我们的规则变得更加的有弹性和灵活。我们还是先来看一下语法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    &lt;targets ...&gt;: &lt;target-pattern&gt;: &lt;prereq-patterns ...&gt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            &lt;commands&gt;
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>            ...
+</code></pre></div><p>    targets 定义了一系列的目标文件，可以有通配符。是目标的一个集合。</p>
+<p>    target-parrtern 是指明了 targets 的模式，也就是的目标集模式。</p>
+<p>    prereq-parrterns 是目标的依赖模式，它对 target-parrtern 形成的模式再进行一次依赖目标的定义。</p>
+<p>这样描述这三个东西，可能还是没有说清楚，还是举个例子来说明一下吧。如果我们的 <code>&lt;target-parrtern&gt;</code> 定义成 “%.o”，意思是我们的 &lt; target &gt; 集合中都是以 “.o” 结尾的，而如果我们的 &lt; prereq-parrterns &gt; 定义成 “%.c”，意思是对 &lt; target-parrtern &gt; 所形成的目标集进行二次定义，其计算方法是，取 &lt; target-parrtern &gt; 模式中的 “%”（也就是去掉了 <code>[.o]</code> 这个结尾），并为其加上 <code>[.c]</code> 这个结尾，形成的新集合。</p>
+<p>所以，我们的 “目标模式” 或是 “依赖模式” 中都应该有 “%” 这个字符，如果你的文件名中有 “%” 那么你可以使用反斜杠 “/” 进行转义，来标明真实的 “%” 字符。</p>
+<p>看一个例子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    objects = foo.o bar.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    all: $(objects)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    $(objects): %.o: %.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>            $(CC) -c $(CFLAGS) $&lt; -o $@
+</code></pre></div><p>上面的例子中，指明了我们的目标从 <code>$object</code> 中获取，“%.o” 表明要所有以 “.o” 结尾的目标，也就是 “foo.o bar.o”，也就是变量 <code>$object</code> 集合的模式，而依赖模式 “%.c” 则取模式 “%.o” 的 “%”，也就是 “foo bar”，并为其加下 “.c” 的后缀，于是，我们的依赖目标就是 “foo.c bar.c”。而命令中的 <code>“$&lt;”</code> 和 <code>“$@”</code> 则是自动化变量，<code>“$&lt;”</code> 表示所有的依赖目标集（也就是 “foo.c bar.c”），“$@” 表示目标集（也就是 “foo.o bar.o”）。于是，上面的规则展开后等价于下面的规则：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    foo.o : foo.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            $(CC) -c $(CFLAGS) foo.c -o foo.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    bar.o : bar.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>            $(CC) -c $(CFLAGS) bar.c -o bar.o
+</code></pre></div><p>试想，如果我们的 “%.o” 有几百个，那种我们只要用这种很简单的 “静态模式规则” 就可以写完一堆规则，实在是太有效率了。“静态模式规则” 的用法很灵活，如果用得好，那会一个很强大的功能。再看一个例子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    files = foo.elc bar.o lose.o
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    $(filter %.o,$(files)): %.o: %.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>            $(CC) -c $(CFLAGS) $&lt; -o $@
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    $(filter %.elc,$(files)): %.elc: %.el
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>            emacs -f batch-byte-compile $&lt;
+</code></pre></div><p><code>$(filter %.o,$(files))</code> 表示调用 Makefile 的 filter 函数，过滤 “$filter” 集，只要其中模式为 “%.o” 的内容。其的它内容，我就不用多说了吧。这个例字展示了 Makefile 中更大的弹性。</p>
+<h4 id="八自动生成依赖性">八、自动生成依赖性</h4>
+<p>在 Makefile 中，我们的依赖关系可能会需要包含一系列的头文件，比如，如果我们的 main.c 中有一句 “#include &ldquo;defs.h&rdquo;”，那么我们的依赖关系应该是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    main.o : main.c defs.h
+</code></pre></div><p>但是，如果是一个比较大型的工程，你必需清楚哪些 C 文件包含了哪些头文件，并且，你在加入或删除头文件时，也需要小心地修改 Makefile，这是一个很没有维护性的工作。为了避免这种繁重而又容易出错的事情，我们可以使用 C/C++ 编译的一个功能。大多数的 C/C++ 编译器都支持一个 “-M” 的选项，即自动找寻源文件中包含的头文件，并生成一个依赖关系。例如，如果我们执行下面的命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    cc -M main.c
+</code></pre></div><p>其输出是：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    main.o : main.c defs.h
+</code></pre></div><p>于是由编译器自动生成的依赖关系，这样一来，你就不必再手动书写若干文件的依赖关系，而由编译器自动生成了。需要提醒一句的是，如果你使用 GNU 的 C/C++ 编译器，你得用 “-MM” 参数，不然，“-M” 参数会把一些标准库的头文件也包含进来。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>    gcc -M main.c 的输出是：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    main.o: main.c defs.h /usr/include/stdio.h /usr/include/features.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>         /usr/include/sys/cdefs.h /usr/include/gnu/stubs.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>         /usr/lib/gcc-lib/i486-suse-linux/2.95.3/include/stddef.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>         /usr/include/bits/types.h /usr/include/bits/pthreadtypes.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>         /usr/include/bits/sched.h /usr/include/libio.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>         /usr/include/_G_config.h /usr/include/wchar.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>         /usr/include/bits/wchar.h /usr/include/gconv.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>         /usr/lib/gcc-lib/i486-suse-linux/2.95.3/include/stdarg.h /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>         /usr/include/bits/stdio_lim.h
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    gcc -MM main.c 的输出则是：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    main.o: main.c defs.h
+</code></pre></div><p>那么，编译器的这个功能如何与我们的 Makefile 联系在一起呢。因为这样一来，我们的 Makefile 也要根据这些源文件重新生成，让 Makefile 自已依赖于源文件？这个功能并不现实，不过我们可以有其它手段来迂回地实现这一功能。GNU 组织建议把编译器为每一个源文件的自动生成的依赖关系放到一个文件中，为每一个 “name.c” 的文件都生成一个 “name.d” 的 Makefile 文件，<code>[.d]</code> 文件中就存放对应 <code>[.c]</code> 文件的依赖关系。</p>
+<p>于是，我们可以写出 <code>[.c]</code> 文件和 <code>[.d]</code> 文件的依赖关系，并让 make 自动更新或自成 <code>[.d]</code> 文件，并把其包含在我们的主 Makefile 中，这样，我们就可以自动化地生成每个文件的依赖关系了。</p>
+<p>这里，我们给出了一个模式规则来产生 <code>[.d]</code> 文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    %.d: %.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>            @set -e; rm -f $@; /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>             $(CC) -M $(CPPFLAGS) $&lt; &gt; $@.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>; /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>             sed &#39;s,/($*/)/.o[ :]*,/1.o $@ : ,g&#39; &lt; $@.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>&gt; $@; /
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>             rm -f $@.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>
+</code></pre></div><p>这个规则的意思是，所有的 <code>[.d]</code> 文件依赖于 <code>[.c]</code> 文件，<code>“rm -f $@”</code> 的意思是删除所有的目标，也就是 <code>[.d]</code> 文件，第二行的意思是，为每个依赖文件 <code>“$&lt;”</code>，也就是 <code>[.c]</code> 文件生成依赖文件，“$@” 表示模式 “%.d” 文件，如果有一个 C 文件是 name.c，那么 “%” 就是 “name”，“
+” 意为一个随机编号，第二行生成的文件有可能是 “name.d.12345”，第三行使用 sed 命令做了一个替换，关于 sed 命令的用法请参看相关的使用文档。第四行就是删除临时文件。</p>
+<p>总而言之，这个模式要做的事就是在编译器生成的依赖关系中加入 <code>[.d]</code> 文件的依赖，即把依赖关系：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    main.o : main.c defs.h
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>转成：
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    main.o main.d : main.c defs.h
+</code></pre></div><p>于是，我们的 <code>[.d]</code> 文件也会自动更新了，并会自动生成了，当然，你还可以在这个 <code>[.d]</code> 文件中加入的不只是依赖关系，包括生成的命令也可一并加入，让每个 <code>[.d]</code> 文件都包含一个完赖的规则。一旦我们完成这个工作，接下来，我们就要把这些自动生成的规则放进我们的主 Makefile 中。我们可以使用 Makefile 的 “include” 命令，来引入别的 Makefile 文件（前面讲过），例如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>    sources = foo.c bar.c
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    include $(sources:.c=.d)
+</code></pre></div><p>上述语句中的 “$(sources:.c=.d)” 中的 “.c=.d” 的意思是做一个替换，把变量 $(sources) 所有 <code>[.c]</code> 的字串都替换成 <code>[.d]</code>，关于这个 “替换” 的内容，在后面我会有更为详细的讲述。当然，你得注意次序，因为 include 是按次来载入文件，最先载入的 [.d] 文件中的目标会成为默认目标。</p>
 
         </div>
 
