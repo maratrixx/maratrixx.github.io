@@ -6,7 +6,16 @@
     <description>Recent content in Go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 10 Mar 2021 08:58:45 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 28 Apr 2021 18:38:26 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何获取Go服务依赖包</title>
+      <link>https://maratrix.cn/post/2021/04/28/go-deps/</link>
+      <pubDate>Wed, 28 Apr 2021 18:38:26 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/04/28/go-deps/</guid>
+      <description>在服务治理中，我们有时需要统计业务方服务的依赖包版本号使用情况，以便进行升级和版本兼容，通过 Go 官方提供的 debug.ReadBuildInfo 可以很方便的实现。 debug.ReadBuildInfo ReadBuildInfo 是 Go 标准库提供的方法，通过该方法可以读取打包程序的构建信息，里面就包括我</description>
+    </item>
+    
     <item>
       <title>Go1.16新特性|标准库和其他变化</title>
       <link>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</link>

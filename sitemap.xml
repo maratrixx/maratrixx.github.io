@@ -3,12 +3,67 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://maratrix.cn/post/2021/04/09/gnu-makefile/</loc>
-    <lastmod>2021-04-09T09:17:14+08:00</lastmod>
+    <loc>https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://maratrix.cn/categories/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/</loc>
+    <lastmod>2021-05-15T10:51:27+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/categories/Go/</loc>
+    <lastmod>2021-04-28T18:38:26+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/tags/go/</loc>
+    <lastmod>2021-04-28T18:38:26+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/04/28/go-deps/</loc>
+    <lastmod>2021-04-28T18:38:26+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://maratrix.cn/post/2021/04/09/gnu-makefile/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
   </url>
   
@@ -24,21 +79,6 @@
   
   <url>
     <loc>https://maratrix.cn/tags/makefile/</loc>
-    <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/</loc>
-    <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
   </url>
   
@@ -60,16 +100,6 @@
   <url>
     <loc>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</loc>
     <lastmod>2021-03-17T09:00:40+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/categories/Go/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://maratrix.cn/tags/go/</loc>
-    <lastmod>2021-03-10T08:58:45+08:00</lastmod>
   </url>
   
   <url>

@@ -78,6 +78,29 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/">[转]简单围观一下有趣的//go:指令</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年6月13日
+        </date>
+        
+        <div class="post-meta meta-category">
+            |
+            
+            <a href='https://maratrix.cn/categories/Go'>Go</a>
+            
+        </div>
+        
+        <div class="post-content">
+            前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1//go:linkname localname importpath.name 该指令指示编译器……
+            <p class="readmore"><a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/">阅读全文</a></p>
+        </div>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">Go源码阅读 | sync.WaitGroup设计与实现</a>
             </h1>
         </header>
@@ -284,29 +307,6 @@
         </div>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">go:linkname用法</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2019年7月12日
-        </date>
-        
-        <div class="post-meta meta-category">
-            |
-            
-            <a href='https://maratrix.cn/categories/Go'>Go</a>
-            
-        </div>
-        
-        <div class="post-content">
-            什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in……
-            <p class="readmore"><a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
-        </div>
-    </article>
-    
 
     
 
@@ -328,7 +328,15 @@
         <a href="https://maratrix.cn/categories/Go/page/2/">2</a>
     </li>
     
+    <li >
+        <a href="https://maratrix.cn/categories/Go/page/3/">3</a>
+    </li>
+    
 
+    
+    <li class="next">
+        <a href="https://maratrix.cn/categories/Go/page/3/">下一页</a>
+    </li>
     
 </ol>
 
@@ -351,6 +359,14 @@
     <section class="widget">
         <h3 class="widget-title">最近文章</h3>
 <ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
     
     <li>
         <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
@@ -384,14 +400,6 @@
         <a href="https://maratrix.cn/post/2021/02/08/prometheus-intro/" title="Prometheus学习笔记|00.简介与原理">Prometheus学习笔记|00.简介与原理</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/" title="hystrix-go 之流量控制实现">hystrix-go 之流量控制实现</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/" title="hystrix-go 之统计控制器实现">hystrix-go 之统计控制器实现</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -403,7 +411,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -420,6 +428,8 @@
     <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
     
     <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
     
     <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (2)</a></li>
     
@@ -485,6 +495,12 @@
     <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
     
     <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
     
     <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
     

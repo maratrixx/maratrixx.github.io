@@ -71,6 +71,56 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/12/17/go-cond-build/" title="[转]Go语言如何使用条件编译">[转]Go语言如何使用条件编译</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年12月17日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            当开发需要依赖底层平台或处理器体系特性的Go包时，提供对应的特定实现是非常有必要的。 Go没有预处理，没有宏定义系统，不可以像c语言那样使用#define来控制是否包含平台相关的特定代码。作为替代，Go……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/12/17/go-cond-build/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/" title="Linux dd 命令使用详解">Linux dd 命令使用详解</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年9月16日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='https://maratrix.cn/categories/Linux'>Linux</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            dd 命令介绍 Linux dd 命令用于读取、转换并输出数据。 dd 可从标准输入或文件中读取数据，根据指定的格式来转换数据，再输出到文件、设备或标准输出。 dd 命令使用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。可……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/09/16/linux-comm-dd/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/" title="Go源码阅读 | channel 设计与实现">Go源码阅读 | channel 设计与实现</a>
             </h1>
         </header>
@@ -268,58 +318,6 @@
     
     
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/" title="Go Hijack黑科技">Go Hijack黑科技</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月14日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
-    </article>
-    
-    
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/" title="Nginx基于权重的轮询算法实现">Nginx基于权重的轮询算法实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月14日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
-            
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Nginx'>Nginx</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            Nginx平滑的基于权重轮询算法描述为： Algorithm is as follows: on each peer selection we increase current_weight of each eligible peer by its weight, select peer with greatest current_weight and reduce its current_weight by total number of weight points distributed among peers. 算法执行2步，选择出1个当前节点： 每个节点，用它们的当前值加上它们自己的权重。 选择当前值……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/">阅读全文</a></p>
-    </article>
-    
-    
-    
 
 
 
@@ -384,6 +382,14 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
     </li>
     
@@ -415,14 +421,6 @@
         <a href="https://maratrix.cn/post/2021/02/08/prometheus-intro/" title="Prometheus学习笔记|00.简介与原理">Prometheus学习笔记|00.简介与原理</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/" title="hystrix-go 之流量控制实现">hystrix-go 之流量控制实现</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/" title="hystrix-go 之统计控制器实现">hystrix-go 之统计控制器实现</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -434,7 +432,7 @@
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (20)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -451,6 +449,8 @@
     <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
     
     <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
     
     <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (2)</a></li>
     
@@ -516,6 +516,12 @@
     <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
     
     <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
     
     <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
     

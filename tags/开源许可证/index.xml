@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>开源许可证 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/</link>
+    <description>Recent content in 开源许可证 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 15 May 2021 10:51:27 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[转]如何选择开源协议</title>
+      <link>https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/</link>
+      <pubDate>Sat, 15 May 2021 10:51:27 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/</guid>
+      <description>如何为代码选择开源许可证，这是一个问题。 世界上的开源许可证，大概有上百种。很少有人搞得清楚它们的区别。即使在最流行的六种 &amp;mdash;- GPL、BSD、MIT、Mozilla、Apache 和 LGPL&amp;mdash;- 之中做选择，也很复杂。</description>
+    </item>
+    
+  </channel>
+</rss>
