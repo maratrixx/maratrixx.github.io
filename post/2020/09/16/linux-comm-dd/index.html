@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Linux dd 命令使用详解 | MARATRIX BLOG</title>
     <meta property="og:title" content="Linux dd 命令使用详解 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2020/09/16/linux-comm-dd/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,109 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#dd-命令介绍">dd 命令介绍</a></li>
+        <li><a href="#使用实例">使用实例</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Linux dd 命令使用详解</h1>
@@ -81,7 +189,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Linux'>Linux</a></span>
+            <span class="meta-category"><a href='/categories/Linux'>Linux</a></span>
             
         </div>
         
@@ -98,16 +206,16 @@
 <p>dd 可从标准输入或文件中读取数据，根据指定的格式来转换数据，再输出到文件、设备或标准输出。</p>
 <p>dd 命令使用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。可以用于测试磁盘命令、数据备份或恢复等。</p>
 <p>参数说明:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>文件名：      输入文件名，默认为标准输入。即指定源文件。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>文件名：      输出文件名，默认为标准输出。即指定目的文件。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#8be9fd;font-style:italic">ibs</span><span style="color:#ff79c6">=</span>bytes：     一次读入bytes个字节，即指定一个块大小为bytes个字节。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#8be9fd;font-style:italic">obs</span><span style="color:#ff79c6">=</span>bytes：     一次输出bytes个字节，即指定一个块大小为bytes个字节。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>bytes：      同时设置读入/输出的块大小为bytes个字节。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#8be9fd;font-style:italic">cbs</span><span style="color:#ff79c6">=</span>bytes：     一次转换bytes个字节，即指定转换缓冲区大小。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#8be9fd;font-style:italic">skip</span><span style="color:#ff79c6">=</span>blocks：   从输入文件开头跳过blocks个块后再开始复制。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">seek</span><span style="color:#ff79c6">=</span>blocks：   从输出文件开头跳过blocks个块后再开始复制。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span>blocks：  仅拷贝blocks个块，块大小等于ibs指定的字节数。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>&lt;关键字&gt;：  关键字可以有以下11种：
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>文件名：      输入文件名，默认为标准输入。即指定源文件。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>文件名：      输出文件名，默认为标准输出。即指定目的文件。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#008080">ibs</span><span style="color:#000;font-weight:bold">=</span>bytes：     一次读入bytes个字节，即指定一个块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#008080">obs</span><span style="color:#000;font-weight:bold">=</span>bytes：     一次输出bytes个字节，即指定一个块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span>bytes：      同时设置读入/输出的块大小为bytes个字节。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#008080">cbs</span><span style="color:#000;font-weight:bold">=</span>bytes：     一次转换bytes个字节，即指定转换缓冲区大小。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#008080">skip</span><span style="color:#000;font-weight:bold">=</span>blocks：   从输入文件开头跳过blocks个块后再开始复制。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#008080">seek</span><span style="color:#000;font-weight:bold">=</span>blocks：   从输出文件开头跳过blocks个块后再开始复制。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span>blocks：  仅拷贝blocks个块，块大小等于ibs指定的字节数。
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#008080">conv</span><span style="color:#000;font-weight:bold">=</span>&lt;关键字&gt;：  关键字可以有以下11种：
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>conversion：    用指定的参数转换文件。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    ascii：         转换ebcdic为ascii
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    ebcdic：        转换ascii为ebcdic
@@ -124,55 +232,55 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>--version：     显示版本信息
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>指定数字的地方若以下列字符结尾乘以相应的数字: 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#8be9fd;font-style:italic">c</span> <span style="color:#ff79c6">=</span>1, <span style="color:#8be9fd;font-style:italic">w</span> <span style="color:#ff79c6">=</span>2, <span style="color:#8be9fd;font-style:italic">b</span> <span style="color:#ff79c6">=</span>512, <span style="color:#8be9fd;font-style:italic">kB</span> <span style="color:#ff79c6">=</span>1000, <span style="color:#8be9fd;font-style:italic">K</span> <span style="color:#ff79c6">=</span>1024, <span style="color:#8be9fd;font-style:italic">MB</span> <span style="color:#ff79c6">=</span>1000*1000, <span style="color:#8be9fd;font-style:italic">M</span> <span style="color:#ff79c6">=</span>1024*1024, <span style="color:#8be9fd;font-style:italic">xM</span> <span style="color:#ff79c6">=</span>M <span style="color:#8be9fd;font-style:italic">GB</span> <span style="color:#ff79c6">=</span>1000*1000*1000, <span style="color:#8be9fd;font-style:italic">G</span> <span style="color:#ff79c6">=</span>1024*1024*1024, and so on <span style="color:#ff79c6">for</span> T, P, E, Z, Y.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#008080">c</span> <span style="color:#000;font-weight:bold">=</span>1, <span style="color:#008080">w</span> <span style="color:#000;font-weight:bold">=</span>2, <span style="color:#008080">b</span> <span style="color:#000;font-weight:bold">=</span>512, <span style="color:#008080">kB</span> <span style="color:#000;font-weight:bold">=</span>1000, <span style="color:#008080">K</span> <span style="color:#000;font-weight:bold">=</span>1024, <span style="color:#008080">MB</span> <span style="color:#000;font-weight:bold">=</span>1000*1000, <span style="color:#008080">M</span> <span style="color:#000;font-weight:bold">=</span>1024*1024, <span style="color:#008080">xM</span> <span style="color:#000;font-weight:bold">=</span>M <span style="color:#008080">GB</span> <span style="color:#000;font-weight:bold">=</span>1000*1000*1000, <span style="color:#008080">G</span> <span style="color:#000;font-weight:bold">=</span>1024*1024*1024, and so on <span style="color:#000;font-weight:bold">for</span> T, P, E, Z, Y.
 </code></pre></div><h3 id="使用实例">使用实例</h3>
 <h5 id="1-在linux-下制作启动盘可使用如下命令">1. 在Linux 下制作启动盘，可使用如下命令：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>boot.img <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/fd0 <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1440k 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>boot.img <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>/dev/fd0 <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span>1440k 
 </code></pre></div><h5 id="2-将testfile文件中的所有英文字母转换为大写然后转成为testfile_1文件在命令提示符中使用如下命令">2. 将testfile文件中的所有英文字母转换为大写，然后转成为testfile_1文件，在命令提示符中使用如下命令：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>testfile_2 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>testfile_1 <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>testfile_2 <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>testfile_1 <span style="color:#008080">conv</span><span style="color:#000;font-weight:bold">=</span>ucase 
 </code></pre></div><p>其中testfile_2 的内容为：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ cat testfile_2 <span style="color:#6272a4">#testfile_2的内容  </span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ cat testfile_2 <span style="color:#998;font-style:italic">#testfile_2的内容  </span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>HELLO LINUX!  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>Linux is a free unix-type opterating system.  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>This is a linux testfile!  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>Linux <span style="color:#8be9fd;font-style:italic">test</span> 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>Linux <span style="color:#0086b3">test</span> 
 </code></pre></div><p>转换完成后，testfile_1 的内容如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>testfile_2 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>testfile_1 <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase <span style="color:#6272a4">#使用dd 命令，大小写转换记录了0+1 的读入  </span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>testfile_2 <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>testfile_1 <span style="color:#008080">conv</span><span style="color:#000;font-weight:bold">=</span>ucase <span style="color:#998;font-style:italic">#使用dd 命令，大小写转换记录了0+1 的读入  </span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>记录了0+1 的写出  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>95字节（95 B）已复制，0.000131446 秒，723 KB/s  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>cmd@hdd-desktop:~$ cat testfile_1 <span style="color:#6272a4">#查看转换后的testfile_1文件内容  </span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>cmd@hdd-desktop:~$ cat testfile_1 <span style="color:#998;font-style:italic">#查看转换后的testfile_1文件内容  </span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>HELLO LINUX!  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>LINUX IS A FREE UNIX-TYPE OPTERATING SYSTEM.  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>THIS IS A LINUX TESTFILE!  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>LINUX TEST <span style="color:#6272a4">#testfile_2中的所有字符都变成了大写字母 </span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>LINUX TEST <span style="color:#998;font-style:italic">#testfile_2中的所有字符都变成了大写字母 </span>
 </code></pre></div><h5 id="3-由标准输入设备读入字符串并将字符串转换成大写后再输出到标准输出设备使用的命令为">3. 由标准输入设备读入字符串，并将字符串转换成大写后，再输出到标准输出设备，使用的命令为：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#008080">conv</span><span style="color:#000;font-weight:bold">=</span>ucase 
 </code></pre></div><p>输入以上命令后按回车键，输入字符串，再按回车键，按组合键 Ctrl+D 退出，出现以下结果：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#8be9fd;font-style:italic">conv</span><span style="color:#ff79c6">=</span>ucase 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>Hello Linux! <span style="color:#6272a4">#输入字符串后按回车键  </span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>HELLO LINUX! <span style="color:#6272a4">#按组合键Ctrl+D退出，转换成大写结果  </span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ dd <span style="color:#008080">conv</span><span style="color:#000;font-weight:bold">=</span>ucase 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>Hello Linux! <span style="color:#998;font-style:italic">#输入字符串后按回车键  </span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>HELLO LINUX! <span style="color:#998;font-style:italic">#按组合键Ctrl+D退出，转换成大写结果  </span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>记录了0+1 的读入  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>记录了0+1 的写出  
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>13字节（13 B）已复制，12.1558 秒，0.0 KB/s
 </code></pre></div><h5 id="4-备份-devhdb-全盘数据并利用-gzip-工具进行压缩保存到指定路径">4. 备份 /dev/hdb 全盘数据，并利用 gzip 工具进行压缩，保存到指定路径</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/hdb | gzip &gt; /root/image.gz
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/dev/hdb | gzip &gt; /root/image.gz
 </code></pre></div><h5 id="5-将压缩的备份文件恢复到指定盘">5. 将压缩的备份文件恢复到指定盘</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>gzip -dc /root/image.gz | dd <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/hdb
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>gzip -dc /root/image.gz | dd <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>/dev/hdb
 </code></pre></div><h5 id="6-备份磁盘开始的-512-个字节大小的-mbr-信息到指定文件">6. 备份磁盘开始的 512 个字节大小的 MBR 信息到指定文件</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/hda <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/root/image <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">512</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> 指仅拷贝一个块
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>// <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">512</span>  指块大小为 <span style="color:#bd93f9">512</span> 个字节
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>恢复：dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/root/image <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>/dev/hda
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/dev/hda <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>/root/image <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span> <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">512</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span> 指仅拷贝一个块
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>// <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">512</span>  指块大小为 <span style="color:#099">512</span> 个字节
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>恢复：dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/root/image <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>/dev/hda
 </code></pre></div><h5 id="7-备份软盘">7. 备份软盘</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/fd0 <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span>disk.img <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1440k <span style="color:#ff79c6">(</span>即块大小为1.44M<span style="color:#ff79c6">)</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/dev/fd0 <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span>disk.img <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span> <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span>1440k <span style="color:#000;font-weight:bold">(</span>即块大小为1.44M<span style="color:#000;font-weight:bold">)</span>
 </code></pre></div><h5 id="8-从文件开头先跳过-skipbs-大小的内容复制-countbs-大小的内容过来用-grep-查询">8. 从文件开头先跳过 skip<em>bs 大小的内容，复制 count</em>bs 大小的内容过来用 grep 查询</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>filename <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1024</span> <span style="color:#8be9fd;font-style:italic">skip</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">3600</span> <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1200</span> | grep <span style="color:#f1fa8c">&#39;****&#39;</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>filename <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1024</span> <span style="color:#008080">skip</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">3600</span> <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1200</span> | grep <span style="color:#d14">&#39;****&#39;</span>
 </code></pre></div><h5 id="9-生成一个1000m的test文件文件内容为全0因从devzero中读取devzero为0源">9. 生成一个1000M的test文件，文件内容为全0（因从/dev/zero中读取，/dev/zero为0源）</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/zero <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">test</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1M <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">1000</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/dev/zero <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span><span style="color:#0086b3">test</span> <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span>1M <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">1000</span>
 </code></pre></div><p>但是这样为实际写入硬盘，文件产生速度取决于硬盘读写速度，如果欲产生超大文件，速度很慢。</p>
 <p>在某种场景下，我们只想让文件系统认为存在一个超大文件在此，但是并不实际写入硬盘。</p>
 <h5 id="10-生成一个100g的test文件但是并不实际占用block因此创建速度与内存速度相当">10. 生成一个100G的test文件，但是并不实际占用block，因此创建速度与内存速度相当</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#ff79c6">if</span><span style="color:#ff79c6">=</span>/dev/zero <span style="color:#8be9fd;font-style:italic">of</span><span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">test</span> <span style="color:#8be9fd;font-style:italic">bs</span><span style="color:#ff79c6">=</span>1M <span style="color:#8be9fd;font-style:italic">count</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">0</span> <span style="color:#8be9fd;font-style:italic">seek</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">100000</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>dd <span style="color:#000;font-weight:bold">if</span><span style="color:#000;font-weight:bold">=</span>/dev/zero <span style="color:#008080">of</span><span style="color:#000;font-weight:bold">=</span><span style="color:#0086b3">test</span> <span style="color:#008080">bs</span><span style="color:#000;font-weight:bold">=</span>1M <span style="color:#008080">count</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">0</span> <span style="color:#008080">seek</span><span style="color:#000;font-weight:bold">=</span><span style="color:#099">100000</span>
 </code></pre></div><p>seek 的作用是跳过输出文件中指定大小的部分，这就达到了创建大文件，但是并不实际写入的目的。</p>
 <p>当然，因为不实际写入硬盘，所以你在容量只有 10G 的硬盘上创建 100G 的此类文件都是可以的。</p>
 
@@ -205,9 +313,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/linux'>linux</a></li>
+                <li><a href='/tags/linux'>linux</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4'>linux命令</a></li>
+                <li><a href='/tags/linux%E5%91%BD%E4%BB%A4'>linux命令</a></li>
                 
             </ul>
             
@@ -220,7 +328,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -229,6 +337,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -292,7 +452,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -323,7 +483,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -438,49 +598,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

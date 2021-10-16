@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Go Hijack黑科技 | MARATRIX BLOG</title>
     <meta property="og:title" content="Go Hijack黑科技 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2020/04/14/go-hijack-note/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,112 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#hijack-介绍"><code>Hijack</code> 介绍</a></li>
+    <li><a href="#实现原理">实现原理</a></li>
+    <li><a href="#和正常的http请求区别">和正常的HTTP请求区别</a></li>
+    <li><a href="#使用场景">使用场景</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#小结">小结</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Go Hijack黑科技</h1>
@@ -81,7 +192,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
             
         </div>
         
@@ -94,168 +205,168 @@
         
         <div class="post-content">
             <p>最近在看Go标准库里面的<code>rpc</code>源码，发现了下面一段代码：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// ServeHTTP implements an http.Handler that answers RPC requests.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (server <span style="color:#ff79c6">*</span>Server) <span style="color:#50fa7b">ServeHTTP</span>(w http.ResponseWriter, req <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">if</span> req.Method <span style="color:#ff79c6">!=</span> <span style="color:#f1fa8c">&#34;CONNECT&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		w.<span style="color:#50fa7b">Header</span>().<span style="color:#50fa7b">Set</span>(<span style="color:#f1fa8c">&#34;Content-Type&#34;</span>, <span style="color:#f1fa8c">&#34;text/plain; charset=utf-8&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		w.<span style="color:#50fa7b">WriteHeader</span>(http.StatusMethodNotAllowed)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		io.<span style="color:#50fa7b">WriteString</span>(w, <span style="color:#f1fa8c">&#34;405 must CONNECT\n&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		<span style="color:#ff79c6">return</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// ServeHTTP implements an http.Handler that answers RPC requests.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (server <span style="color:#000;font-weight:bold">*</span>Server) <span style="color:#900;font-weight:bold">ServeHTTP</span>(w http.ResponseWriter, req <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">if</span> req.Method <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;CONNECT&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		w.<span style="color:#900;font-weight:bold">Header</span>().<span style="color:#900;font-weight:bold">Set</span>(<span style="color:#d14">&#34;Content-Type&#34;</span>, <span style="color:#d14">&#34;text/plain; charset=utf-8&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		w.<span style="color:#900;font-weight:bold">WriteHeader</span>(http.StatusMethodNotAllowed)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		io.<span style="color:#900;font-weight:bold">WriteString</span>(w, <span style="color:#d14">&#34;405 must CONNECT\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		<span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	conn, _, err <span style="color:#ff79c6">:=</span> w.(http.Hijacker).<span style="color:#50fa7b">Hijack</span>()	<span style="color:#6272a4">//注意看这里
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		log.<span style="color:#50fa7b">Print</span>(<span style="color:#f1fa8c">&#34;rpc hijacking &#34;</span>, req.RemoteAddr, <span style="color:#f1fa8c">&#34;: &#34;</span>, err.<span style="color:#50fa7b">Error</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	conn, _, err <span style="color:#000;font-weight:bold">:=</span> w.(http.Hijacker).<span style="color:#900;font-weight:bold">Hijack</span>()	<span style="color:#998;font-style:italic">//注意看这里
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		log.<span style="color:#900;font-weight:bold">Print</span>(<span style="color:#d14">&#34;rpc hijacking &#34;</span>, req.RemoteAddr, <span style="color:#d14">&#34;: &#34;</span>, err.<span style="color:#900;font-weight:bold">Error</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		<span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	io.<span style="color:#50fa7b">WriteString</span>(conn, <span style="color:#f1fa8c">&#34;HTTP/1.0 &#34;</span><span style="color:#ff79c6">+</span>connected<span style="color:#ff79c6">+</span><span style="color:#f1fa8c">&#34;\n\n&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	server.<span style="color:#50fa7b">ServeConn</span>(conn)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	io.<span style="color:#900;font-weight:bold">WriteString</span>(conn, <span style="color:#d14">&#34;HTTP/1.0 &#34;</span><span style="color:#000;font-weight:bold">+</span>connected<span style="color:#000;font-weight:bold">+</span><span style="color:#d14">&#34;\n\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	server.<span style="color:#900;font-weight:bold">ServeConn</span>(conn)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
 </code></pre></div><p>这是一段接管 HTTP 连接的代码，所谓的接管 HTTP 连接是指这里接管了 HTTP 的 TCP 连接，也就是说 Golang 的内置 HTTP 库和 HTTPServer 库将不会管理这个 TCP 连接的生命周期，这个生命周期已经划给 Hijacker 了。</p>
 <h2 id="hijack-介绍"><code>Hijack</code> 介绍</h2>
 <p>首先看下官方的<code>http.Hijacker</code>接口介绍：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> Hijacker <span style="color:#8be9fd;font-style:italic">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#6272a4">// Hijack lets the caller take over the connection.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// After a call to Hijack the HTTP server library
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// will not do anything else with the connection.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// It becomes the caller&#39;s responsibility to manage
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// and close the connection.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// The returned net.Conn may have read or write deadlines
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// already set, depending on the configuration of the
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// Server. It is the caller&#39;s responsibility to set
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// or clear those deadlines as needed.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// The returned bufio.Reader may contain unprocessed buffered
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// data from the client.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// After a call to Hijack, the original Request.Body must not
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// be used. The original Request&#39;s Context remains valid and
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// is not canceled until the Request&#39;s ServeHTTP method
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// returns.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Hijack</span>() (net.Conn, <span style="color:#ff79c6">*</span>bufio.ReadWriter, <span style="color:#8be9fd">error</span>)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> Hijacker <span style="color:#000;font-weight:bold">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">// Hijack lets the caller take over the connection.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// After a call to Hijack the HTTP server library
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// will not do anything else with the connection.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// It becomes the caller&#39;s responsibility to manage
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// and close the connection.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// The returned net.Conn may have read or write deadlines
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// already set, depending on the configuration of the
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// Server. It is the caller&#39;s responsibility to set
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// or clear those deadlines as needed.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// The returned bufio.Reader may contain unprocessed buffered
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// data from the client.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// After a call to Hijack, the original Request.Body must not
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// be used. The original Request&#39;s Context remains valid and
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// is not canceled until the Request&#39;s ServeHTTP method
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// returns.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span>	<span style="color:#900;font-weight:bold">Hijack</span>() (net.Conn, <span style="color:#000;font-weight:bold">*</span>bufio.ReadWriter, <span style="color:#458;font-weight:bold">error</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>}
 </code></pre></div><p><code>Hijack()</code>可以将HTTP对应的TCP连接取出，连接在<code>Hijack()</code>之后，HTTP的相关操作就会受到影响，调用方需要负责去关闭连接。</p>
 <h2 id="实现原理">实现原理</h2>
 <p>当我们在调用<code>Hijack</code>时，<code>Http Server</code>会将当前连接设置为<code>StateHijacked</code>，并从管理的connection列表中删除，交给使用者自己来管理：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 当前连接设置为StateHijacked
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>conn) <span style="color:#50fa7b">setState</span>(nc net.Conn, state ConnState) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	srv <span style="color:#ff79c6">:=</span> c.server
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#ff79c6">switch</span> state {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#ff79c6">case</span> StateNew:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		srv.<span style="color:#50fa7b">trackConn</span>(c, <span style="color:#ff79c6">true</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">case</span> StateHijacked, StateClosed:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		srv.<span style="color:#50fa7b">trackConn</span>(c, <span style="color:#ff79c6">false</span>) <span style="color:#6272a4">//这里调用trackConn方法
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#ff79c6">if</span> state &gt; <span style="color:#bd93f9">0xff</span> <span style="color:#ff79c6">||</span> state &lt; <span style="color:#bd93f9">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;internal error&#34;</span>)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 当前连接设置为StateHijacked
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>conn) <span style="color:#900;font-weight:bold">setState</span>(nc net.Conn, state ConnState) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	srv <span style="color:#000;font-weight:bold">:=</span> c.server
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#000;font-weight:bold">switch</span> state {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#000;font-weight:bold">case</span> StateNew:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		srv.<span style="color:#900;font-weight:bold">trackConn</span>(c, <span style="color:#000;font-weight:bold">true</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#000;font-weight:bold">case</span> StateHijacked, StateClosed:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		srv.<span style="color:#900;font-weight:bold">trackConn</span>(c, <span style="color:#000;font-weight:bold">false</span>) <span style="color:#998;font-style:italic">//这里调用trackConn方法
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">if</span> state &gt; <span style="color:#099">0xff</span> <span style="color:#000;font-weight:bold">||</span> state &lt; <span style="color:#099">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;internal error&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	packedState <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">uint64</span>(time.<span style="color:#50fa7b">Now</span>().<span style="color:#50fa7b">Unix</span>()<span style="color:#ff79c6">&lt;&lt;</span><span style="color:#bd93f9">8</span>) | <span style="color:#8be9fd;font-style:italic">uint64</span>(state)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	atomic.<span style="color:#50fa7b">StoreUint64</span>(<span style="color:#ff79c6">&amp;</span>c.curState.atomic, packedState)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	<span style="color:#ff79c6">if</span> hook <span style="color:#ff79c6">:=</span> srv.ConnState; hook <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		<span style="color:#50fa7b">hook</span>(nc, state)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	packedState <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">uint64</span>(time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">Unix</span>()<span style="color:#000;font-weight:bold">&lt;&lt;</span><span style="color:#099">8</span>) | <span style="color:#0086b3">uint64</span>(state)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	atomic.<span style="color:#900;font-weight:bold">StoreUint64</span>(<span style="color:#000;font-weight:bold">&amp;</span>c.curState.atomic, packedState)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	<span style="color:#000;font-weight:bold">if</span> hook <span style="color:#000;font-weight:bold">:=</span> srv.ConnState; hook <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		<span style="color:#900;font-weight:bold">hook</span>(nc, state)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4">//从管理的连接中删除
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (s <span style="color:#ff79c6">*</span>Server) <span style="color:#50fa7b">trackConn</span>(c <span style="color:#ff79c6">*</span>conn, add <span style="color:#8be9fd">bool</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	s.mu.<span style="color:#50fa7b">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#ff79c6">defer</span> s.mu.<span style="color:#50fa7b">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	<span style="color:#ff79c6">if</span> s.activeConn <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>		s.activeConn = <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">map</span>[<span style="color:#ff79c6">*</span>conn]<span style="color:#8be9fd;font-style:italic">struct</span>{})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic">//从管理的连接中删除
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (s <span style="color:#000;font-weight:bold">*</span>Server) <span style="color:#900;font-weight:bold">trackConn</span>(c <span style="color:#000;font-weight:bold">*</span>conn, add <span style="color:#458;font-weight:bold">bool</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	s.mu.<span style="color:#900;font-weight:bold">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#000;font-weight:bold">defer</span> s.mu.<span style="color:#900;font-weight:bold">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	<span style="color:#000;font-weight:bold">if</span> s.activeConn <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>		s.activeConn = <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">map</span>[<span style="color:#000;font-weight:bold">*</span>conn]<span style="color:#000;font-weight:bold">struct</span>{})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	<span style="color:#ff79c6">if</span> add {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		s.activeConn[c] = <span style="color:#8be9fd;font-style:italic">struct</span>{}{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>	} <span style="color:#ff79c6">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		<span style="color:#8be9fd;font-style:italic">delete</span>(s.activeConn, c)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	<span style="color:#000;font-weight:bold">if</span> add {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		s.activeConn[c] = <span style="color:#000;font-weight:bold">struct</span>{}{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>	} <span style="color:#000;font-weight:bold">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		<span style="color:#0086b3">delete</span>(s.activeConn, c)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
 </code></pre></div><h2 id="和正常的http请求区别">和正常的HTTP请求区别</h2>
 <p>为了和正常的HTTP请求对比，写了下面代码：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">//hijack请求
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span>http.<span style="color:#50fa7b">HandleFunc</span>(<span style="color:#f1fa8c">&#34;/hijack&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(w http.ResponseWriter, r <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		hj, _ <span style="color:#ff79c6">:=</span> w.(http.Hijacker)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		conn, buf, _ <span style="color:#ff79c6">:=</span> hj.<span style="color:#50fa7b">Hijack</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#ff79c6">defer</span> conn.<span style="color:#50fa7b">Close</span>()
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">//hijack请求
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span>http.<span style="color:#900;font-weight:bold">HandleFunc</span>(<span style="color:#d14">&#34;/hijack&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		hj, _ <span style="color:#000;font-weight:bold">:=</span> w.(http.Hijacker)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		conn, buf, _ <span style="color:#000;font-weight:bold">:=</span> hj.<span style="color:#900;font-weight:bold">Hijack</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#000;font-weight:bold">defer</span> conn.<span style="color:#900;font-weight:bold">Close</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		buf.<span style="color:#50fa7b">WriteString</span>(<span style="color:#f1fa8c">&#34;hello hijack\n&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		buf.<span style="color:#50fa7b">Flush</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		buf.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello hijack\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		buf.<span style="color:#900;font-weight:bold">Flush</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4">//正常的http请求
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>http.<span style="color:#50fa7b">HandleFunc</span>(<span style="color:#f1fa8c">&#34;/http&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(writer http.ResponseWriter, request <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#50fa7b">Fprintln</span>(writer, <span style="color:#f1fa8c">&#34;hello http\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">//正常的http请求
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>http.<span style="color:#900;font-weight:bold">HandleFunc</span>(<span style="color:#d14">&#34;/http&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(writer http.ResponseWriter, request <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#900;font-weight:bold">Fprintln</span>(writer, <span style="color:#d14">&#34;hello http\n&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>})
 </code></pre></div><p>我们分别来curl请求下这两个接口：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ curl <span style="color:#f1fa8c">&#34;http://127.0.0.1:9001/hijack&#34;</span> <span style="color:#ff79c6">-</span>i
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#a61717;background-color:#e3d2d2">$</span> curl <span style="color:#d14">&#34;http://127.0.0.1:9001/hijack&#34;</span> <span style="color:#000;font-weight:bold">-</span>i
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>hello hijack
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>$ curl <span style="color:#f1fa8c">&#34;http://127.0.0.1:9001/http&#34;</span> <span style="color:#ff79c6">-</span>i
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>HTTP<span style="color:#ff79c6">/</span><span style="color:#bd93f9">1.1</span> <span style="color:#bd93f9">200</span> OK
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>Date: Mon, <span style="color:#bd93f9">17</span> Feb <span style="color:#bd93f9">2020</span> <span style="color:#bd93f9">03</span>:<span style="color:#bd93f9">41</span>:<span style="color:#bd93f9">52</span> GMT
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>Content<span style="color:#ff79c6">-</span>Length: <span style="color:#bd93f9">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>Content<span style="color:#ff79c6">-</span>Type: text<span style="color:#ff79c6">/</span>plain; charset=utf<span style="color:#ff79c6">-</span><span style="color:#bd93f9">8</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#a61717;background-color:#e3d2d2">$</span> curl <span style="color:#d14">&#34;http://127.0.0.1:9001/http&#34;</span> <span style="color:#000;font-weight:bold">-</span>i
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>HTTP<span style="color:#000;font-weight:bold">/</span><span style="color:#099">1.1</span> <span style="color:#099">200</span> OK
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>Date: Mon, <span style="color:#099">17</span> Feb <span style="color:#099">2020</span> <span style="color:#099">03</span>:<span style="color:#099">41</span>:<span style="color:#099">52</span> GMT
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>Content<span style="color:#000;font-weight:bold">-</span>Length: <span style="color:#099">12</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>Content<span style="color:#000;font-weight:bold">-</span>Type: text<span style="color:#000;font-weight:bold">/</span>plain; charset=utf<span style="color:#000;font-weight:bold">-</span><span style="color:#099">8</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>hello http
 </code></pre></div><p>看出来了吗？乍一看，首先我们能看到使用<code>Hijack</code>的请求返回没有响应头信息。这里我们要明白的是，<code>Hijack</code>之后虽然能正常输出数据，但完全没有遵守http协议。</p>
 <p>为什么呢？翻下源码：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// Serve a new connection.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (c <span style="color:#ff79c6">*</span>conn) <span style="color:#50fa7b">serve</span>(ctx context.Context) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#6272a4">//省略...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	serverHandler{c.server}.<span style="color:#50fa7b">ServeHTTP</span>(w, w.req)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	w.<span style="color:#50fa7b">cancelCtx</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#ff79c6">if</span> c.<span style="color:#50fa7b">hijacked</span>() { <span style="color:#6272a4">//被hijack后直接返回
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>			<span style="color:#ff79c6">return</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// Serve a new connection.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>conn) <span style="color:#900;font-weight:bold">serve</span>(ctx context.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#998;font-style:italic">//省略...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	serverHandler{c.server}.<span style="color:#900;font-weight:bold">ServeHTTP</span>(w, w.req)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	w.<span style="color:#900;font-weight:bold">cancelCtx</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#000;font-weight:bold">if</span> c.<span style="color:#900;font-weight:bold">hijacked</span>() { <span style="color:#998;font-style:italic">//被hijack后直接返回
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	w.<span style="color:#50fa7b">finishRequest</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#6272a4">//省略...	
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	w.<span style="color:#900;font-weight:bold">finishRequest</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#998;font-style:italic">//省略...	
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>这是<code>net/http</code>包中的方法，也是http路由的核心方法。调用<code>ServeHTTP</code>方法，如果被<code>Hijack</code>了就直接return了，而一般的http请求会经过后边的<code>finishRequest</code>方法，加入headers等并关闭连接。</p>
 <h2 id="使用场景">使用场景</h2>
 <p>当不想使用内置服务器的HTTP协议实现时，请使用<code>Hijack</code>。</p>
 <p>一般在在创建连接阶段使用HTTP连接，后续自己完全处理connection。符合这样的使用场景的并不多，基于HTTP协议的rpc算一个，从HTTP升级到WebSocket也算一个。</p>
 <h4 id="rpc使用">RPC使用</h4>
 <p>go中自带的rpc可以直接复用http server处理请求的那一套流程去创建连接，连接创建完毕后再使用Hijack方法拿到连接。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// ServeHTTP implements an http.Handler that answers RPC requests.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (server <span style="color:#ff79c6">*</span>server) <span style="color:#50fa7b">servehttp</span>(w http.responsewriter, req <span style="color:#ff79c6">*</span>http.request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#ff79c6">if</span> req.method <span style="color:#ff79c6">!=</span> <span style="color:#f1fa8c">&#34;connect&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        w.<span style="color:#50fa7b">header</span>().<span style="color:#50fa7b">set</span>(<span style="color:#f1fa8c">&#34;content-type&#34;</span>, <span style="color:#f1fa8c">&#34;text/plain; charset=utf-8&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        w.<span style="color:#50fa7b">writeheader</span>(http.statusmethodnotallowed)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        io.<span style="color:#50fa7b">writestring</span>(w, <span style="color:#f1fa8c">&#34;405 must connect\n&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#ff79c6">return</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// ServeHTTP implements an http.Handler that answers RPC requests.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (server <span style="color:#000;font-weight:bold">*</span>server) <span style="color:#900;font-weight:bold">servehttp</span>(w http.responsewriter, req <span style="color:#000;font-weight:bold">*</span>http.request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">if</span> req.method <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;connect&#34;</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        w.<span style="color:#900;font-weight:bold">header</span>().<span style="color:#900;font-weight:bold">set</span>(<span style="color:#d14">&#34;content-type&#34;</span>, <span style="color:#d14">&#34;text/plain; charset=utf-8&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        w.<span style="color:#900;font-weight:bold">writeheader</span>(http.statusmethodnotallowed)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        io.<span style="color:#900;font-weight:bold">writestring</span>(w, <span style="color:#d14">&#34;405 must connect\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    conn, _, err <span style="color:#ff79c6">:=</span> w.(http.hijacker).<span style="color:#50fa7b">hijack</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    <span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        log.<span style="color:#8be9fd;font-style:italic">print</span>(<span style="color:#f1fa8c">&#34;rpc hijacking &#34;</span>, req.remoteaddr, <span style="color:#f1fa8c">&#34;: &#34;</span>, err.<span style="color:#8be9fd;font-style:italic">error</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        <span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    conn, _, err <span style="color:#000;font-weight:bold">:=</span> w.(http.hijacker).<span style="color:#900;font-weight:bold">hijack</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>        log.<span style="color:#0086b3">print</span>(<span style="color:#d14">&#34;rpc hijacking &#34;</span>, req.remoteaddr, <span style="color:#d14">&#34;: &#34;</span>, err.<span style="color:#0086b3">error</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        <span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    io.<span style="color:#50fa7b">writestring</span>(conn, <span style="color:#f1fa8c">&#34;http/1.0 &#34;</span><span style="color:#ff79c6">+</span>connected<span style="color:#ff79c6">+</span><span style="color:#f1fa8c">&#34;\n\n&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    server.<span style="color:#50fa7b">serveconn</span>(conn)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    io.<span style="color:#900;font-weight:bold">writestring</span>(conn, <span style="color:#d14">&#34;http/1.0 &#34;</span><span style="color:#000;font-weight:bold">+</span>connected<span style="color:#000;font-weight:bold">+</span><span style="color:#d14">&#34;\n\n&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    server.<span style="color:#900;font-weight:bold">serveconn</span>(conn)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
 </code></pre></div><p>客户端通过向服务端发送method为connect的请求创建连接，创建成功后即可开始rpc调用。</p>
 <h4 id="websocket使用">WebSocket使用</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// ServeHTTP implements the http.Handler interface for a WebSocket
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (s Server) <span style="color:#50fa7b">ServeHTTP</span>(w http.ResponseWriter, req <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    s.<span style="color:#50fa7b">serveWebSocket</span>(w, req)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// ServeHTTP implements the http.Handler interface for a WebSocket
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (s Server) <span style="color:#900;font-weight:bold">ServeHTTP</span>(w http.ResponseWriter, req <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    s.<span style="color:#900;font-weight:bold">serveWebSocket</span>(w, req)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#8be9fd;font-style:italic">func</span> (s Server) <span style="color:#50fa7b">serveWebSocket</span>(w http.ResponseWriter, req <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    rwc, buf, err <span style="color:#ff79c6">:=</span> w.(http.Hijacker).<span style="color:#50fa7b">Hijack</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;Hijack failed: &#34;</span> <span style="color:#ff79c6">+</span> err.<span style="color:#50fa7b">Error</span>())
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#000;font-weight:bold">func</span> (s Server) <span style="color:#900;font-weight:bold">serveWebSocket</span>(w http.ResponseWriter, req <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    rwc, buf, err <span style="color:#000;font-weight:bold">:=</span> w.(http.Hijacker).<span style="color:#900;font-weight:bold">Hijack</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;Hijack failed: &#34;</span> <span style="color:#000;font-weight:bold">+</span> err.<span style="color:#900;font-weight:bold">Error</span>())
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#6272a4">// The server should abort the WebSocket connection if it finds
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// the client did not send a handshake that matches with protocol
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>    <span style="color:#6272a4">// specification.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>    <span style="color:#ff79c6">defer</span> rwc.<span style="color:#50fa7b">Close</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    conn, err <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">newServerConn</span>(rwc, buf, req, <span style="color:#ff79c6">&amp;</span>s.Config, s.Handshake)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    <span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        <span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#998;font-style:italic">// The server should abort the WebSocket connection if it finds
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// the client did not send a handshake that matches with protocol
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// specification.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">defer</span> rwc.<span style="color:#900;font-weight:bold">Close</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    conn, err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">newServerConn</span>(rwc, buf, req, <span style="color:#000;font-weight:bold">&amp;</span>s.Config, s.Handshake)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        <span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#ff79c6">if</span> conn <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>        <span style="color:#8be9fd;font-style:italic">panic</span>(<span style="color:#f1fa8c">&#34;unexpected nil conn&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    <span style="color:#000;font-weight:bold">if</span> conn <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>        <span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;unexpected nil conn&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    s.<span style="color:#50fa7b">Handler</span>(conn)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    s.<span style="color:#900;font-weight:bold">Handler</span>(conn)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
 </code></pre></div><p>websocket在创建连接的阶段与http使用相同的协议，而在后边的数据传输的过程中使用了他自己的协议，符合了Hijack的用途。通过serveWebSocket方法将HTTP协议升级到Websocket协议。</p>
 <h2 id="小结">小结</h2>
@@ -295,7 +406,7 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                <li><a href='/tags/go'>go</a></li>
                 
             </ul>
             
@@ -308,7 +419,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -317,6 +428,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -380,7 +543,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -411,7 +574,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -526,49 +689,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

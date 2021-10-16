@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Go服务平滑重启实践 | MARATRIX BLOG</title>
     <meta property="og:title" content="Go服务平滑重启实践 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2019/07/31/go-overseer-notes/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,100 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents"></nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Go服务平滑重启实践</h1>
@@ -81,7 +180,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
             
         </div>
         
@@ -119,37 +218,37 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 </ol>
 </blockquote>
 <p>贴一下代码，欢迎大家拍砖：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">package</span> main
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">package</span> main
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#ff79c6">import</span> (
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;fmt&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;net/http&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#f1fa8c">&#34;time&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#f1fa8c">&#34;github.com/jpillora/overseer&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#f1fa8c">&#34;github.com/jpillora/overseer/fetcher&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#d14">&#34;fmt&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#d14">&#34;net/http&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#d14">&#34;time&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#d14">&#34;github.com/jpillora/overseer&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#d14">&#34;github.com/jpillora/overseer/fetcher&#34;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">var</span> BuildID = <span style="color:#f1fa8c">&#34;0&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">var</span> BuildID = <span style="color:#d14">&#34;0&#34;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">prog</span>(state overseer.State) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;app#%s (%s) listening...\n&#34;</span>, BuildID, state.ID)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	http.<span style="color:#50fa7b">Handle</span>(<span style="color:#f1fa8c">&#34;/&#34;</span>, http.<span style="color:#50fa7b">HandlerFunc</span>(<span style="color:#8be9fd;font-style:italic">func</span>(w http.ResponseWriter, r <span style="color:#ff79c6">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		d, _ <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">ParseDuration</span>(r.URL.<span style="color:#50fa7b">Query</span>().<span style="color:#50fa7b">Get</span>(<span style="color:#f1fa8c">&#34;d&#34;</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		time.<span style="color:#50fa7b">Sleep</span>(d)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		fmt.<span style="color:#50fa7b">Fprintf</span>(w, <span style="color:#f1fa8c">&#34;app#%s (%s) says hello\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">prog</span>(state overseer.State) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) listening...\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	http.<span style="color:#900;font-weight:bold">Handle</span>(<span style="color:#d14">&#34;/&#34;</span>, http.<span style="color:#900;font-weight:bold">HandlerFunc</span>(<span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		d, _ <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">ParseDuration</span>(r.URL.<span style="color:#900;font-weight:bold">Query</span>().<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;d&#34;</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		time.<span style="color:#900;font-weight:bold">Sleep</span>(d)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		fmt.<span style="color:#900;font-weight:bold">Fprintf</span>(w, <span style="color:#d14">&#34;app#%s (%s) says hello\n&#34;</span>, BuildID, state.ID)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	}))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	http.<span style="color:#50fa7b">Serve</span>(state.Listener, <span style="color:#ff79c6">nil</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	fmt.<span style="color:#50fa7b">Printf</span>(<span style="color:#f1fa8c">&#34;app#%s (%s) exiting...\n&#34;</span>, BuildID, state.ID)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	http.<span style="color:#900;font-weight:bold">Serve</span>(state.Listener, <span style="color:#000;font-weight:bold">nil</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) exiting...\n&#34;</span>, BuildID, state.ID)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#6272a4">//then create another &#39;main&#39; which runs the upgrades
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#6272a4">//&#39;main()&#39; is run in the initial process
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	overseer.<span style="color:#50fa7b">Run</span>(overseer.Config{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic">//then create another &#39;main&#39; which runs the upgrades
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic">//&#39;main()&#39; is run in the initial process
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	overseer.<span style="color:#900;font-weight:bold">Run</span>(overseer.Config{
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		Program: prog,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		Address: <span style="color:#f1fa8c">&#34;:5001&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		Fetcher: <span style="color:#ff79c6">&amp;</span>fetcher.File{Path: <span style="color:#f1fa8c">&#34;my_app_next&#34;</span>},
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		Debug:   <span style="color:#ff79c6">false</span>, <span style="color:#6272a4">//display log of overseer actions
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#6272a4"></span>	})
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		Address: <span style="color:#d14">&#34;:5001&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		Fetcher: <span style="color:#000;font-weight:bold">&amp;</span>fetcher.File{Path: <span style="color:#d14">&#34;my_app_next&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		Debug:   <span style="color:#000;font-weight:bold">false</span>, <span style="color:#998;font-style:italic">//display log of overseer actions
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#998;font-style:italic"></span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
 </code></pre></div><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
 <p><strong>注意：</strong></p>
@@ -164,7 +263,7 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 <ol>
 <li>
 <p>线上环境使用supervisor来守护进程，我们在reload或着发信号重启项目时，可采用通过supervisor去获取进程id:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>pid=$(sudo supervisorctl status ${BIN_FILE}|awk &#39;{print $<span style="color:#bd93f9">4</span>}&#39;|awk <span style="color:#ff79c6">-</span>F, &#39;{print $<span style="color:#bd93f9">1</span>}&#39;)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>pid=<span style="color:#a61717;background-color:#e3d2d2">$</span>(sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE}|awk <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">4</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>|awk <span style="color:#000;font-weight:bold">-</span>F, <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">1</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>)
 </code></pre></div></li>
 <li>
 <p>使用supervisor和overseer实现平滑重启后，项目在发版时候，会有两个状态：</p>
@@ -177,12 +276,12 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 </li>
 </ul>
 <p>我们可以通过 supervisor去做判断，然后给不同的处理：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>function <span style="color:#50fa7b">startOrReload</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    sudo supervisorctl status ${BIN_FILE} |grep RUNNING &gt; <span style="color:#ff79c6">/</span>dev<span style="color:#ff79c6">/</span>null
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    #进程没有运行则start，运行则reload
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#ff79c6">if</span> [ $? <span style="color:#ff79c6">-</span>ne <span style="color:#bd93f9">0</span> ]; then
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>function <span style="color:#900;font-weight:bold">startOrReload</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE} |grep RUNNING &gt; <span style="color:#000;font-weight:bold">/</span>dev<span style="color:#000;font-weight:bold">/</span>null
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#a61717;background-color:#e3d2d2">#</span>进程没有运行则start<span style="color:#a61717;background-color:#e3d2d2">，</span>运行则reload
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#000;font-weight:bold">if</span> [ <span style="color:#a61717;background-color:#e3d2d2">$?</span> <span style="color:#000;font-weight:bold">-</span>ne <span style="color:#099">0</span> ]; then
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>        start
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#ff79c6">else</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">else</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>        reload
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>    fi
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
@@ -192,15 +291,15 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 <ul>
 <li>线上环境通常有两个目录，一个为固定目录current (例如：<code>/data/web/$project/current</code>),一个为历史版本目录releases(例如：<code>/data/web/$project/releases/$tag</code>)。Fetcher检测的必须为current目录，而非软链的realpath即releases目录:</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>file, err <span style="color:#ff79c6">:=</span> exec.<span style="color:#50fa7b">LookPath</span>(os.Args[<span style="color:#bd93f9">0</span>])
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>file, err <span style="color:#000;font-weight:bold">:=</span> exec.<span style="color:#900;font-weight:bold">LookPath</span>(os.Args[<span style="color:#099">0</span>])
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#0086b3">panic</span>(err)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>binPath, err <span style="color:#ff79c6">:=</span> filepath.<span style="color:#50fa7b">Abs</span>(file)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#ff79c6">if</span> err <span style="color:#ff79c6">!=</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    <span style="color:#8be9fd;font-style:italic">panic</span>(err)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>binPath, err <span style="color:#000;font-weight:bold">:=</span> filepath.<span style="color:#900;font-weight:bold">Abs</span>(file)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    <span style="color:#0086b3">panic</span>(err)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#6272a4">//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#998;font-style:italic">//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
 </span></code></pre></div><ul>
 <li>另外overseer第一次启动后其自身的realpath的path就不再改变了，程序中就不要再出现以当前执行文件的相对路径或者realpath取获取其它路径了，主要影响为配置文件。</li>
 </ul>
@@ -236,7 +335,7 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                <li><a href='/tags/go'>go</a></li>
                 
             </ul>
             
@@ -249,7 +348,7 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -258,6 +357,58 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -321,7 +472,7 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -352,7 +503,7 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -467,49 +618,6 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

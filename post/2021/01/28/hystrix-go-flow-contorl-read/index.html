@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>hystrix-go 之流量控制实现 | MARATRIX BLOG</title>
     <meta property="og:title" content="hystrix-go 之流量控制实现 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,109 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#源码分析">源码分析</a></li>
+        <li><a href="#参考">参考</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">hystrix-go 之流量控制实现</h1>
@@ -81,7 +189,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></span>
+            <span class="meta-category"><a href='/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></span>
             
         </div>
         
@@ -94,17 +202,17 @@
         
         <div class="post-content">
             <p>在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>cmd.ticket = <span style="color:#ff79c6">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#6272a4">// 获取令牌成功
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>cmd.ticket = <span style="color:#000;font-weight:bold">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#998;font-style:italic">// 获取令牌成功
 </span></code></pre></div><p>今天我们分析下，hystrix-go 是如何进行流量控制的。</p>
 <h3 id="源码分析">源码分析</h3>
 <p>hystrix-go 对流量控制的代码是很简单的。用了一个简单的令牌算法，能得到令牌的就可以执行后继的工作，执行完后要返还令牌。得不到令牌就拒绝，拒绝后调用用户设置的 fallback 方法，如果没有设置就不执行。</p>
 <h4 id="executorpool-结构体">executorPool 结构体</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> executorPool <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Name    <span style="color:#8be9fd">string</span>         <span style="color:#6272a4">// command name
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	Metrics <span style="color:#ff79c6">*</span>poolMetrics   <span style="color:#6272a4">// 当前运行统计
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>	Max     <span style="color:#8be9fd">int</span>            <span style="color:#6272a4">// 最大令牌数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>	Tickets <span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#ff79c6">*</span><span style="color:#8be9fd;font-style:italic">struct</span>{} <span style="color:#6272a4">// 存放令牌信息
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> executorPool <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Name    <span style="color:#458;font-weight:bold">string</span>         <span style="color:#998;font-style:italic">// command name
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>	Metrics <span style="color:#000;font-weight:bold">*</span>poolMetrics   <span style="color:#998;font-style:italic">// 当前运行统计
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>	Max     <span style="color:#458;font-weight:bold">int</span>            <span style="color:#998;font-style:italic">// 最大令牌数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>	Tickets <span style="color:#000;font-weight:bold">chan</span> <span style="color:#000;font-weight:bold">*</span><span style="color:#000;font-weight:bold">struct</span>{} <span style="color:#998;font-style:italic">// 存放令牌信息
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>结构体 executorPool 就是 hystrix-go 流量控制的具体实现。字段 Max 就是每秒最大的并发值。</p>
 <p>这里我们只需要关心 Tickets 和 Metrics 即可。</p>
 <ul>
@@ -112,42 +220,42 @@
 <li>Tickets 存放当前的令牌数，只有获取到令牌才能继续执行</li>
 </ul>
 <h4 id="初始化">初始化</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">newExecutorPool</span>(name <span style="color:#8be9fd">string</span>) <span style="color:#ff79c6">*</span>executorPool {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	p <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>executorPool{}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">newExecutorPool</span>(name <span style="color:#458;font-weight:bold">string</span>) <span style="color:#000;font-weight:bold">*</span>executorPool {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	p <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>executorPool{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	p.Name = name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	p.Metrics = <span style="color:#50fa7b">newPoolMetrics</span>(name)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	p.Max = <span style="color:#50fa7b">getSettings</span>(name).MaxConcurrentRequests
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	p.Metrics = <span style="color:#900;font-weight:bold">newPoolMetrics</span>(name)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	p.Max = <span style="color:#900;font-weight:bold">getSettings</span>(name).MaxConcurrentRequests
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#6272a4">// 初始化令牌池
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	p.Tickets = <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#ff79c6">*</span><span style="color:#8be9fd;font-style:italic">struct</span>{}, p.Max)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#ff79c6">for</span> i <span style="color:#ff79c6">:=</span> <span style="color:#bd93f9">0</span>; i &lt; p.Max; i<span style="color:#ff79c6">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		p.Tickets <span style="color:#ff79c6">&lt;-</span> <span style="color:#ff79c6">&amp;</span><span style="color:#8be9fd;font-style:italic">struct</span>{}{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#998;font-style:italic">// 初始化令牌池
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	p.Tickets = <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#000;font-weight:bold">*</span><span style="color:#000;font-weight:bold">struct</span>{}, p.Max)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; p.Max; i<span style="color:#000;font-weight:bold">++</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		p.Tickets <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">&amp;</span><span style="color:#000;font-weight:bold">struct</span>{}{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#ff79c6">return</span> p
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#000;font-weight:bold">return</span> p
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
 </code></pre></div><p>在创建 executorPool 的时候，会根据 Max 值来创建令牌。Max 值如果没有设置会使用默认值 10。</p>
 <h4 id="获取令牌">获取令牌</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#6272a4">// 获取令牌成功
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#998;font-style:italic">// 获取令牌成功
 </span></code></pre></div><p>获取令牌很简单，直接读取 Tickets channel 即可。</p>
 <h4 id="归还令牌">归还令牌</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (p <span style="color:#ff79c6">*</span>executorPool) <span style="color:#50fa7b">Return</span>(ticket <span style="color:#ff79c6">*</span><span style="color:#8be9fd;font-style:italic">struct</span>{}) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">if</span> ticket <span style="color:#ff79c6">==</span> <span style="color:#ff79c6">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#ff79c6">return</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (p <span style="color:#000;font-weight:bold">*</span>executorPool) <span style="color:#900;font-weight:bold">Return</span>(ticket <span style="color:#000;font-weight:bold">*</span><span style="color:#000;font-weight:bold">struct</span>{}) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">if</span> ticket <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#6272a4">// 通知运行池更新统计指标
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	p.Metrics.Updates <span style="color:#ff79c6">&lt;-</span> poolMetricsUpdate{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		activeCount: p.<span style="color:#50fa7b">ActiveCount</span>(),
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#998;font-style:italic">// 通知运行池更新统计指标
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	p.Metrics.Updates <span style="color:#000;font-weight:bold">&lt;-</span> poolMetricsUpdate{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		activeCount: p.<span style="color:#900;font-weight:bold">ActiveCount</span>(),
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#6272a4">// 放回令牌池
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	p.Tickets <span style="color:#ff79c6">&lt;-</span> ticket
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#998;font-style:italic">// 放回令牌池
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	p.Tickets <span style="color:#000;font-weight:bold">&lt;-</span> ticket
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4">// 计算当前的并发数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (p <span style="color:#ff79c6">*</span>executorPool) <span style="color:#50fa7b">ActiveCount</span>() <span style="color:#8be9fd">int</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#ff79c6">return</span> p.Max <span style="color:#ff79c6">-</span> <span style="color:#8be9fd;font-style:italic">len</span>(p.Tickets)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">// 计算当前的并发数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (p <span style="color:#000;font-weight:bold">*</span>executorPool) <span style="color:#900;font-weight:bold">ActiveCount</span>() <span style="color:#458;font-weight:bold">int</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#000;font-weight:bold">return</span> p.Max <span style="color:#000;font-weight:bold">-</span> <span style="color:#0086b3">len</span>(p.Tickets)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>}
 </code></pre></div><p>这里主要有两个操作：</p>
 <ul>
@@ -155,46 +263,46 @@
 <li>归还令牌</li>
 </ul>
 <h4 id="poolmetrics">poolMetrics</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 断路器并发数统计
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">type</span> poolMetrics <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Mutex   <span style="color:#ff79c6">*</span>sync.RWMutex          <span style="color:#6272a4">// 读写锁
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	Updates <span style="color:#8be9fd;font-style:italic">chan</span> poolMetricsUpdate <span style="color:#6272a4">// 指标更新通知
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	Name              <span style="color:#8be9fd">string</span>          <span style="color:#6272a4">// command name
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>	MaxActiveRequests <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计最大请求数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	Executed          <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计当前运行数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#8be9fd;font-style:italic">type</span> poolMetricsUpdate <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	activeCount <span style="color:#8be9fd">int</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 断路器并发数统计
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> poolMetrics <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Mutex   <span style="color:#000;font-weight:bold">*</span>sync.RWMutex          <span style="color:#998;font-style:italic">// 读写锁
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	Updates <span style="color:#000;font-weight:bold">chan</span> poolMetricsUpdate <span style="color:#998;font-style:italic">// 指标更新通知
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	Name              <span style="color:#458;font-weight:bold">string</span>          <span style="color:#998;font-style:italic">// command name
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	MaxActiveRequests <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计最大请求数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	Executed          <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计当前运行数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">type</span> poolMetricsUpdate <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	activeCount <span style="color:#458;font-weight:bold">int</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
 </code></pre></div><p>这里可以看出 MaxActiveRequests 和 Executed 字段都是 *rolling.Number 类型，之前我们也介绍过，用于统计收集过去 10s 内的指标数据。</p>
 <h4 id="newpoolmetrics-初始化">newPoolMetrics 初始化</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">newPoolMetrics</span>(name <span style="color:#8be9fd">string</span>) <span style="color:#ff79c6">*</span>poolMetrics {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	m <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>poolMetrics{}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">newPoolMetrics</span>(name <span style="color:#458;font-weight:bold">string</span>) <span style="color:#000;font-weight:bold">*</span>poolMetrics {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	m <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>poolMetrics{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	m.Name = name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	m.Updates = <span style="color:#8be9fd;font-style:italic">make</span>(<span style="color:#8be9fd;font-style:italic">chan</span> poolMetricsUpdate)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	m.Mutex = <span style="color:#ff79c6">&amp;</span>sync.RWMutex{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	m.Updates = <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> poolMetricsUpdate)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	m.Mutex = <span style="color:#000;font-weight:bold">&amp;</span>sync.RWMutex{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	m.<span style="color:#50fa7b">Reset</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	m.<span style="color:#900;font-weight:bold">Reset</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#ff79c6">go</span> m.<span style="color:#50fa7b">Monitor</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#000;font-weight:bold">go</span> m.<span style="color:#900;font-weight:bold">Monitor</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">return</span> m
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#000;font-weight:bold">return</span> m
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#8be9fd;font-style:italic">func</span> (m <span style="color:#ff79c6">*</span>poolMetrics) <span style="color:#50fa7b">Monitor</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	<span style="color:#ff79c6">for</span> u <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> m.Updates {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		m.Mutex.<span style="color:#50fa7b">RLock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#000;font-weight:bold">func</span> (m <span style="color:#000;font-weight:bold">*</span>poolMetrics) <span style="color:#900;font-weight:bold">Monitor</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	<span style="color:#000;font-weight:bold">for</span> u <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> m.Updates {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		m.Mutex.<span style="color:#900;font-weight:bold">RLock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		m.Executed.<span style="color:#50fa7b">Increment</span>(<span style="color:#bd93f9">1</span>)                               <span style="color:#6272a4">// 递增运行数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>		m.MaxActiveRequests.<span style="color:#50fa7b">UpdateMax</span>(<span style="color:#8be9fd;font-style:italic">float64</span>(u.activeCount)) <span style="color:#6272a4">// 更新最大并发数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		m.Mutex.<span style="color:#50fa7b">RUnlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		m.Executed.<span style="color:#900;font-weight:bold">Increment</span>(<span style="color:#099">1</span>)                               <span style="color:#998;font-style:italic">// 递增运行数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>		m.MaxActiveRequests.<span style="color:#900;font-weight:bold">UpdateMax</span>(<span style="color:#0086b3">float64</span>(u.activeCount)) <span style="color:#998;font-style:italic">// 更新最大并发数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		m.Mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
 </code></pre></div><p>newPoolMetrics 中除了初始化 poolMetrics 结构体外，还通过 <code>go m.Monitor()</code> 来开启协程来监听上报的信息，然后分别做汇总收集：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>m.Executed.<span style="color:#50fa7b">Increment</span>(<span style="color:#bd93f9">1</span>)                               <span style="color:#6272a4">// 递增运行数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>m.MaxActiveRequests.<span style="color:#50fa7b">UpdateMax</span>(<span style="color:#8be9fd;font-style:italic">float64</span>(u.activeCount)) <span style="color:#6272a4">// 更新最大并发数
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>m.Executed.<span style="color:#900;font-weight:bold">Increment</span>(<span style="color:#099">1</span>)                               <span style="color:#998;font-style:italic">// 递增运行数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>m.MaxActiveRequests.<span style="color:#900;font-weight:bold">UpdateMax</span>(<span style="color:#0086b3">float64</span>(u.activeCount)) <span style="color:#998;font-style:italic">// 更新最大并发数
 </span></code></pre></div><h3 id="参考">参考</h3>
 <p><a href="https://github.com/afex/hystrix-go">https://github.com/afex/hystrix-go</a></p>
 <p><a href="https://www.cnblogs.com/li-peng/p/11050563.html">雪崩利器 hystrix-go 源码分析</a></p>
@@ -228,11 +336,11 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
+                <li><a href='/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8'>熔断器</a></li>
+                <li><a href='/tags/%E7%86%94%E6%96%AD%E5%99%A8'>熔断器</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/hystrix-go'>hystrix-go</a></li>
+                <li><a href='/tags/hystrix-go'>hystrix-go</a></li>
                 
             </ul>
             
@@ -245,7 +353,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -254,6 +362,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -317,7 +477,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -348,7 +508,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -463,49 +623,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

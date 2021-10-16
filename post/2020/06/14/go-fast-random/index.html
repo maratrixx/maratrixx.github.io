@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>如何借助Go指令生成随机数 | MARATRIX BLOG</title>
     <meta property="og:title" content="如何借助Go指令生成随机数 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2020/06/14/go-fast-random/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,110 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#uint32方法">Uint32方法</a></li>
+        <li><a href="#uint32n方法">Uint32n方法</a></li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">如何借助Go指令生成随机数</h1>
@@ -81,7 +190,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
             
         </div>
         
@@ -97,78 +206,78 @@
 <p>Go 运行时自带了 <code>runtime.fastrand</code> 函数来生成随机数，并且在标准库实现和运行时大量使用该函数。由于该函数为非导出，所以不能直接使用，这里就要借助<a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/">上篇博客介绍过的黑科技//go:指令</a>来实现了。</p>
 <h3 id="uint32方法">Uint32方法</h3>
 <p>首先我们创建文件 randx.go：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">package</span> randx
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">package</span> randx
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">import</span> _ <span style="color:#f1fa8c">&#34;unsafe&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#000;font-weight:bold">import</span> _ <span style="color:#d14">&#34;unsafe&#34;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4">//go:linkname Uint32 runtime.fastrand
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Uint32</span>() <span style="color:#8be9fd">uint32</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic">//go:linkname Uint32 runtime.fastrand
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Uint32</span>() <span style="color:#458;font-weight:bold">uint32</span>
 </code></pre></div><p>这里我们使用了 <code>//go:linkname</code> 指令来使用 <code>runtime.fastrand</code>。对，就这么简单。</p>
 <p>当然也要跑个 benchmark 比较下性能，创建 randx_test.go：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#ff79c6">package</span> randx
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">package</span> randx
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#ff79c6">import</span> (
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#f1fa8c">&#34;fmt&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#f1fa8c">&#34;math/rand&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#f1fa8c">&#34;testing&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">import</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#d14">&#34;fmt&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#d14">&#34;math/rand&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#d14">&#34;testing&#34;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#f1fa8c">&#34;github.com/valyala/fastrand&#34;</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#d14">&#34;github.com/valyala/fastrand&#34;</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkMathRandUint32</span>(b <span style="color:#ff79c6">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	b.<span style="color:#50fa7b">RunParallel</span>(<span style="color:#8be9fd;font-style:italic">func</span>(p <span style="color:#ff79c6">*</span>testing.PB) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		<span style="color:#ff79c6">for</span> p.<span style="color:#50fa7b">Next</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>			_ = rand.<span style="color:#50fa7b">Uint32</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkMathRandUint32</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	b.<span style="color:#900;font-weight:bold">RunParallel</span>(<span style="color:#000;font-weight:bold">func</span>(p <span style="color:#000;font-weight:bold">*</span>testing.PB) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		<span style="color:#000;font-weight:bold">for</span> p.<span style="color:#900;font-weight:bold">Next</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>			_ = rand.<span style="color:#900;font-weight:bold">Uint32</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkValyalaFastrandUint32</span>(b <span style="color:#ff79c6">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	b.<span style="color:#50fa7b">RunParallel</span>(<span style="color:#8be9fd;font-style:italic">func</span>(p <span style="color:#ff79c6">*</span>testing.PB) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		<span style="color:#ff79c6">for</span> p.<span style="color:#50fa7b">Next</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>			_ = fastrand.<span style="color:#50fa7b">Uint32</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkValyalaFastrandUint32</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	b.<span style="color:#900;font-weight:bold">RunParallel</span>(<span style="color:#000;font-weight:bold">func</span>(p <span style="color:#000;font-weight:bold">*</span>testing.PB) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		<span style="color:#000;font-weight:bold">for</span> p.<span style="color:#900;font-weight:bold">Next</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>			_ = fastrand.<span style="color:#900;font-weight:bold">Uint32</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">BenchmarkRandxUint32</span>(b <span style="color:#ff79c6">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>	b.<span style="color:#50fa7b">RunParallel</span>(<span style="color:#8be9fd;font-style:italic">func</span>(p <span style="color:#ff79c6">*</span>testing.PB) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		<span style="color:#ff79c6">for</span> p.<span style="color:#50fa7b">Next</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>			_ = <span style="color:#50fa7b">Uint32</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkRandxUint32</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>	b.<span style="color:#900;font-weight:bold">RunParallel</span>(<span style="color:#000;font-weight:bold">func</span>(p <span style="color:#000;font-weight:bold">*</span>testing.PB) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		<span style="color:#000;font-weight:bold">for</span> p.<span style="color:#900;font-weight:bold">Next</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>			_ = <span style="color:#900;font-weight:bold">Uint32</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>		}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span><span style="color:#ff79c6">go</span> test <span style="color:#ff79c6">-</span>benchmem <span style="color:#ff79c6">-</span>run=^$ examples<span style="color:#ff79c6">/</span>randx <span style="color:#ff79c6">-</span>bench ^(BenchmarkMathRandUint32|BenchmarkValyalaFastrandUint32|BenchmarkRandxUint32)$ <span style="color:#ff79c6">-</span>v <span style="color:#ff79c6">-</span>count=<span style="color:#bd93f9">3</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span><span style="color:#000;font-weight:bold">go</span> test <span style="color:#000;font-weight:bold">-</span>benchmem <span style="color:#000;font-weight:bold">-</span>run=^<span style="color:#a61717;background-color:#e3d2d2">$</span> examples<span style="color:#000;font-weight:bold">/</span>randx <span style="color:#000;font-weight:bold">-</span>bench ^(BenchmarkMathRandUint32|BenchmarkValyalaFastrandUint32|BenchmarkRandxUint32)<span style="color:#a61717;background-color:#e3d2d2">$</span> <span style="color:#000;font-weight:bold">-</span>v <span style="color:#000;font-weight:bold">-</span>count=<span style="color:#099">3</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>goos: darwin
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>goarch: amd64
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>pkg: examples<span style="color:#ff79c6">/</span>randx
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>pkg: examples<span style="color:#000;font-weight:bold">/</span>randx
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>BenchmarkMathRandUint32
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>BenchmarkMathRandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>          	<span style="color:#bd93f9">12069022</span>	        <span style="color:#bd93f9">99.4</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>BenchmarkMathRandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>          	<span style="color:#bd93f9">16135767</span>	       <span style="color:#bd93f9">102</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>BenchmarkMathRandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>          	<span style="color:#bd93f9">15315223</span>	        <span style="color:#bd93f9">79.9</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>BenchmarkMathRandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>          	<span style="color:#099">12069022</span>	        <span style="color:#099">99.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>BenchmarkMathRandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>          	<span style="color:#099">16135767</span>	       <span style="color:#099">102</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>BenchmarkMathRandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>          	<span style="color:#099">15315223</span>	        <span style="color:#099">79.9</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span>BenchmarkValyalaFastrandUint32
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>BenchmarkValyalaFastrandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>   	<span style="color:#bd93f9">89770212</span>	        <span style="color:#bd93f9">15.9</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>BenchmarkValyalaFastrandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>   	<span style="color:#bd93f9">96881473</span>	        <span style="color:#bd93f9">13.3</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>BenchmarkValyalaFastrandUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>   	<span style="color:#bd93f9">74856798</span>	        <span style="color:#bd93f9">20.4</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>BenchmarkValyalaFastrandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>   	<span style="color:#099">89770212</span>	        <span style="color:#099">15.9</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>BenchmarkValyalaFastrandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>   	<span style="color:#099">96881473</span>	        <span style="color:#099">13.3</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>BenchmarkValyalaFastrandUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>   	<span style="color:#099">74856798</span>	        <span style="color:#099">20.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48</span>BenchmarkRandxUint32
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span>BenchmarkRandxUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>             	<span style="color:#bd93f9">543834252</span>	         <span style="color:#bd93f9">1.85</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span>BenchmarkRandxUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>             	<span style="color:#bd93f9">670786326</span>	         <span style="color:#bd93f9">2.26</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span>BenchmarkRandxUint32<span style="color:#ff79c6">-</span><span style="color:#bd93f9">4</span>             	<span style="color:#bd93f9">682215212</span>	         <span style="color:#bd93f9">2.23</span> ns<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> B<span style="color:#ff79c6">/</span>op	       <span style="color:#bd93f9">0</span> allocs<span style="color:#ff79c6">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span>BenchmarkRandxUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>             	<span style="color:#099">543834252</span>	         <span style="color:#099">1.85</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span>BenchmarkRandxUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>             	<span style="color:#099">670786326</span>	         <span style="color:#099">2.26</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span>BenchmarkRandxUint32<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>             	<span style="color:#099">682215212</span>	         <span style="color:#099">2.23</span> ns<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52</span>PASS
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53</span>ok  	examples<span style="color:#ff79c6">/</span>randx	<span style="color:#bd93f9">15.871</span>s
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53</span>ok  	examples<span style="color:#000;font-weight:bold">/</span>randx	<span style="color:#099">15.871</span>s
 </code></pre></div><p>通过压测结果对比，可以明显看出<code>runtime.fastrand</code>的性能是碾压式的。</p>
 <p>关于<code>runtime.fastrand</code>的源码实现，感兴趣的朋友可以继续研究下，<a href="https://github.com/golang/go/blob/bd486c39bad4c9f90190ae58de8a592bb9a2aae9/src/runtime/stubs.go#L109">源码地址戳这</a>。</p>
 <h3 id="uint32n方法">Uint32n方法</h3>
 <p>和 <code>Uint32</code> 实现方式类似：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#6272a4">//go:linkname Uint32n runtime.fastrandn
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">Uint32n</span>(max <span style="color:#8be9fd">uint32</span>) <span style="color:#8be9fd">uint32</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">//go:linkname Uint32n runtime.fastrandn
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Uint32n</span>(max <span style="color:#458;font-weight:bold">uint32</span>) <span style="color:#458;font-weight:bold">uint32</span>
 </code></pre></div><p>看下 <code>runtime.fastrandn</code> 源码实现：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">fastrandn</span>(n <span style="color:#8be9fd">uint32</span>) <span style="color:#8be9fd">uint32</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#6272a4">// 类似于fastrand() % n, 但是更快
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	<span style="color:#6272a4">// 参考连接：https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">uint32</span>(<span style="color:#8be9fd;font-style:italic">uint64</span>(<span style="color:#50fa7b">fastrand</span>()) <span style="color:#ff79c6">*</span> <span style="color:#8be9fd;font-style:italic">uint64</span>(n) <span style="color:#ff79c6">&gt;&gt;</span> <span style="color:#bd93f9">32</span>)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">fastrandn</span>(n <span style="color:#458;font-weight:bold">uint32</span>) <span style="color:#458;font-weight:bold">uint32</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#998;font-style:italic">// 类似于fastrand() % n, 但是更快
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 参考连接：https://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">uint32</span>(<span style="color:#0086b3">uint64</span>(<span style="color:#900;font-weight:bold">fastrand</span>()) <span style="color:#000;font-weight:bold">*</span> <span style="color:#0086b3">uint64</span>(n) <span style="color:#000;font-weight:bold">&gt;&gt;</span> <span style="color:#099">32</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
 </code></pre></div><h3 id="小结">小结</h3>
 <p>通过借助 <code>//go:</code>指令来使用 <code>runtime</code> 库自带的非导出方法，从而实现超高性能的随机数生成器。</p>
@@ -204,9 +313,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                <li><a href='/tags/go'>go</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4'>go指令</a></li>
+                <li><a href='/tags/go%E6%8C%87%E4%BB%A4'>go指令</a></li>
                 
             </ul>
             
@@ -219,7 +328,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -228,6 +337,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -291,7 +452,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -322,7 +483,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -437,49 +598,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

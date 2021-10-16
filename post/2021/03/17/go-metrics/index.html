@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Prometheus学习笔记|03.四大度量指标了解与应用 | MARATRIX BLOG</title>
     <meta property="og:title" content="Prometheus学习笔记|03.四大度量指标了解与应用 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2021/03/17/go-metrics/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,114 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#什么是度量指标">什么是度量指标</a></li>
+        <li><a href="#prometheus-的指标格式">Prometheus 的指标格式</a></li>
+        <li><a href="#counter只增不减的计数器">Counter：只增不减的计数器</a></li>
+        <li><a href="#gauge可增可减的仪表盘">Gauge：可增可减的仪表盘</a></li>
+        <li><a href="#使用histogram和summary分析数据分布情况">使用Histogram和Summary分析数据分布情况</a></li>
+        <li><a href="#timer计时器">Timer（计时器）</a></li>
+        <li><a href="#小结">小结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Prometheus学习笔记|03.四大度量指标了解与应用</h1>
@@ -81,7 +194,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Prometheus'>Prometheus</a></span>
+            <span class="meta-category"><a href='/categories/Prometheus'>Prometheus</a></span>
             
         </div>
         
@@ -101,90 +214,90 @@
 <h3 id="prometheus-的指标格式">Prometheus 的指标格式</h3>
 <p>为了能够帮助用户理解和区分这些不同监控指标之间的差异，Prometheus 定义了 4 种不同的度量指标类型(metric type)：Counter（计数器）、Gauge（仪表盘）、Histogram（直方图）、Summary（摘要）。
 在 Exporter 返回的样本数据中，其注释中也包含了该样本的类型。例如：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP node_cpu Seconds the cpus spent in each mode.
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP node_cpu Seconds the cpus spent in each mode.
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span># TYPE node_cpu counter
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>node_cpu{cpu=&#34;cpu0&#34;,mode=&#34;idle&#34;} 362812.7890625
 </code></pre></div><p>在 Prometheus 中，我们的指标表示格式如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>&lt;metric name&gt;{&lt;label name&gt;=&lt;label value&gt;, ...}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>&lt;metric name&gt;{&lt;label name&gt;=&lt;label value&gt;, ...}
 </code></pre></div><p>主体为指标名称和标签组成：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>api_http_requests_total{method=&#34;GET&#34;, handler=&#34;/user/info&#34;}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>api_http_requests_total{method=&#34;GET&#34;, handler=&#34;/user/info&#34;}
 </code></pre></div><h3 id="counter只增不减的计数器">Counter：只增不减的计数器</h3>
 <p>Counter 类型的指标其工作方式和计数器一样，只增不减（除非系统发生重置）。常见的监控指标，如 http_requests_total，node_cpu 都是 Counter 类型的监控指标。 一般在定义 Counter 类型指标的名称时推荐使用 _total 作为后缀。</p>
 <p>Counter 是一个简单但有强大的工具，例如我们可以在应用程序中记录某些事件发生的次数，通过以时序的形式存储这些数据，我们可以轻松的了解该事件产生速率的变化。 PromQL 内置的聚合操作和函数可以让用户对这些数据进行进一步的分析。</p>
 <p>例如，通过 rate() 函数获取HTTP请求量的增长率：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rate(http_requests_total[5m])
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rate(http_requests_total[5m])
 </code></pre></div><p>查询当前系统中，访问量前 10 的 HTTP 地址：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>topk(10, http_requests_total)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>topk(10, http_requests_total)
 </code></pre></div><p>Counter 类型一共包含两个常规方法，如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Inc()     // 将计数器递增 1。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Inc()     // 将计数器递增 1。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>Add(float64)    // 将给定值添加到计数器，如果设置的值 &lt; 0，则发生错误。
 </code></pre></div><h4 id="示例">示例：</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> AccessCounter = prometheus.<span style="color:#50fa7b">NewCounterVec</span>(
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> AccessCounter = prometheus.<span style="color:#900;font-weight:bold">NewCounterVec</span>(
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    prometheus.CounterOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name: <span style="color:#f1fa8c">&#34;api_requests_total&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name: <span style="color:#d14">&#34;api_requests_total&#34;</span>,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    },
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    []<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;method&#34;</span>, <span style="color:#f1fa8c">&#34;path&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;method&#34;</span>, <span style="color:#d14">&#34;path&#34;</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">init</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    prometheus.<span style="color:#50fa7b">MustRegister</span>(AccessCounter)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">init</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    prometheus.<span style="color:#900;font-weight:bold">MustRegister</span>(AccessCounter)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#6272a4">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/counter&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(c <span style="color:#ff79c6">*</span>gin.Context) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        purl, _ <span style="color:#ff79c6">:=</span> url.<span style="color:#50fa7b">Parse</span>(c.Request.RequestURI)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        AccessCounter.<span style="color:#50fa7b">With</span>(prometheus.Labels{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>            <span style="color:#f1fa8c">&#34;method&#34;</span>: c.Request.Method,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>            <span style="color:#f1fa8c">&#34;path&#34;</span>:   purl.Path,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>        }).<span style="color:#50fa7b">Add</span>(<span style="color:#bd93f9">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#998;font-style:italic">// ...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/counter&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(c <span style="color:#000;font-weight:bold">*</span>gin.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        purl, _ <span style="color:#000;font-weight:bold">:=</span> url.<span style="color:#900;font-weight:bold">Parse</span>(c.Request.RequestURI)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        AccessCounter.<span style="color:#900;font-weight:bold">With</span>(prometheus.Labels{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>            <span style="color:#d14">&#34;method&#34;</span>: c.Request.Method,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>            <span style="color:#d14">&#34;path&#34;</span>:   purl.Path,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>        }).<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#099">1</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/metrics&#34;</span>, gin.<span style="color:#50fa7b">WrapH</span>(promhttp.<span style="color:#50fa7b">Handler</span>()))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    engine.<span style="color:#50fa7b">Run</span>(<span style="color:#f1fa8c">&#34;:10001&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/metrics&#34;</span>, gin.<span style="color:#900;font-weight:bold">WrapH</span>(promhttp.<span style="color:#900;font-weight:bold">Handler</span>()))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    engine.<span style="color:#900;font-weight:bold">Run</span>(<span style="color:#d14">&#34;:10001&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
 </code></pre></div><p>这时候我们访问 http://127.0.0.1:10001/counter，就可以发现 metrics +1：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP api_requests_total 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP api_requests_total 
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span># TYPE api_requests_total counter
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>api_requests_total{method=&#34;GET&#34;,path=&#34;/counter&#34;} 1
 </code></pre></div><h3 id="gauge可增可减的仪表盘">Gauge：可增可减的仪表盘</h3>
 <p>与 Counter 不同，Gauge 类型的指标侧重于反应系统的当前状态。因此这类指标的样本数据可增可减。常见指标如：node_memory_MemFree（主机当前空闲的内容大小）、node_memory_MemAvailable（可用内存大小）都是 Gauge 类型的监控指标。</p>
 <p>通过 Gauge 指标，用户可以直接查看系统的当前状态：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>node_memory_MemFree
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>node_memory_MemFree
 </code></pre></div><p>对于 Gauge 类型的监控指标，通过 PromQL 内置函数 delta() 可以获取样本在一段时间返回内的变化情况。例如，计算 CPU 温度在两个小时内的差异：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>delta(cpu_temp_celsius{host=&#34;zeus&#34;}[2h])
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>delta(cpu_temp_celsius{host=&#34;zeus&#34;}[2h])
 </code></pre></div><p>还可以使用 deriv() 计算样本的线性回归模型，甚至是直接使用 predict_linear() 对数据的变化趋势进行预测。例如，预测系统磁盘空间在 4 个小时之后的剩余情况：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>predict_linear(node_filesystem_free{job=&#34;node&#34;}[1h], 4 * 3600)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>predict_linear(node_filesystem_free{job=&#34;node&#34;}[1h], 4 * 3600)
 </code></pre></div><p>Gauge 类型一共包含六个常规方法，如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">Set</span>(<span style="color:#8be9fd">float64</span>)	<span style="color:#6272a4">// 将仪表设置为任意值。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#50fa7b">Inc</span>()	<span style="color:#6272a4">// 将仪表增加 1。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span><span style="color:#50fa7b">Dec</span>()	<span style="color:#6272a4">// 将仪表减少 1。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span><span style="color:#50fa7b">Add</span>(<span style="color:#8be9fd">float64</span>)	<span style="color:#6272a4">// 将给定值添加到仪表，该值如果为负数，那么将导致仪表值减少。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span><span style="color:#50fa7b">Sub</span>(<span style="color:#8be9fd">float64</span>)	<span style="color:#6272a4">// 从仪表中减去给定值，该值如果为负数，那么将导致仪表值增加。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span><span style="color:#50fa7b">SetToCurrentTime</span>()	<span style="color:#6272a4">// 将仪表设置为当前 Unix 时间（以秒为单位）。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#900;font-weight:bold">Set</span>(<span style="color:#458;font-weight:bold">float64</span>)	<span style="color:#998;font-style:italic">// 将仪表设置为任意值。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">Inc</span>()	<span style="color:#998;font-style:italic">// 将仪表增加 1。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">Dec</span>()	<span style="color:#998;font-style:italic">// 将仪表减少 1。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">Add</span>(<span style="color:#458;font-weight:bold">float64</span>)	<span style="color:#998;font-style:italic">// 将给定值添加到仪表，该值如果为负数，那么将导致仪表值减少。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">Sub</span>(<span style="color:#458;font-weight:bold">float64</span>)	<span style="color:#998;font-style:italic">// 从仪表中减去给定值，该值如果为负数，那么将导致仪表值增加。
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">SetToCurrentTime</span>()	<span style="color:#998;font-style:italic">// 将仪表设置为当前 Unix 时间（以秒为单位）。
 </span></code></pre></div><h4 id="示例-1">示例：</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> QueueGauge = prometheus.<span style="color:#50fa7b">NewGaugeVec</span>(
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> QueueGauge = prometheus.<span style="color:#900;font-weight:bold">NewGaugeVec</span>(
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    prometheus.GaugeOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name: <span style="color:#f1fa8c">&#34;queue_num_total&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name: <span style="color:#d14">&#34;queue_num_total&#34;</span>,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    },
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	[]<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;name&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	[]<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;name&#34;</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">init</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    prometheus.<span style="color:#50fa7b">MustRegister</span>(AccessCounter)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">init</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    prometheus.<span style="color:#900;font-weight:bold">MustRegister</span>(AccessCounter)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#6272a4">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/queue&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(c <span style="color:#ff79c6">*</span>gin.Context) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        num <span style="color:#ff79c6">:=</span> c.<span style="color:#50fa7b">Query</span>(<span style="color:#f1fa8c">&#34;num&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        fnum, _ <span style="color:#ff79c6">:=</span> strconv.<span style="color:#50fa7b">ParseFloat</span>(num, <span style="color:#bd93f9">32</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        QueueGauge.<span style="color:#50fa7b">With</span>(prometheus.Labels{<span style="color:#f1fa8c">&#34;name&#34;</span>: <span style="color:#f1fa8c">&#34;queue&#34;</span>}).<span style="color:#50fa7b">Set</span>(fnum)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#998;font-style:italic">// ...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/queue&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(c <span style="color:#000;font-weight:bold">*</span>gin.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        num <span style="color:#000;font-weight:bold">:=</span> c.<span style="color:#900;font-weight:bold">Query</span>(<span style="color:#d14">&#34;num&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        fnum, _ <span style="color:#000;font-weight:bold">:=</span> strconv.<span style="color:#900;font-weight:bold">ParseFloat</span>(num, <span style="color:#099">32</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        QueueGauge.<span style="color:#900;font-weight:bold">With</span>(prometheus.Labels{<span style="color:#d14">&#34;name&#34;</span>: <span style="color:#d14">&#34;queue&#34;</span>}).<span style="color:#900;font-weight:bold">Set</span>(fnum)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/metrics&#34;</span>, gin.<span style="color:#50fa7b">WrapH</span>(promhttp.<span style="color:#50fa7b">Handler</span>()))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#50fa7b">Run</span>(<span style="color:#f1fa8c">&#34;:10001&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/metrics&#34;</span>, gin.<span style="color:#900;font-weight:bold">WrapH</span>(promhttp.<span style="color:#900;font-weight:bold">Handler</span>()))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#900;font-weight:bold">Run</span>(<span style="color:#d14">&#34;:10001&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
 </code></pre></div><p>访问 http://127.0.0.1:10001/queue?num=5 后，再查看 metrics 结果：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP queue_num_total 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP queue_num_total 
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span># TYPE queue_num_total gauge
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>queue_num_total{name=&#34;queue&#34;} 5
 </code></pre></div><h3 id="使用histogram和summary分析数据分布情况">使用Histogram和Summary分析数据分布情况</h3>
@@ -192,33 +305,33 @@
 <p>Histogram 类型将会在一段时间范围内对数据进行采样（通常是请求持续时间或响应大小等等），并将其计入可配置的存储桶（bucket）中，后续可通过指定区间筛选样本，也可以统计样本总数。</p>
 <p>简单来讲，也就是在配置 Histogram 类型时，我们会设置分组区间，例如要分析请求的响应时间，我们可以分为 0-100ms，100-500ms，500-1000ms 等等区间段，那么在 metrics 的上报接口中，将会分为多个维度显示统计情况。</p>
 <p>Histogram 类型一共包含一个常规方法，如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">Observe</span>(<span style="color:#8be9fd">float64</span>)	<span style="color:#6272a4">// 将一个观察值添加到直方图。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#900;font-weight:bold">Observe</span>(<span style="color:#458;font-weight:bold">float64</span>)	<span style="color:#998;font-style:italic">// 将一个观察值添加到直方图。
 </span></code></pre></div><h5 id="示例-2">示例：</h5>
 <p>Histogram 类型在应用场景中非常的常用，因为其代表的就是分组区间的统计，而在分布式场景盛行的现在，链路追踪系统是必不可少的，那么针对不同的链路的分析统计就非常的有必要，例如像是对 RPC、SQL、HTTP、Redis 的 P90、P95、P99 进行计算统计，并且更进一步的做告警，就能够及时的发现应用链路缓慢，进而发现和减少第三方系统的影响。</p>
 <p>我们模仿记录 HTTP 调用响应时间的应用场景：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> HttpDurationsHistogram = prometheus.<span style="color:#50fa7b">NewHistogramVec</span>(
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> HttpDurationsHistogram = prometheus.<span style="color:#900;font-weight:bold">NewHistogramVec</span>(
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    prometheus.HistogramOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name:    <span style="color:#f1fa8c">&#34;http_durations_histogram_seconds&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        Buckets: []<span style="color:#8be9fd">float64</span>{<span style="color:#bd93f9">0.2</span>, <span style="color:#bd93f9">0.5</span>, <span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">5</span>, <span style="color:#bd93f9">10</span>, <span style="color:#bd93f9">30</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name:    <span style="color:#d14">&#34;http_durations_histogram_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        Buckets: []<span style="color:#458;font-weight:bold">float64</span>{<span style="color:#099">0.2</span>, <span style="color:#099">0.5</span>, <span style="color:#099">1</span>, <span style="color:#099">2</span>, <span style="color:#099">5</span>, <span style="color:#099">10</span>, <span style="color:#099">30</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    },
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    []<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;path&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;path&#34;</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">init</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    prometheus.<span style="color:#50fa7b">MustRegister</span>(HttpDurationsHistogram)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">init</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    prometheus.<span style="color:#900;font-weight:bold">MustRegister</span>(HttpDurationsHistogram)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	<span style="color:#6272a4">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/histogram&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(c <span style="color:#ff79c6">*</span>gin.Context) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        purl, _ <span style="color:#ff79c6">:=</span> url.<span style="color:#50fa7b">Parse</span>(c.Request.RequestURI)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        HttpDurationsHistogram.<span style="color:#50fa7b">With</span>(prometheus.Labels{<span style="color:#f1fa8c">&#34;path&#34;</span>: purl.Path}).<span style="color:#50fa7b">Observe</span>(<span style="color:#8be9fd;font-style:italic">float64</span>(rand.<span style="color:#50fa7b">Intn</span>(<span style="color:#bd93f9">30</span>)))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	<span style="color:#998;font-style:italic">// ...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/histogram&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(c <span style="color:#000;font-weight:bold">*</span>gin.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        purl, _ <span style="color:#000;font-weight:bold">:=</span> url.<span style="color:#900;font-weight:bold">Parse</span>(c.Request.RequestURI)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        HttpDurationsHistogram.<span style="color:#900;font-weight:bold">With</span>(prometheus.Labels{<span style="color:#d14">&#34;path&#34;</span>: purl.Path}).<span style="color:#900;font-weight:bold">Observe</span>(<span style="color:#0086b3">float64</span>(rand.<span style="color:#900;font-weight:bold">Intn</span>(<span style="color:#099">30</span>)))
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/metrics&#34;</span>, gin.<span style="color:#50fa7b">WrapH</span>(promhttp.<span style="color:#50fa7b">Handler</span>()))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#50fa7b">Run</span>(<span style="color:#f1fa8c">&#34;:10001&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/metrics&#34;</span>, gin.<span style="color:#900;font-weight:bold">WrapH</span>(promhttp.<span style="color:#900;font-weight:bold">Handler</span>()))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#900;font-weight:bold">Run</span>(<span style="color:#d14">&#34;:10001&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
 </code></pre></div><p>多次调用 http://127.0.0.1:10001/histogram，查看 metrics：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span># HELP http_durations_histogram_seconds 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span># HELP http_durations_histogram_seconds 
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span># TYPE http_durations_histogram_seconds histogram
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>http_durations_histogram_seconds_bucket{path=&#34;/histogram&#34;,le=&#34;0.2&#34;} 1
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>http_durations_histogram_seconds_bucket{path=&#34;/histogram&#34;,le=&#34;0.5&#34;} 1
@@ -231,7 +344,7 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>http_durations_histogram_seconds_sum{path=&#34;/histogram&#34;} 191
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>http_durations_histogram_seconds_count{path=&#34;/histogram&#34;} 13
 </code></pre></div><p>我们结合 histogram metrics 的结果来看，可以发现其分为了三个部分：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>http_durations_histogram_seconds_bucket：在 Buckets 中你可以发现一共包含 8 个值，分别代表：0-0.2s、0.2-0.5s、0.5-1s、1-2s、2-5s、5-10s、10-30s 以及大于 30s（+Inf），这是我们在 HistogramOpts.Buckets 中所定义的区间值。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>http_durations_histogram_seconds_bucket：在 Buckets 中你可以发现一共包含 8 个值，分别代表：0-0.2s、0.2-0.5s、0.5-1s、1-2s、2-5s、5-10s、10-30s 以及大于 30s（+Inf），这是我们在 HistogramOpts.Buckets 中所定义的区间值。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>http_durations_histogram_seconds_sum：调用的总耗时。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>http_durations_histogram_seconds_count：调用总次数。
 </code></pre></div><p>Histogram 是一个比较精巧类型，首先 Buckets 的分布区间要根据你的实际应用情况，合理的设置，否则就会出现不均，自然而然 PXX（P95、P99 等）计算也就会有问题，同时在 Grafana 上的绘图也会出现偏差，因此需要在理论上多多理解，然后再进行具体的设置，否则后期改来改去会比较麻烦。</p>
@@ -245,31 +358,31 @@
 <li>样本总数。</li>
 </ul>
 <p>Summary 类型一共包含一个常规方法，如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#50fa7b">Observe</span>(<span style="color:#8be9fd">float64</span>)	<span style="color:#6272a4">// 将一个观察值添加到摘要。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#900;font-weight:bold">Observe</span>(<span style="color:#458;font-weight:bold">float64</span>)	<span style="color:#998;font-style:italic">// 将一个观察值添加到摘要。
 </span></code></pre></div><h5 id="示例-3">示例：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> HttpDurations = prometheus.<span style="color:#50fa7b">NewSummaryVec</span>(
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> HttpDurations = prometheus.<span style="color:#900;font-weight:bold">NewSummaryVec</span>(
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    prometheus.SummaryOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name:       <span style="color:#f1fa8c">&#34;http_durations_seconds&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        Objectives: <span style="color:#8be9fd;font-style:italic">map</span>[<span style="color:#8be9fd">float64</span>]<span style="color:#8be9fd">float64</span>{<span style="color:#bd93f9">0.5</span>: <span style="color:#bd93f9">0.05</span>, <span style="color:#bd93f9">0.9</span>: <span style="color:#bd93f9">0.01</span>, <span style="color:#bd93f9">0.99</span>: <span style="color:#bd93f9">0.001</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>        Name:       <span style="color:#d14">&#34;http_durations_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        Objectives: <span style="color:#000;font-weight:bold">map</span>[<span style="color:#458;font-weight:bold">float64</span>]<span style="color:#458;font-weight:bold">float64</span>{<span style="color:#099">0.5</span>: <span style="color:#099">0.05</span>, <span style="color:#099">0.9</span>: <span style="color:#099">0.01</span>, <span style="color:#099">0.99</span>: <span style="color:#099">0.001</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    },
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    []<span style="color:#8be9fd">string</span>{<span style="color:#f1fa8c">&#34;path&#34;</span>},
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;path&#34;</span>},
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">init</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    prometheus.<span style="color:#50fa7b">MustRegister</span>(HttpDurations)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">init</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    prometheus.<span style="color:#900;font-weight:bold">MustRegister</span>(HttpDurations)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    <span style="color:#6272a4">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/summary&#34;</span>, <span style="color:#8be9fd;font-style:italic">func</span>(c <span style="color:#ff79c6">*</span>gin.Context) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        purl, _ <span style="color:#ff79c6">:=</span> url.<span style="color:#50fa7b">Parse</span>(c.Request.RequestURI)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        HttpDurations.<span style="color:#50fa7b">With</span>(prometheus.Labels{<span style="color:#f1fa8c">&#34;path&#34;</span>: purl.Path}).<span style="color:#50fa7b">Observe</span>(<span style="color:#8be9fd;font-style:italic">float64</span>(rand.<span style="color:#50fa7b">Intn</span>(<span style="color:#bd93f9">30</span>)))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    <span style="color:#998;font-style:italic">// ...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/summary&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(c <span style="color:#000;font-weight:bold">*</span>gin.Context) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        purl, _ <span style="color:#000;font-weight:bold">:=</span> url.<span style="color:#900;font-weight:bold">Parse</span>(c.Request.RequestURI)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>        HttpDurations.<span style="color:#900;font-weight:bold">With</span>(prometheus.Labels{<span style="color:#d14">&#34;path&#34;</span>: purl.Path}).<span style="color:#900;font-weight:bold">Observe</span>(<span style="color:#0086b3">float64</span>(rand.<span style="color:#900;font-weight:bold">Intn</span>(<span style="color:#099">30</span>)))
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#50fa7b">GET</span>(<span style="color:#f1fa8c">&#34;/metrics&#34;</span>, gin.<span style="color:#50fa7b">WrapH</span>(promhttp.<span style="color:#50fa7b">Handler</span>()))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#50fa7b">Run</span>(<span style="color:#f1fa8c">&#34;:10001&#34;</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    engine.<span style="color:#900;font-weight:bold">GET</span>(<span style="color:#d14">&#34;/metrics&#34;</span>, gin.<span style="color:#900;font-weight:bold">WrapH</span>(promhttp.<span style="color:#900;font-weight:bold">Handler</span>()))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    engine.<span style="color:#900;font-weight:bold">Run</span>(<span style="color:#d14">&#34;:10001&#34;</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
 </code></pre></div><p>多次调用 http://127.0.0.1:10001/summary，查看 metrics：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP http_durations_seconds 
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP http_durations_seconds 
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span># TYPE http_durations_seconds summary
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>http_durations_seconds{path=&#34;/summary&#34;,quantile=&#34;0.5&#34;} 17
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>http_durations_seconds{path=&#34;/summary&#34;,quantile=&#34;0.9&#34;} 29
@@ -277,43 +390,43 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>http_durations_seconds_sum{path=&#34;/summary&#34;} 85
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>http_durations_seconds_count{path=&#34;/summary&#34;} 5
 </code></pre></div><p>结合 summary metrics 来看，同样分为了三个部分：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>http_durations_seconds：分别是中位数（0.5），9 分位数（0.9）以及 99 分位数（0.99），对应 SummaryOpts.Objectives 中我们所定义的中位数，而各自的意义代表着中位数（0.5）的耗时为 17s，9 分位数为 29s，99 分位数为 29s。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>http_durations_seconds：分别是中位数（0.5），9 分位数（0.9）以及 99 分位数（0.99），对应 SummaryOpts.Objectives 中我们所定义的中位数，而各自的意义代表着中位数（0.5）的耗时为 17s，9 分位数为 29s，99 分位数为 29s。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>http_durations_seconds_sum：调用总耗时。
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>http_durations_seconds_count：调用总次数。
 </code></pre></div><h3 id="timer计时器">Timer（计时器）</h3>
 <p>Timer 是计时功能的辅助类型，提供的观察者用于观察持续时间（以秒为单位）。</p>
 <p>Timer 通常用于通过以下方式为函数调用计时：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">TimeMe</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    timer <span style="color:#ff79c6">:=</span> <span style="color:#50fa7b">NewTimer</span>(myHistogram)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#ff79c6">defer</span> timer.<span style="color:#50fa7b">ObserveDuration</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#6272a4">// Do actual work.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">TimeMe</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    timer <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">NewTimer</span>(myHistogram)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#000;font-weight:bold">defer</span> timer.<span style="color:#900;font-weight:bold">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#998;font-style:italic">// Do actual work.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>Timer 类型包含两个方法：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">NewTimer</span>(o Observer) <span style="color:#ff79c6">*</span>Timer    <span style="color:#6272a4">// NewTimer创建一个新的计时器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (t <span style="color:#ff79c6">*</span>Timer) <span style="color:#50fa7b">ObserveDuration</span>() time.Duration     <span style="color:#6272a4">// ObserveDuration记 录自从使用 NewTimer 创建计时器以来经过的持续时间（以秒为单位）
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">NewTimer</span>(o Observer) <span style="color:#000;font-weight:bold">*</span>Timer    <span style="color:#998;font-style:italic">// NewTimer创建一个新的计时器
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (t <span style="color:#000;font-weight:bold">*</span>Timer) <span style="color:#900;font-weight:bold">ObserveDuration</span>() time.Duration     <span style="color:#998;font-style:italic">// ObserveDuration记 录自从使用 NewTimer 创建计时器以来经过的持续时间（以秒为单位）
 </span></code></pre></div><h4 id="示例-4">示例：</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">var</span> (
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	requestDuration = prometheus.<span style="color:#50fa7b">NewHistogram</span>(prometheus.HistogramOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		Name:    <span style="color:#f1fa8c">&#34;example_request_duration_seconds&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Help:    <span style="color:#f1fa8c">&#34;Histogram for the runtime of a simple example function.&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		Buckets: prometheus.<span style="color:#50fa7b">LinearBuckets</span>(<span style="color:#bd93f9">0.01</span>, <span style="color:#bd93f9">0.01</span>, <span style="color:#bd93f9">10</span>),
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> (
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	requestDuration = prometheus.<span style="color:#900;font-weight:bold">NewHistogram</span>(prometheus.HistogramOpts{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		Name:    <span style="color:#d14">&#34;example_request_duration_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Help:    <span style="color:#d14">&#34;Histogram for the runtime of a simple example function.&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		Buckets: prometheus.<span style="color:#900;font-weight:bold">LinearBuckets</span>(<span style="color:#099">0.01</span>, <span style="color:#099">0.01</span>, <span style="color:#099">10</span>),
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    funcDuration = prometheus.<span style="color:#50fa7b">NewGauge</span>(prometheus.GaugeOpts{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		Name: <span style="color:#f1fa8c">&#34;example_function_duration_seconds&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		Help: <span style="color:#f1fa8c">&#34;Duration of the last call of an example function.&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    funcDuration = prometheus.<span style="color:#900;font-weight:bold">NewGauge</span>(prometheus.GaugeOpts{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		Name: <span style="color:#d14">&#34;example_function_duration_seconds&#34;</span>,
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		Help: <span style="color:#d14">&#34;Duration of the last call of an example function.&#34;</span>,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	})
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	timer1 <span style="color:#ff79c6">:=</span> prometheus.<span style="color:#50fa7b">NewTimer</span>(requestDuration)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">defer</span> timer1.<span style="color:#50fa7b">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	timer1 <span style="color:#000;font-weight:bold">:=</span> prometheus.<span style="color:#900;font-weight:bold">NewTimer</span>(requestDuration)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#000;font-weight:bold">defer</span> timer1.<span style="color:#900;font-weight:bold">ObserveDuration</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    timer2 <span style="color:#ff79c6">:=</span> prometheus.<span style="color:#50fa7b">NewTimer</span>(prometheus.<span style="color:#50fa7b">ObserverFunc</span>(funcDuration.Set))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#ff79c6">defer</span> timer2.<span style="color:#50fa7b">ObserveDuration</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    timer2 <span style="color:#000;font-weight:bold">:=</span> prometheus.<span style="color:#900;font-weight:bold">NewTimer</span>(prometheus.<span style="color:#900;font-weight:bold">ObserverFunc</span>(funcDuration.Set))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#000;font-weight:bold">defer</span> timer2.<span style="color:#900;font-weight:bold">ObserveDuration</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	<span style="color:#6272a4">// Do something here that takes time.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4"></span>	time.<span style="color:#50fa7b">Sleep</span>(time.<span style="color:#50fa7b">Duration</span>(rand.<span style="color:#50fa7b">NormFloat64</span>()<span style="color:#ff79c6">*</span><span style="color:#bd93f9">10000</span><span style="color:#ff79c6">+</span><span style="color:#bd93f9">50000</span>) <span style="color:#ff79c6">*</span> time.Microsecond)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	<span style="color:#998;font-style:italic">// Do something here that takes time.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic"></span>	time.<span style="color:#900;font-weight:bold">Sleep</span>(time.<span style="color:#900;font-weight:bold">Duration</span>(rand.<span style="color:#900;font-weight:bold">NormFloat64</span>()<span style="color:#000;font-weight:bold">*</span><span style="color:#099">10000</span><span style="color:#000;font-weight:bold">+</span><span style="color:#099">50000</span>) <span style="color:#000;font-weight:bold">*</span> time.Microsecond)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>}
 </code></pre></div><h3 id="小结">小结</h3>
 <p>在节中我们介绍并实操了 Prometheus 的四种度量指标类型 Counter、Gauge、Histogram、Summary，这四种度量类型都极具代表性：Counter 是单调递增的计数器，Gauge 是可任意调整数值的仪表盘，Histogram 是分组区间统计，Summary 是中位数统计。</p>
@@ -349,9 +462,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/Prometheus'>Prometheus</a></li>
+                <li><a href='/tags/Prometheus'>Prometheus</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7'>监控</a></li>
+                <li><a href='/tags/%E7%9B%91%E6%8E%A7'>监控</a></li>
                 
             </ul>
             
@@ -364,7 +477,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -373,6 +486,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -436,7 +601,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -467,7 +632,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -582,49 +747,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

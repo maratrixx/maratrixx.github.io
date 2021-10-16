@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title> Google Protobuf 编译器使用笔记 | MARATRIX BLOG</title>
     <meta property="og:title" content=" Google Protobuf 编译器使用笔记 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,114 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#背景">背景</a></li>
+        <li><a href="#什么是-protoc">什么是 protoc</a></li>
+        <li><a href="#如何安装">如何安装</a></li>
+        <li><a href="#插件安装">插件安装</a></li>
+        <li><a href="#基本用法">基本用法</a></li>
+        <li><a href="#其他插件">其他插件</a></li>
+        <li><a href="#参考链接">参考链接</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title"> Google Protobuf 编译器使用笔记</h1>
@@ -81,7 +194,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/protobuf'>protobuf</a></span>
+            <span class="meta-category"><a href='/categories/protobuf'>protobuf</a></span>
             
         </div>
         
@@ -101,69 +214,69 @@
 <p>protoc 就是上面提到的 IDL 编译器，也叫 <code>Google protocol buffers compiler</code>，可以把 proto 文件生成成指定语言的序列化代码。</p>
 <h3 id="如何安装">如何安装</h3>
 <p>Mac 环境可以使用 brew 安装：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>brew install protobuf
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>protoc <span style="color:#ff79c6">--</span>version                          
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4">// libprotoc 3.14.0
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>brew install protobuf
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>protoc <span style="color:#000;font-weight:bold">--</span>version                          
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic">// libprotoc 3.14.0
 </span></code></pre></div><h3 id="插件安装">插件安装</h3>
 <p>proto 需要一个插件来生成 Go 代码，通过以下方式安装：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v google.golang.org<span style="color:#ff79c6">/</span>protobuf<span style="color:#ff79c6">/</span>cmd<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span><span style="color:#ff79c6">go</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v google.golang.org<span style="color:#000;font-weight:bold">/</span>protobuf<span style="color:#000;font-weight:bold">/</span>cmd<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span><span style="color:#000;font-weight:bold">go</span>
 </code></pre></div><p>安装 grpc 相关插件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v google.golang.org<span style="color:#ff79c6">/</span>grpc<span style="color:#ff79c6">/</span>cmd<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span><span style="color:#ff79c6">go</span><span style="color:#ff79c6">-</span>grpc
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v google.golang.org<span style="color:#000;font-weight:bold">/</span>grpc<span style="color:#000;font-weight:bold">/</span>cmd<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span><span style="color:#000;font-weight:bold">go</span><span style="color:#000;font-weight:bold">-</span>grpc
 </code></pre></div><p>安装 grpc-gateway 相关插件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>grpc<span style="color:#ff79c6">-</span>ecosystem<span style="color:#ff79c6">/</span>grpc<span style="color:#ff79c6">-</span>gateway<span style="color:#ff79c6">/</span>v2<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>grpc<span style="color:#ff79c6">-</span>gateway 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>grpc<span style="color:#ff79c6">-</span>ecosystem<span style="color:#ff79c6">/</span>grpc<span style="color:#ff79c6">-</span>gateway<span style="color:#ff79c6">/</span>v2<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>openapiv2
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>grpc<span style="color:#000;font-weight:bold">-</span>ecosystem<span style="color:#000;font-weight:bold">/</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway<span style="color:#000;font-weight:bold">/</span>v2<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway 
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>grpc<span style="color:#000;font-weight:bold">-</span>ecosystem<span style="color:#000;font-weight:bold">/</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway<span style="color:#000;font-weight:bold">/</span>v2<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>openapiv2
 </code></pre></div><p>安装 gogo/protobuf 相关插件：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 默认
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>gogo<span style="color:#ff79c6">/</span>protobuf<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>gofast
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 默认
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>gogo<span style="color:#000;font-weight:bold">/</span>protobuf<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>gofast
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4">// 想要更快的序列化编码速度的话：
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4">// same as gofast, but imports gogoprotobuf
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>gogo<span style="color:#ff79c6">/</span>protobuf<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>gogofast
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4">// same as gogofast, without XXX_unrecognized, less pointer fields
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>gogo<span style="color:#ff79c6">/</span>protobuf<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>gogofaster
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4">// same as gogofaster, but with generated string, gostring and equal methods
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span><span style="color:#ff79c6">go</span> get <span style="color:#ff79c6">-</span>u <span style="color:#ff79c6">-</span>v github.com<span style="color:#ff79c6">/</span>gogo<span style="color:#ff79c6">/</span>protobuf<span style="color:#ff79c6">/</span>protoc<span style="color:#ff79c6">-</span>gen<span style="color:#ff79c6">-</span>gogoslick
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic">// 想要更快的序列化编码速度的话：
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic">// same as gofast, but imports gogoprotobuf
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>gogo<span style="color:#000;font-weight:bold">/</span>protobuf<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>gogofast
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic">// same as gogofast, without XXX_unrecognized, less pointer fields
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>gogo<span style="color:#000;font-weight:bold">/</span>protobuf<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>gogofaster
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic">// same as gogofaster, but with generated string, gostring and equal methods
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> get <span style="color:#000;font-weight:bold">-</span>u <span style="color:#000;font-weight:bold">-</span>v github.com<span style="color:#000;font-weight:bold">/</span>gogo<span style="color:#000;font-weight:bold">/</span>protobuf<span style="color:#000;font-weight:bold">/</span>protoc<span style="color:#000;font-weight:bold">-</span>gen<span style="color:#000;font-weight:bold">-</span>gogoslick
 </code></pre></div><h3 id="基本用法">基本用法</h3>
 <p>protoc 常用参数：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">-</span>I，<span style="color:#ff79c6">--</span>proto_path: 指定进行搜索依赖包的目录，可以指定多个。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">--</span>go_out: 指定输出 Go 代码的目录，默认为当前目录。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#ff79c6">--</span>go_opt: 参数为 module 或 paths，下面有详细说明。
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">-</span>I<span style="color:#a61717;background-color:#e3d2d2">，</span><span style="color:#000;font-weight:bold">--</span>proto_path: 指定进行搜索依赖包的目录<span style="color:#a61717;background-color:#e3d2d2">，</span>可以指定多个<span style="color:#a61717;background-color:#e3d2d2">。</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">--</span>go_out: 指定输出 Go 代码的目录<span style="color:#a61717;background-color:#e3d2d2">，</span>默认为当前目录<span style="color:#a61717;background-color:#e3d2d2">。</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#000;font-weight:bold">--</span>go_opt: 参数为 module 或 paths<span style="color:#a61717;background-color:#e3d2d2">，</span>下面有详细说明<span style="color:#a61717;background-color:#e3d2d2">。</span>
 </code></pre></div><p>这里假设 proto 文件里面定义的 go_package 为：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>option go_package = <span style="color:#f1fa8c">&#34;example.com/foo/bar&#34;</span>;
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>option go_package = <span style="color:#d14">&#34;example.com/foo/bar&#34;</span>;
 </code></pre></div><p>输出的 Go 文件所在的目录的取决于 go_package 选项和编译器（protoc）参数。</p>
 <h5 id="默认情况">默认情况</h5>
 <p>默认情况生成的代码文件输出位置在 go_package 指定的导入目录。</p>
 <p>比如我们有上面 <code>go_package</code> 配置的 <code>protos/foo.proto</code>，那么通过下面得到的文件为 <code>example.com/foo/bar/foo.pb.go</code>。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>go_out=. protos<span style="color:#ff79c6">/</span>foo.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>go_out=. protos<span style="color:#000;font-weight:bold">/</span>foo.proto
 </code></pre></div><h5 id="指定---go_optmoduleprefix">指定 &ndash;go_opt=module=$PREFIX</h5>
 <p>如果在使用 protoc 时指定 <code>--go_opt=module=$PREFIX</code> 参数，则在生成代码文件时会忽略 <code>$PREFIX</code> 前缀。</p>
 <p>比如我们有上面 <code>go_package</code> 配置的 <code>protos/foo.proto</code>，并指定 <code>--go_opt=module=example.com/foo</code> 参数，那么生成的代码为<code>bar/foo.pb.go</code>， 可以看出 <code>example.com/foo</code> 前缀被去掉了。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>go_out=. <span style="color:#ff79c6">--</span>go_opt=module=example.com<span style="color:#ff79c6">/</span>foo protos<span style="color:#ff79c6">/</span>foo.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>go_out=. <span style="color:#000;font-weight:bold">--</span>go_opt=module=example.com<span style="color:#000;font-weight:bold">/</span>foo protos<span style="color:#000;font-weight:bold">/</span>foo.proto
 </code></pre></div><h5 id="指定---go_optpathssource_relative">指定 &ndash;go_opt=paths=source_relative</h5>
 <p>如果在使用 protoc 时指定 <code>--go_opt=paths=source_relative</code> 参数（注意 source_relative 是固定写法），则输出文件和输入的 proto 文件在相对的目录，而忽略掉 go_package。</p>
 <p>比如我们有上面 <code>go_package</code> 配置的 <code>protos/foo.proto</code>，并指定 <code>--go_opt=paths=source_relative</code> 参数，那么生成的代码为<code>protos/foo.pb.go</code>。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>go_out=. <span style="color:#ff79c6">--</span>go_opt=paths=source_relative protos<span style="color:#ff79c6">/</span>foo.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>go_out=. <span style="color:#000;font-weight:bold">--</span>go_opt=paths=source_relative protos<span style="color:#000;font-weight:bold">/</span>foo.proto
 </code></pre></div><p>上面这个例子可能还不够清晰，我们再举个栗子：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>go_out=hello <span style="color:#ff79c6">--</span>go_opt=paths=source_relative protos<span style="color:#ff79c6">/</span>foo.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>go_out=hello <span style="color:#000;font-weight:bold">--</span>go_opt=paths=source_relative protos<span style="color:#000;font-weight:bold">/</span>foo.proto
 </code></pre></div><p>这时生成的 Go 代码路径为 <code>hello/protos/foo.pb.go</code>，所以这里说的相对目录是指在 <code>--go_out=PATH</code> 前提条件下相对 proto 文件的位置，并不一定和 proto 文件在同一目录下。</p>
 <h5 id="最后一个例子">最后一个例子</h5>
 <p>当我们执行如下命令：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>proto_path=src <span style="color:#ff79c6">--</span>go_out=build<span style="color:#ff79c6">/</span>gen <span style="color:#ff79c6">--</span>go_opt=paths=source_relative src<span style="color:#ff79c6">/</span>foo.proto src<span style="color:#ff79c6">/</span>bar<span style="color:#ff79c6">/</span>baz.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>proto_path=src <span style="color:#000;font-weight:bold">--</span>go_out=build<span style="color:#000;font-weight:bold">/</span>gen <span style="color:#000;font-weight:bold">--</span>go_opt=paths=source_relative src<span style="color:#000;font-weight:bold">/</span>foo.proto src<span style="color:#000;font-weight:bold">/</span>bar<span style="color:#000;font-weight:bold">/</span>baz.proto
 </code></pre></div><p>protoc 编译器将读取文件 <code>src/foo.proto</code> 和 <code>src/bar/baz.proto</code>。它产生两个输出文件：<code>build/gen/foo.pb.go</code> 和 <code>build/gen/bar/baz.pb.go</code>。</p>
 <p><strong>如有必要，编译器会自动创建目录 <code>build/gen/bar</code>，但不会创建 <code>build</code> 或 <code>build/gen</code>，它们必须已经存在，否则会报错。</strong></p>
 <h3 id="其他插件">其他插件</h3>
 <h5 id="当我们需要生成-grpc-代码时">当我们需要生成 grpc 代码时：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span><span style="color:#ff79c6">go</span><span style="color:#ff79c6">-</span>grpc_out=xxx <span style="color:#ff79c6">--</span><span style="color:#ff79c6">go</span><span style="color:#ff79c6">-</span>grpc_opt=xxx proto文件
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span><span style="color:#000;font-weight:bold">go</span><span style="color:#000;font-weight:bold">-</span>grpc_out=xxx <span style="color:#000;font-weight:bold">--</span><span style="color:#000;font-weight:bold">go</span><span style="color:#000;font-weight:bold">-</span>grpc_opt=xxx proto文件
 </code></pre></div><p>也就是新增了 <code>--go-grpc_out</code> 和 <code>--go-grpc_opt</code> 参数，这是 <code>protoc-gen-go-grpc</code> 插件实现的功能。</p>
 <h5 id="当我们需要生成-grpc-gateway-代码时">当我们需要生成 grpc-gateway 代码时：</h5>
 <p>我们看一个官方的例子：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">-</span>I . <span style="color:#ff79c6">--</span>grpc<span style="color:#ff79c6">-</span>gateway_out .<span style="color:#ff79c6">/</span>gen<span style="color:#ff79c6">/</span><span style="color:#ff79c6">go</span> <span style="color:#ff79c6">--</span>grpc<span style="color:#ff79c6">-</span>gateway_opt logtostderr=<span style="color:#ff79c6">true</span> \
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>     <span style="color:#ff79c6">--</span>grpc<span style="color:#ff79c6">-</span>gateway_opt paths=source_relative  your<span style="color:#ff79c6">/</span>service<span style="color:#ff79c6">/</span>v1<span style="color:#ff79c6">/</span>your_service.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">-</span>I . <span style="color:#000;font-weight:bold">--</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway_out .<span style="color:#000;font-weight:bold">/</span>gen<span style="color:#000;font-weight:bold">/</span><span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">--</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway_opt logtostderr=<span style="color:#000;font-weight:bold">true</span> \
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>     <span style="color:#000;font-weight:bold">--</span>grpc<span style="color:#000;font-weight:bold">-</span>gateway_opt paths=source_relative  your<span style="color:#000;font-weight:bold">/</span>service<span style="color:#000;font-weight:bold">/</span>v1<span style="color:#000;font-weight:bold">/</span>your_service.proto
 </code></pre></div><p>如果需要生成 OpenAPI 则需要使用到 <code>protoc-gen-openapiv2</code> 插件，我们看个官方的例子：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">-</span>I . <span style="color:#ff79c6">--</span>openapiv2_out .<span style="color:#ff79c6">/</span>gen<span style="color:#ff79c6">/</span>openapiv2 <span style="color:#ff79c6">--</span>openapiv2_opt logtostderr=<span style="color:#ff79c6">true</span> your<span style="color:#ff79c6">/</span>service<span style="color:#ff79c6">/</span>v1<span style="color:#ff79c6">/</span>your_service.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">-</span>I . <span style="color:#000;font-weight:bold">--</span>openapiv2_out .<span style="color:#000;font-weight:bold">/</span>gen<span style="color:#000;font-weight:bold">/</span>openapiv2 <span style="color:#000;font-weight:bold">--</span>openapiv2_opt logtostderr=<span style="color:#000;font-weight:bold">true</span> your<span style="color:#000;font-weight:bold">/</span>service<span style="color:#000;font-weight:bold">/</span>v1<span style="color:#000;font-weight:bold">/</span>your_service.proto
 </code></pre></div><p>关于 grpc 相关的代码生成，其实分三种情况，官方也给出了详细的说明示例，可以<a href="https://github.com/grpc-ecosystem/grpc-gateway">戳链接</a>查看。</p>
 <h5 id="当我们需要生成-gogoprotobuf-代码时">当我们需要生成 gogo/protobuf 代码时：</h5>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#ff79c6">--</span>gofast_out=. myproto.proto
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>protoc <span style="color:#000;font-weight:bold">--</span>gofast_out=. myproto.proto
 </code></pre></div><p>这里可以看出，只是将原来的 <code>--go_out</code> 参数替换为 <code>--gofast_out</code>就可以享受 gogo/protobuf 带来的性能提高。</p>
 <p>当然，如果还想加速性能的话可以使用其他插件，官方提供了另外的几种插件，可以<a href="https://github.com/gogo/protobuf">戳链接</a>查看。</p>
 <h3 id="参考链接">参考链接</h3>
@@ -202,11 +315,11 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/grpc'>grpc</a></li>
+                <li><a href='/tags/grpc'>grpc</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/protobuf'>protobuf</a></li>
+                <li><a href='/tags/protobuf'>protobuf</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/protoc'>protoc</a></li>
+                <li><a href='/tags/protoc'>protoc</a></li>
                 
             </ul>
             
@@ -219,7 +332,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -228,6 +341,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -291,7 +456,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -322,7 +487,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -437,49 +602,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

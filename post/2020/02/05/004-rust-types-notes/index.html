@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Rust学习笔记004-数据类型 | MARATRIX BLOG</title>
     <meta property="og:title" content="Rust学习笔记004-数据类型 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,114 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#前言">前言</a></li>
+    <li><a href="#标量类型">标量类型</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#复合类型">复合类型</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Rust学习笔记004-数据类型</h1>
@@ -81,7 +194,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Rust'>Rust</a></span>
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
             
         </div>
         
@@ -101,8 +214,8 @@
 <li>当多种类型均有可能时，必须增加类型注解；</li>
 </ul>
 <p>如下代码，不加类型编译会报错。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> guess: <span style="color:#8be9fd">u32</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;42&#34;</span>.parse().expect(<span style="color:#f1fa8c">&#34;Not a number!&#34;</span>);
-</code></pre></div><h2 id="标量类型">标量类型</h2>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>guess: <span style="color:#458;font-weight:bold">u32</span> <span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#34;42&#34;</span>.parse().expect(<span style="color:#d14">&#34;Not a number!&#34;</span>);<span style="color:#bbb">
+</span></code></pre></div><h2 id="标量类型">标量类型</h2>
 <ul>
 <li>整型</li>
 <li>浮点型</li>
@@ -189,12 +302,12 @@
 <h4 id="字符型">字符型</h4>
 <p>Rust 的<code>char</code>类型代表了一个 Unicode 标量值（Unicode Scalar Value），这意味着它可以比 ASCII 表示更多内容。在 Rust 中，拼音字母（Accented letters），中文、日文、韩文等字符，emoji（绘文字）以及零长度的空白字符都是有效的 char 值。</p>
 <p>Unicode 标量值包含从 U+0000 到 U+D7FF 和 U+E000 到 U+10FFFF 在内的值。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#ff79c6">fn</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#8be9fd;font-style:italic">let</span> c <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;z&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#8be9fd;font-style:italic">let</span> z <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;ℤ&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#8be9fd;font-style:italic">let</span> heart_eyed_cat <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;😻&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-</code></pre></div><p><strong>注意 char 由单引号指定，不同于字符串使用双引号。</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>c<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#39;z&#39;</span>;<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>z<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#39;ℤ&#39;</span>;<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>heart_eyed_cat<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#39;😻&#39;</span>;<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></div><p><strong>注意 char 由单引号指定，不同于字符串使用双引号。</strong></p>
 <h2 id="复合类型">复合类型</h2>
 <ul>
 <li>元组（tuple）</li>
@@ -207,21 +320,21 @@
 <li>元组的类型格式为<code> (类型1, 类型2, ...)</code>，中间使用<code>,</code>逗号分隔；</li>
 <li>元组中的值位于圆括号内<code>,</code>逗号分隔的列表中；</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup: (<span style="color:#8be9fd">i32</span>, <span style="color:#8be9fd">f32</span>, <span style="color:#8be9fd">bool</span>) <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">123</span>, <span style="color:#bd93f9">12.34</span>, <span style="color:#ff79c6">false</span>);
-</code></pre></div><p><strong>如何取值：</strong></p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>tup: (<span style="color:#458;font-weight:bold">i32</span>,<span style="color:#bbb"> </span><span style="color:#458;font-weight:bold">f32</span>,<span style="color:#bbb"> </span><span style="color:#458;font-weight:bold">bool</span>)<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>(<span style="color:#099">123</span>,<span style="color:#bbb"> </span><span style="color:#099">12.34</span>,<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">false</span>);<span style="color:#bbb">
+</span></code></pre></div><p><strong>如何取值：</strong></p>
 <ul>
 <li>模式解构</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">500</span>, <span style="color:#bd93f9">6.4</span>, <span style="color:#bd93f9">1</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> (x, y, z) <span style="color:#ff79c6">=</span> tup;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;y = {}&#34;</span>, y);
-</code></pre></div><p>程序首先创建了一个元组并绑定到 tup 变量上。接着使用了 let 和一个模式将 tup 分成了三个不同的变量，x、y 和 z，这叫做解构（destructuring）。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>tup<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>(<span style="color:#099">500</span>,<span style="color:#bbb"> </span><span style="color:#099">6.4</span>,<span style="color:#bbb"> </span><span style="color:#099">1</span>);<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>(x,<span style="color:#bbb"> </span>y,<span style="color:#bbb"> </span>z)<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>tup;<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;y = {}&#34;</span>,<span style="color:#bbb"> </span>y);<span style="color:#bbb">
+</span></code></pre></div><p>程序首先创建了一个元组并绑定到 tup 变量上。接着使用了 let 和一个模式将 tup 分成了三个不同的变量，x、y 和 z，这叫做解构（destructuring）。</p>
 <ul>
 <li>索引</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> tup <span style="color:#ff79c6">=</span> (<span style="color:#bd93f9">500</span>, <span style="color:#bd93f9">6.4</span>, <span style="color:#bd93f9">1</span>);
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}, {}, {}&#34;</span>, tup.<span style="color:#bd93f9">0</span>, tup.<span style="color:#bd93f9">1</span>, tup.<span style="color:#bd93f9">2</span>);
-</code></pre></div><p>跟大多数编程语言一样，元组的第一个索引值是 0。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>tup<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>(<span style="color:#099">500</span>,<span style="color:#bbb"> </span><span style="color:#099">6.4</span>,<span style="color:#bbb"> </span><span style="color:#099">1</span>);<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}, {}, {}&#34;</span>,<span style="color:#bbb"> </span>tup.<span style="color:#099">0</span>,<span style="color:#bbb"> </span>tup.<span style="color:#099">1</span>,<span style="color:#bbb"> </span>tup.<span style="color:#099">2</span>);<span style="color:#bbb">
+</span></code></pre></div><p>跟大多数编程语言一样，元组的第一个索引值是 0。</p>
 <h4 id="数组类型">数组类型</h4>
 <p>另一个包含多个值的方式是 数组（array）。与元组不同，数组中的每个元素的类型必须相同。并且Rust 中的数组是固定长度的，一旦声明，它们的长度不能增长或缩小。</p>
 <p><strong>数组声明：</strong></p>
@@ -229,24 +342,24 @@
 <li>数组的类型格式为<code> [类型; 数组长度]</code>，注意中间使用<code>;</code>分号分隔；</li>
 <li>数组中的值位于中括号内<code>,</code>逗号分隔的列表中；</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
-</code></pre></div><p>这里创建了一个长度为4，类型为i32的数组。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>arr: [<span style="color:#458;font-weight:bold">i32</span>;<span style="color:#bbb"> </span><span style="color:#099">4</span>]<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>[<span style="color:#099">1</span>,<span style="color:#bbb"> </span><span style="color:#099">2</span>,<span style="color:#bbb"> </span><span style="color:#099">3</span>,<span style="color:#bbb"> </span><span style="color:#099">4</span>];<span style="color:#bbb">
+</span></code></pre></div><p>这里创建了一个长度为4，类型为i32的数组。</p>
 <p><strong>访问元素</strong>
 和其他编程语言类型，Rust数组使用索引下标访问元素，从0开始。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}, {}&#34;</span>, arr[<span style="color:#bd93f9">0</span>], arr[<span style="color:#bd93f9">1</span>]);
-</code></pre></div><p><strong>下标越界</strong>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>arr: [<span style="color:#458;font-weight:bold">i32</span>;<span style="color:#bbb"> </span><span style="color:#099">4</span>]<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>[<span style="color:#099">1</span>,<span style="color:#bbb"> </span><span style="color:#099">2</span>,<span style="color:#bbb"> </span><span style="color:#099">3</span>,<span style="color:#bbb"> </span><span style="color:#099">4</span>];<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}, {}&#34;</span>,<span style="color:#bbb"> </span>arr[<span style="color:#099">0</span>],<span style="color:#bbb"> </span>arr[<span style="color:#099">1</span>]);<span style="color:#bbb">
+</span></code></pre></div><p><strong>下标越界</strong>
 当访问超过数组长度的下标时会怎样的呢？</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">let</span> arr: [<span style="color:#8be9fd">i32</span>; <span style="color:#bd93f9">4</span>] <span style="color:#ff79c6">=</span> [<span style="color:#bd93f9">1</span>, <span style="color:#bd93f9">2</span>, <span style="color:#bd93f9">3</span>, <span style="color:#bd93f9">4</span>];
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#8be9fd;font-style:italic">let</span> idx <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>println<span style="color:#ff79c6">!</span>(<span style="color:#f1fa8c">&#34;{}&#34;</span>, arr[idx]);
-</code></pre></div><p>运行结果：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Compiling learn_types v0.<span style="color:#bd93f9">1.0</span> (<span style="color:#ff79c6">/</span>Users<span style="color:#6272a4">/****/</span>www<span style="color:#ff79c6">/</span>rust_code<span style="color:#ff79c6">/</span>learn_types)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Finished dev [unoptimized <span style="color:#ff79c6">+</span> debuginfo] target(s) <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">0.30</span>s
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>     Running `target<span style="color:#ff79c6">/</span>debug<span style="color:#ff79c6">/</span>learn_types`
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>thread <span style="color:#50fa7b">&#39;main</span>&#39; panicked at <span style="color:#50fa7b">&#39;index</span> out of bounds: <span style="color:#50fa7b">the</span> len is <span style="color:#bd93f9">4</span> but the index is <span style="color:#bd93f9">10</span>&#39;, src<span style="color:#ff79c6">/</span>main.rs:<span style="color:#bd93f9">45</span>:<span style="color:#bd93f9">16</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>note: <span style="color:#50fa7b">run</span> with `RUST_BACKTRACE<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span>` environment variable to display a backtrace.
-</code></pre></div><p>可与看出，编译并没有产生任何错误，不过程序会出现一个运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。如果索引超出了数组长度，Rust 会 panic。</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>arr: [<span style="color:#458;font-weight:bold">i32</span>;<span style="color:#bbb"> </span><span style="color:#099">4</span>]<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>[<span style="color:#099">1</span>,<span style="color:#bbb"> </span><span style="color:#099">2</span>,<span style="color:#bbb"> </span><span style="color:#099">3</span>,<span style="color:#bbb"> </span><span style="color:#099">4</span>];<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>idx<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">10</span>;<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>arr[idx]);<span style="color:#bbb">
+</span></code></pre></div><p>运行结果：</p>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Compiling<span style="color:#bbb"> </span>learn_types<span style="color:#bbb"> </span>v0.<span style="color:#099">1.0</span><span style="color:#bbb"> </span>(<span style="color:#000;font-weight:bold">/</span>Users<span style="color:#998;font-style:italic">/****/</span>www<span style="color:#000;font-weight:bold">/</span>rust_code<span style="color:#000;font-weight:bold">/</span>learn_types)<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span>Finished<span style="color:#bbb"> </span>dev<span style="color:#bbb"> </span>[unoptimized<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span>debuginfo]<span style="color:#bbb"> </span>target(s)<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">in</span><span style="color:#bbb"> </span><span style="color:#099">0.30</span>s<span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">     </span>Running<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span>target<span style="color:#000;font-weight:bold">/</span>debug<span style="color:#000;font-weight:bold">/</span>learn_types<span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span>thread<span style="color:#bbb"> </span><span style="color:#008080">&#39;main</span><span style="color:#a61717;background-color:#e3d2d2">&#39;</span><span style="color:#bbb"> </span>panicked<span style="color:#bbb"> </span>at<span style="color:#bbb"> </span><span style="color:#008080">&#39;index</span><span style="color:#bbb"> </span>out<span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>bounds: <span style="color:#458;font-weight:bold">the</span><span style="color:#bbb"> </span>len<span style="color:#bbb"> </span>is<span style="color:#bbb"> </span><span style="color:#099">4</span><span style="color:#bbb"> </span>but<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span>index<span style="color:#bbb"> </span>is<span style="color:#bbb"> </span><span style="color:#099">10</span><span style="color:#a61717;background-color:#e3d2d2">&#39;</span>,<span style="color:#bbb"> </span>src<span style="color:#000;font-weight:bold">/</span>main.rs:<span style="color:#099">45</span>:<span style="color:#099">16</span><span style="color:#bbb">
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb"></span>note: <span style="color:#458;font-weight:bold">run</span><span style="color:#bbb"> </span>with<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span>RUST_BACKTRACE<span style="color:#000;font-weight:bold">=</span><span style="color:#099">1</span><span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb"> </span>environment<span style="color:#bbb"> </span>variable<span style="color:#bbb"> </span>to<span style="color:#bbb"> </span>display<span style="color:#bbb"> </span>a<span style="color:#bbb"> </span>backtrace.<span style="color:#bbb">
+</span></code></pre></div><p>可与看出，编译并没有产生任何错误，不过程序会出现一个运行时（runtime）错误并且不会成功退出。当尝试用索引访问一个元素时，Rust 会检查指定的索引是否小于数组的长度。如果索引超出了数组长度，Rust 会 panic。</p>
 
         </div>
 
@@ -277,7 +390,7 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/rust'>rust</a></li>
+                <li><a href='/tags/rust'>rust</a></li>
                 
             </ul>
             
@@ -290,7 +403,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -299,6 +412,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -362,7 +527,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -393,7 +558,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -508,49 +673,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>Go1.16新特性|标准库和其他变化 | MARATRIX BLOG</title>
     <meta property="og:title" content="Go1.16新特性|标准库和其他变化 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,114 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#支持静态资源嵌入">支持静态资源嵌入</a></li>
+        <li><a href="#新增-iofs-的支持">新增 io/fs 的支持</a></li>
+        <li><a href="#废弃-ioioutil">废弃 io/ioutil</a></li>
+        <li><a href="#net-包的变化">net 包的变化</a></li>
+        <li><a href="#调整切片扩容策略">调整切片扩容策略</a></li>
+        <li><a href="#简化结构体标签">简化结构体标签</a></li>
+        <li><a href="#参考">参考</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">Go1.16新特性|标准库和其他变化</h1>
@@ -81,7 +194,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
             
         </div>
         
@@ -98,41 +211,45 @@
 <h3 id="新增-iofs-的支持">新增 io/fs 的支持</h3>
 <p>Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。</p>
 <p>io/fs 包的两个最重要的接口如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// $GOROOT/src/io/fs/fs.go
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4">// An FS provides access to a hierarchical file system.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4">// The FS interface is the minimum implementation required of the file system.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4">// A file system may implement additional interfaces,
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4">// such as ReadFileFS, to provide additional or optimized functionality.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">type</span> FS <span style="color:#8be9fd;font-style:italic">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#6272a4">// Open opens the named file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// When Open returns an error, it should be of type *PathError
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// with the Op field set to &#34;open&#34;, the Path field set to name,
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// and the Err field describing the problem.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// Open should reject attempts to open names that do not satisfy
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// ValidPath(name), returning a *PathError with Err set to
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">// ErrInvalid or ErrNotExist.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>        <span style="color:#50fa7b">Open</span>(name <span style="color:#8be9fd">string</span>) (File, <span style="color:#8be9fd">error</span>)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// $GOROOT/src/io/fs/fs.go
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic">// An FS provides access to a hierarchical file system.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic">// The FS interface is the minimum implementation required of the file system.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic">// A file system may implement additional interfaces,
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic">// such as ReadFileFS, to provide additional or optimized functionality.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> FS <span style="color:#000;font-weight:bold">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#998;font-style:italic">// Open opens the named file.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// When Open returns an error, it should be of type *PathError
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// with the Op field set to &#34;open&#34;, the Path field set to name,
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// and the Err field describing the problem.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// Open should reject attempts to open names that do not satisfy
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ValidPath(name), returning a *PathError with Err set to
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ErrInvalid or ErrNotExist.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>        <span style="color:#900;font-weight:bold">Open</span>(name <span style="color:#458;font-weight:bold">string</span>) (File, <span style="color:#458;font-weight:bold">error</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4">// A File provides access to a single file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#6272a4">// The File interface is the minimum implementation required of the file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#6272a4">// A file may implement additional interfaces, such as
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#6272a4">// ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">type</span> File <span style="color:#8be9fd;font-style:italic">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>        <span style="color:#50fa7b">Stat</span>() (FileInfo, <span style="color:#8be9fd">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>        <span style="color:#50fa7b">Read</span>([]<span style="color:#8be9fd">byte</span>) (<span style="color:#8be9fd">int</span>, <span style="color:#8be9fd">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>        <span style="color:#50fa7b">Close</span>() <span style="color:#8be9fd">error</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic">// A File provides access to a single file.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic">// The File interface is the minimum implementation required of the file.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic">// A file may implement additional interfaces, such as
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic">// ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> File <span style="color:#000;font-weight:bold">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>        <span style="color:#900;font-weight:bold">Stat</span>() (FileInfo, <span style="color:#458;font-weight:bold">error</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>        <span style="color:#900;font-weight:bold">Read</span>([]<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>        <span style="color:#900;font-weight:bold">Close</span>() <span style="color:#458;font-weight:bold">error</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>}
 </code></pre></div><p>FS 接口代表虚拟文件系统的最小抽象，File 接口则是虚拟文件的最小抽象，我们可以基于这两个接口进行扩展以及对接现有的一些实现。io/fs 包也给出了一些扩展 FS 的 “样例”：
-<img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210310090447.png" alt=""></p>
+
+        <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210310090447.png">
+            <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210310090447.png" />
+        </a>
+    </p>
 <h3 id="废弃-ioioutil">废弃 io/ioutil</h3>
 <p>Go 官方认为 io/ioutil 这个包的定义不明确且难以理解。所以 Russ Cox 在 2020.10.17 提出了废弃 io/ioutil 的提案。</p>
 <p>大致变更如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Discard =&gt; io.Discard
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Discard =&gt; io.Discard
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>NopCloser =&gt; io.NopCloser
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>ReadAll =&gt; io.ReadAll
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>ReadDir =&gt; os.ReadDir
@@ -141,45 +258,45 @@
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>TempFile =&gt; os.CreateTemp
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>WriteFile =&gt; os.WriteFile
 </code></pre></div><p>与此同时大家也不需要担心存在破坏性变更，因为有 Go1 兼容性的保证，在 Go1 中 io/ioutil 还会存在，只变更内部的方法调用：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">ReadAll</span>(r io.Reader) ([]<span style="color:#8be9fd">byte</span>, <span style="color:#8be9fd">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#ff79c6">return</span> io.<span style="color:#50fa7b">ReadAll</span>(r)
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadAll</span>(r io.Reader) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#000;font-weight:bold">return</span> io.<span style="color:#900;font-weight:bold">ReadAll</span>(r)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">ReadFile</span>(filename <span style="color:#8be9fd">string</span>) ([]<span style="color:#8be9fd">byte</span>, <span style="color:#8be9fd">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#ff79c6">return</span> os.<span style="color:#50fa7b">ReadFile</span>(filename)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadFile</span>(filename <span style="color:#458;font-weight:bold">string</span>) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">return</span> os.<span style="color:#900;font-weight:bold">ReadFile</span>(filename)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
 </code></pre></div><p>大家在后续也可以改改调用习惯。</p>
 <h3 id="net-包的变化">net 包的变化</h3>
 <p>在 Go 1.16 之前，我们检测在一个已关闭的网络上进行 I/O 操作或在 I/O 完成前网络被关闭的情况，只能通过匹配字符串”use of closed network connection” 的方式来进行。之前的版本没有针对这个错误定义 “哨兵错误变量”(更多关于哨兵错误变量的内容，可以参考我的专栏文章《别笑！这就是 Go 的错误处理哲学》)，Go 1.16 增加了 ErrClosed 这个 “哨兵错误变量”，我们可以通过 <code>errors.Is (err, net.ErrClosed)</code> 来检测是否是上述错误情况。</p>
 <h3 id="调整切片扩容策略">调整切片扩容策略</h3>
 <p>Go1.16 以前的 slice 的扩容条件是 len，在最新的代码中，已经改为了以 cap 属性作为基准：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>  <span style="color:#6272a4">// src/runtime/slice.go
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">if</span> cap &gt; doublecap {
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>  <span style="color:#998;font-style:italic">// src/runtime/slice.go
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> cap &gt; doublecap {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		newcap = cap
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	} <span style="color:#ff79c6">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>		<span style="color:#6272a4">// 这是以前的代码：if old.len &lt; 1024 {
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>		<span style="color:#6272a4">// 下面是 Go1.16rc1 的代码
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> old.cap &lt; <span style="color:#bd93f9">1024</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	} <span style="color:#000;font-weight:bold">else</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>		<span style="color:#998;font-style:italic">// 这是以前的代码：if old.len &lt; 1024 {
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>		<span style="color:#998;font-style:italic">// 下面是 Go1.16rc1 的代码
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> old.cap &lt; <span style="color:#099">1024</span> {
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>			newcap = doublecap
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>		}
 </code></pre></div><p>以官方的 test case 为例：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">func</span> <span style="color:#50fa7b">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#8be9fd;font-style:italic">const</span> N = <span style="color:#bd93f9">1024</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#8be9fd;font-style:italic">var</span> a [N]<span style="color:#8be9fd">int</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	x <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">cap</span>(<span style="color:#8be9fd;font-style:italic">append</span>(a[:N<span style="color:#ff79c6">-</span><span style="color:#bd93f9">1</span>:N], <span style="color:#bd93f9">9</span>, <span style="color:#bd93f9">9</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	y <span style="color:#ff79c6">:=</span> <span style="color:#8be9fd;font-style:italic">cap</span>(<span style="color:#8be9fd;font-style:italic">append</span>(a[:N:N], <span style="color:#bd93f9">9</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#8be9fd;font-style:italic">println</span>(<span style="color:#8be9fd;font-style:italic">cap</span>(x), <span style="color:#8be9fd;font-style:italic">cap</span>(y))
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#000;font-weight:bold">const</span> N = <span style="color:#099">1024</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#000;font-weight:bold">var</span> a [N]<span style="color:#458;font-weight:bold">int</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	x <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>:N], <span style="color:#099">9</span>, <span style="color:#099">9</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	y <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N:N], <span style="color:#099">9</span>))
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#0086b3">println</span>(<span style="color:#0086b3">cap</span>(x), <span style="color:#0086b3">cap</span>(y))
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
 </code></pre></div><p>在 Go1.16 以前输出 2048, 1280。在 Go1.16 及以后输出 1280, 1280，保证了两种的一致。</p>
 <h3 id="简化结构体标签">简化结构体标签</h3>
 <p>在 Go 语言的结构体中，我们常常会因为各种库的诉求，需要对结构体的 tag 设置标识。</p>
 <p>如果像是以前，量比较多就会变成：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> MyStruct <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#8be9fd">string</span> <span style="color:#f1fa8c">`json:&#34;field_1,omitempty&#34; bson:&#34;field_1,omitempty&#34; xml:&#34;field_1,omitempty&#34; form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json:&#34;field_1,omitempty&#34; bson:&#34;field_1,omitempty&#34; xml:&#34;field_1,omitempty&#34; form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
 </code></pre></div><p>但在 Go1.16 及以后，就可以通过合并的方式：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> MyStruct <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#8be9fd">string</span> <span style="color:#f1fa8c">`json,bson,xml,form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json,bson,xml,form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
 </code></pre></div><p>方便和简洁了不少。</p>
 <h3 id="参考">参考</h3>
@@ -216,9 +333,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/go'>go</a></li>
+                <li><a href='/tags/go'>go</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/go1.16'>go1.16</a></li>
+                <li><a href='/tags/go1.16'>go1.16</a></li>
                 
             </ul>
             
@@ -231,7 +348,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -240,6 +357,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -303,7 +472,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -334,7 +503,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -449,49 +618,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

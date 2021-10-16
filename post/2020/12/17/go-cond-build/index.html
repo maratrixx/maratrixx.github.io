@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>[转]Go语言如何使用条件编译 | MARATRIX BLOG</title>
     <meta property="og:title" content="[转]Go语言如何使用条件编译 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2020/12/17/go-cond-build/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,114 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#先说go-list">先说go list</a></li>
+        <li><a href="#构建标签build-tags">构建标签（Build tags）</a></li>
+        <li><a href="#关于注释的补充说明">关于注释的补充说明</a></li>
+        <li><a href="#文件名后缀file-suffixes">文件名后缀（File suffixes）</a></li>
+        <li><a href="#使用构建标签还是文件名后缀">使用构建标签还是文件名后缀</a></li>
+        <li><a href="#总结">总结</a></li>
+        <li><a href="#转载说明">转载说明</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">[转]Go语言如何使用条件编译</h1>
@@ -81,7 +194,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go'>Go</a></span>
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
             
         </div>
         
@@ -100,12 +213,12 @@
 <p>讨论条件编译之前，我们需要简单讨论下<code>go list</code>命令。<code>go list</code>允许你访问包内部的数据结构从而驱动编译过程（build process）。</p>
 <p>go list的大部分参数和go build、go test、go install相同，但是它不会执行编译。使用-f格式化参数，我们可以填入一段text/template的模板代码，它会在一个包含go/build.Package结构的上下文环境被执行。
 如下例子，可以得到所有将被编译的源码文件名。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>% go list -f <span style="color:#f1fa8c">&#39;{{.GoFiles}}&#39;</span> os/exec
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">[</span>exec.go lp_unix.go<span style="color:#ff79c6">]</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>% go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">[</span>exec.go lp_unix.go<span style="color:#000;font-weight:bold">]</span>
 </code></pre></div><p>这个例子查询了在我当前执行环境linux/arm下os/exec包中将会被编译的文件。结果文件有两个：exec.go包含了在所有平台共享的通用代码，lp_unix.go包含了一份在unix-like系统独有的exec.LookPath实现。</p>
 <p>如果我在Windows系统执行上面那个命令，结果如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>C:<span style="color:#f1fa8c">\g</span>o&gt; go list -f <span style="color:#f1fa8c">&#39;{{.GoFiles}}&#39;</span> os/exec
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#ff79c6">[</span>exec.go lp_windows.go<span style="color:#ff79c6">]</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>C:<span style="color:#d14">\g</span>o&gt; go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">[</span>exec.go lp_windows.go<span style="color:#000;font-weight:bold">]</span>
 </code></pre></div><p>这个简短的例子演示了Go条件编译系统，被称为构建规则（Build Constraints），接下来将更详细的讨论它。</p>
 <h3 id="构建标签build-tags">构建标签（Build tags）</h3>
 <p>第一种实现条件编译的方法是在源码中插入注释，被称之为构建标签。</p>
@@ -117,17 +230,17 @@
 <li>逗号隔开的选项是与（AND）的关系</li>
 <li>每个选项由字母和数字组成。如果前面加上!，则表示反义</li>
 </ul>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build darwin freebsd netbsd openbsd
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build darwin freebsd netbsd openbsd
 </code></pre></div><p>上面的例子，构建标签出现在某个源码文件的顶部，表示这个源码文件只会在支持kqueue的BSD系统中被编译。</p>
 <p>一个源码文件可以包含多个构建标签。构建规则是每个独立规则的逻辑与关系。如下例子表示该文件将在linux/386或darwin/386平台才会被编译。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build linux darwin
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// +build <span style="color:#bd93f9">386</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build linux darwin
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// +build <span style="color:#099">386</span>
 </code></pre></div><h3 id="关于注释的补充说明">关于注释的补充说明</h3>
 <p>第一次使用构建标签时常见的一个错误如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>package mypkg // 错误
 </code></pre></div><p>这个例子中，构建标签和包声明间没有空行。这使得构建标签被当成包声明的描述信息而被忽略。正确的格式如下：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>package mypkg // 正确
 </code></pre></div><blockquote>
 <p>译者yoko注，原文中，这里有段描述说正确的格式执行go vet时，会报如下错误
@@ -137,9 +250,9 @@
 我猜应该是新版本的Go对go vet做了改进，我测试时的环境为go version go1.12.5 darwin/amd64</p>
 </blockquote>
 <p>以下是一个包含了许可证，构建标签，包声明的例子：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>% head headspin.go
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>// Copyright <span style="color:#bd93f9">2013</span> Way out enterprises. All rights reserved.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>// Use of this <span style="color:#8be9fd;font-style:italic">source</span> code is governed by a BSD-style
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>% head headspin.go
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>// Copyright <span style="color:#099">2013</span> Way out enterprises. All rights reserved.
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>// Use of this <span style="color:#0086b3">source</span> code is governed by a BSD-style
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>// license that can be found in the LICENSE file.
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>// +build someos someotheros thirdos,!amd64
@@ -151,24 +264,24 @@
 <p>第二种条件编译的方法是通过源码文件的文件名实现的。这种方案比构造标签方案更简单。</p>
 <p>go/build包的文档有关于命名约定的描述。简单来说，如果文件名包含<code>_$GOOS.go</code>后缀，那么这个源码文件只会在对应的平台被编译。其他平台会忽略这个文件。另一种约定是<code>_$GOARCH.go</code>。这两种后缀可以组合起来，但要保证顺序，正确的格式是<code>_$GOOS_$GOARCH.go</code>，错误的格式是<code>_$GOARCH_$GOOS.go</code>。</p>
 <p>以下是文件名后缀的一些例子：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_freebsd_arm.go // 只在 freebsd/arm 系统编译
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_freebsd_arm.go // 只在 freebsd/arm 系统编译
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>mypkg_plan9.go       // 只在 plan9 编译
 </code></pre></div><p>源码文件光有后缀是不够的，比如如下文件名：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>_linux.go
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>_linux.go
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>_freebsd_386.go
 </code></pre></div><p>即使是在linux或freebsd系统，这两个文件也会被忽略，原因是go/build包会忽略所有文件名以.和_开始的文件。</p>
 <h3 id="使用构建标签还是文件名后缀">使用构建标签还是文件名后缀</h3>
 <p>构建标签和文件名后缀在功能上是重叠的。比如，一个名为mypkg_linux.go的文件，再包含构建标签// +build linux会显得多余。</p>
 <p>通常来说，当只有一个特定平台或体系需要指定时，我们选择文件名后缀的方式。比如：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_linux.go         // 只在 linux 系统编译
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_linux.go         // 只在 linux 系统编译
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>mypkg_windows_amd64.go // 只在 windows amd 64位 平台编译
 </code></pre></div><p>相反，如果你的文件需要指定给多个平台或体系使用，或者你需要排除某个特定平台时，我们选择构建标签的方式。比如：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// 在所有类unix平台编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>% grep <span style="color:#f1fa8c">&#39;+build&#39;</span> <span style="color:#8be9fd;font-style:italic">$HOME</span>/go/src/pkg/os/exec/lp_unix.go
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// 在所有类unix平台编译
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/exec/lp_unix.go
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>// +build darwin dragonfly freebsd linux netbsd openbsd
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>// 在非Windows平台编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>% grep <span style="color:#f1fa8c">&#39;+build&#39;</span> <span style="color:#8be9fd;font-style:italic">$HOME</span>/go/src/pkg/os/types_notwin.go
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/types_notwin.go
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>// +build !windows
 </code></pre></div><h3 id="总结">总结</h3>
 <p>本篇文章只关注了Go源码文件，事实上，构建标签和文件名后缀可作用于任何go tool可以编译的源码文件，包括.c和.s文件。Go标准库中，尤其是runtime，syscall，os，net包中包含了大量这种例子。</p>
@@ -207,11 +320,11 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/Go'>Go</a></li>
+                <li><a href='/tags/Go'>Go</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91'>Go条件编译</a></li>
+                <li><a href='/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91'>Go条件编译</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91'>中文翻译</a></li>
+                <li><a href='/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91'>中文翻译</a></li>
                 
             </ul>
             
@@ -224,7 +337,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -233,6 +346,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -296,7 +461,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -327,7 +492,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -442,49 +607,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>开心写程序，快乐过生活 | MARATRIX BLOG</title>
     <meta property="og:title" content="开心写程序，快乐过生活 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2014/03/07/hello-world/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,100 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents"></nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">开心写程序，快乐过生活</h1>
@@ -81,7 +180,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></span>
+            <span class="meta-category"><a href='/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></span>
             
         </div>
         
@@ -94,9 +193,17 @@
         
         <div class="post-content">
             <p>这是开通 CSDN 后的第一篇博客，呵呵，工科男就是这样，刚开始真的就是不知道该怎么去写出心中的想法和情感，也许就是碍于面子，怕被别人成为“屌丝”，希望自己可以这么坚持下去。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191228.png" alt=""></p>
+<p>
+        <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191228.png">
+            <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191228.png" />
+        </a>
+    </p>
 <p>说实话，编程真的很枯燥，枯燥的有时会让人感觉到抑郁和染上心理强迫症，呵呵~~相信大家在不同的编程环境中都会遇到这样或者那样的困难和瓶颈，你们也会看到在这样的情况下，有的人选择了退出，有的人依然坚持了下来，我们不对他们的选择进行评价，毕竟每个人都有选择的空间的权利。我喜欢爬山，爬山和编程一样，当你觉得自己快要完蛋的时候，和自己说我能行就可以坚持下来。还是那句话，只要是喜欢，就不要轻易放弃。</p>
-<p><img src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191435.png" alt=""></p>
+<p>
+        <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191435.png">
+            <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210123191435.png" />
+        </a>
+    </p>
 <p>记得刚不久看到的一句话，对于程序猿们，要开心写程序，快乐过生活，不要因为程序有很多的bug而痛苦，至少你们相爱过。我刚看到这句话时，就笑了，因为这句话话的确抵触了心灵的最深处。呵呵~~~让大家笑话了！！！</p>
 <p>LAMP 兄弟连有个视频的片头是模仿聚美陈欧的，你只看到我学 PHP 敲代码，却没看到我的产品在改变着世界，你有你的女神，我也有我的cang老师，你嘲笑我苦逼屌丝命，我可怜你不懂编程之乐，你可以轻视我的代码，我会证明，这是谁的互联网时代，程序员注定是默默的逆袭，身边少不了口水和质疑，但那又怎样？哪怕前路崎岖，也要勇敢前行。</p>
 <p>真的是这样，哪怕遇到再多点的困难和质疑，但我们的产品改变了世界时，其中的酸甜苦辣都值了&hellip;&hellip;</p>
@@ -126,9 +233,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></li>
+                <li><a href='/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6'>大学</a></li>
+                <li><a href='/tags/%E5%A4%A7%E5%AD%A6'>大学</a></li>
                 
             </ul>
             
@@ -141,7 +248,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -150,6 +257,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -213,7 +372,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -244,7 +403,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -359,49 +518,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

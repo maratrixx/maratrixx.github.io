@@ -5,6 +5,9 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
 
     <title>hystrix-go 之统计控制器实现 | MARATRIX BLOG</title>
     <meta property="og:title" content="hystrix-go 之统计控制器实现 - MARATRIX BLOG">
@@ -20,15 +23,18 @@
         
     <meta name="author" content="maratrix">
     <meta property="og:url" content="https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
 
     <link rel="stylesheet" href='/css/normalize.css'>
     <link rel="stylesheet" href='/css/style.css'>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     
-
-
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
     
     
 </head>
@@ -69,7 +75,109 @@
                 <div class="col-8" id="main">
                     
 <div class="res-cons">
-    
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#源码分析">源码分析</a></li>
+        <li><a href="#参考">参考</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
     <article class="post">
         <header>
             <h1 class="post-title">hystrix-go 之统计控制器实现</h1>
@@ -81,7 +189,7 @@
         <div class="post-meta">
             <span>|</span>
             
-            <span class="meta-category"><a href='https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></span>
+            <span class="meta-category"><a href='/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></span>
             
         </div>
         
@@ -97,20 +205,20 @@
 <p>metricExchange 主要是用来收集处理上报的所有事件，并对事件进行汇总处理，最后根据计算出来的一段时间内的错误率来表示服务的健康度。下面我们看下其源码实现。</p>
 <h3 id="源码分析">源码分析</h3>
 <h4 id="metricexchange">metricExchange</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> metricExchange <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	Name    <span style="color:#8be9fd">string</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Updates <span style="color:#8be9fd;font-style:italic">chan</span> <span style="color:#ff79c6">*</span>commandExecution  <span style="color:#6272a4">// 上报的信息
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>	Mutex   <span style="color:#ff79c6">*</span>sync.RWMutex
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> metricExchange <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	Name    <span style="color:#458;font-weight:bold">string</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Updates <span style="color:#000;font-weight:bold">chan</span> <span style="color:#000;font-weight:bold">*</span>commandExecution  <span style="color:#998;font-style:italic">// 上报的信息
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	Mutex   <span style="color:#000;font-weight:bold">*</span>sync.RWMutex
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	metricCollectors []metricCollector.MetricCollector  <span style="color:#6272a4">// 统计收集器列表
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#6272a4"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	metricCollectors []metricCollector.MetricCollector  <span style="color:#998;font-style:italic">// 统计收集器列表
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#8be9fd;font-style:italic">type</span> commandExecution <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	Types            []<span style="color:#8be9fd">string</span>      <span style="color:#f1fa8c">`json:&#34;types&#34;`</span>             <span style="color:#6272a4">// 事件列表
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	Start            time.Time     <span style="color:#f1fa8c">`json:&#34;start_time&#34;`</span>        <span style="color:#6272a4">// 开始时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>	RunDuration      time.Duration <span style="color:#f1fa8c">`json:&#34;run_duration&#34;`</span>      <span style="color:#6272a4">// 运行耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	ConcurrencyInUse <span style="color:#8be9fd">float64</span>       <span style="color:#f1fa8c">`json:&#34;concurrency_inuse&#34;`</span> <span style="color:#6272a4">// 当前并发量占比
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">type</span> commandExecution <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	Types            []<span style="color:#458;font-weight:bold">string</span>      <span style="color:#d14">`json:&#34;types&#34;`</span>             <span style="color:#998;font-style:italic">// 事件列表
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	Start            time.Time     <span style="color:#d14">`json:&#34;start_time&#34;`</span>        <span style="color:#998;font-style:italic">// 开始时间
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	RunDuration      time.Duration <span style="color:#d14">`json:&#34;run_duration&#34;`</span>      <span style="color:#998;font-style:italic">// 运行耗时
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	ConcurrencyInUse <span style="color:#458;font-weight:bold">float64</span>       <span style="color:#d14">`json:&#34;concurrency_inuse&#34;`</span> <span style="color:#998;font-style:italic">// 当前并发量占比
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>这里我们主要看下 Updates 和 metricCollectors 字段：</p>
 <ul>
 <li>Updates 是用来接收 *commandExecution 对象信息的，包括开始时间、运行耗时、并发占比</li>
@@ -118,178 +226,178 @@
 </ul>
 <h4 id="monior-方法">Monior 方法</h4>
 <p>在执行 newMetricExchange 的时候会启动一个协程 <code>go m.Monitor()</code> 去监控 Updates 的数据，然后上报给 metricCollectors 保存执行的信息数据比如前面提到的调用次数，失败次数，被拒绝次数等等。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (m <span style="color:#ff79c6">*</span>metricExchange) <span style="color:#50fa7b">Monitor</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#ff79c6">for</span> update <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> m.Updates {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		<span style="color:#6272a4">// we only grab a read lock to make sure Reset() isn&#39;t changing the numbers.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#6272a4"></span>		m.Mutex.<span style="color:#50fa7b">RLock</span>()
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (m <span style="color:#000;font-weight:bold">*</span>metricExchange) <span style="color:#900;font-weight:bold">Monitor</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#000;font-weight:bold">for</span> update <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> m.Updates {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>		<span style="color:#998;font-style:italic">// we only grab a read lock to make sure Reset() isn&#39;t changing the numbers.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>		m.Mutex.<span style="color:#900;font-weight:bold">RLock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		totalDuration <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">Since</span>(update.Start)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		wg <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">&amp;</span>sync.WaitGroup{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#ff79c6">for</span> _, collector <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> m.metricCollectors {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>			wg.<span style="color:#50fa7b">Add</span>(<span style="color:#bd93f9">1</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>			<span style="color:#ff79c6">go</span> m.<span style="color:#50fa7b">IncrementMetrics</span>(wg, collector, update, totalDuration)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		totalDuration <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Since</span>(update.Start)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		wg <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>sync.WaitGroup{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#000;font-weight:bold">for</span> _, collector <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> m.metricCollectors {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>			wg.<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#099">1</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>			<span style="color:#000;font-weight:bold">go</span> m.<span style="color:#900;font-weight:bold">IncrementMetrics</span>(wg, collector, update, totalDuration)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		wg.<span style="color:#50fa7b">Wait</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		wg.<span style="color:#900;font-weight:bold">Wait</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		m.Mutex.<span style="color:#50fa7b">RUnlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		m.Mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
 </code></pre></div><p>通过上一篇的分析，我们知道在断路器中的 ReportEvent 方法中会进行指标上报：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>circuit.metrics.Updates <span style="color:#ff79c6">&lt;-</span> <span style="color:#ff79c6">&amp;</span>commandExecution{ <span style="color:#6272a4">// 发送命令执行的指标数据
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#6272a4"></span>    Types:            eventTypes,       <span style="color:#6272a4">// 事件列表
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>    Start:            start,            <span style="color:#6272a4">// 开始事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#6272a4"></span>    RunDuration:      runDuration,      <span style="color:#6272a4">// 执行耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>    ConcurrencyInUse: concurrencyInUse, <span style="color:#6272a4">// 当前的并发占比
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#6272a4"></span>}
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>circuit.metrics.Updates <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">&amp;</span>commandExecution{ <span style="color:#998;font-style:italic">// 发送命令执行的指标数据
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>    Types:            eventTypes,       <span style="color:#998;font-style:italic">// 事件列表
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>    Start:            start,            <span style="color:#998;font-style:italic">// 开始事件
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>    RunDuration:      runDuration,      <span style="color:#998;font-style:italic">// 执行耗时
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>    ConcurrencyInUse: concurrencyInUse, <span style="color:#998;font-style:italic">// 当前的并发占比
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>而对 <code>circuit.metrics.Updates</code> 的接收便是在 Monitor 方法中，这下便能对应起来了。</p>
 <p>Montor 的执行也很简单，首先是遍历 metricCollectors 收集器列表，然后对每个收集器分别执行 <code>go m.IncrementMetrics(wg, collector, update, totalDuration)</code> 进行收集处理。</p>
 <h4 id="incrementmetrics-方法">IncrementMetrics 方法</h4>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (m <span style="color:#ff79c6">*</span>metricExchange) <span style="color:#50fa7b">IncrementMetrics</span>(wg <span style="color:#ff79c6">*</span>sync.WaitGroup, collector metricCollector.MetricCollector, update <span style="color:#ff79c6">*</span>commandExecution, totalDuration time.Duration) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#6272a4">// granular metrics
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#6272a4"></span>	r <span style="color:#ff79c6">:=</span> metricCollector.MetricResult{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Attempts:         <span style="color:#bd93f9">1</span>,
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (m <span style="color:#000;font-weight:bold">*</span>metricExchange) <span style="color:#900;font-weight:bold">IncrementMetrics</span>(wg <span style="color:#000;font-weight:bold">*</span>sync.WaitGroup, collector metricCollector.MetricCollector, update <span style="color:#000;font-weight:bold">*</span>commandExecution, totalDuration time.Duration) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">// granular metrics
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>	r <span style="color:#000;font-weight:bold">:=</span> metricCollector.MetricResult{
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		Attempts:         <span style="color:#099">1</span>,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		TotalDuration:    totalDuration,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		RunDuration:      update.RunDuration,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>		ConcurrencyInUse: update.ConcurrencyInUse,
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#ff79c6">switch</span> update.Types[<span style="color:#bd93f9">0</span>] {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#ff79c6">case</span> <span style="color:#f1fa8c">&#34;success&#34;</span>:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		r.Successes = <span style="color:#bd93f9">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#ff79c6">case</span> <span style="color:#f1fa8c">&#34;failure&#34;</span>:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		r.Failures = <span style="color:#bd93f9">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		r.Errors = <span style="color:#bd93f9">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#ff79c6">case</span> <span style="color:#f1fa8c">&#34;rejected&#34;</span>:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    <span style="color:#6272a4">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	collector.<span style="color:#50fa7b">Update</span>(r)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">switch</span> update.Types[<span style="color:#099">0</span>] {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#000;font-weight:bold">case</span> <span style="color:#d14">&#34;success&#34;</span>:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		r.Successes = <span style="color:#099">1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#000;font-weight:bold">case</span> <span style="color:#d14">&#34;failure&#34;</span>:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		r.Failures = <span style="color:#099">1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		r.Errors = <span style="color:#099">1</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#000;font-weight:bold">case</span> <span style="color:#d14">&#34;rejected&#34;</span>:
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    <span style="color:#998;font-style:italic">// ...
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	collector.<span style="color:#900;font-weight:bold">Update</span>(r)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	wg.<span style="color:#50fa7b">Done</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	wg.<span style="color:#900;font-weight:bold">Done</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>}
 </code></pre></div><p>IncrementMetrics 对不同的事件进行计数，最后调用收集器的 <code>collector.Update(r)</code> 方法进行汇总，关于默认收集器的实现，我们在下面分析。</p>
 <h4 id="ishealthy-方法">IsHealthy 方法</h4>
 <p>通过之前的分析我们知道，断路器是调用 IsHealthy 方法来判断健康度，然后进行熔断的，我们看下其实现：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 计算最近 10s 内的请求错误率
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (m <span style="color:#ff79c6">*</span>metricExchange) <span style="color:#50fa7b">ErrorPercent</span>(now time.Time) <span style="color:#8be9fd">int</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	m.Mutex.<span style="color:#50fa7b">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#ff79c6">defer</span> m.Mutex.<span style="color:#50fa7b">RUnlock</span>()
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 计算最近 10s 内的请求错误率
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (m <span style="color:#000;font-weight:bold">*</span>metricExchange) <span style="color:#900;font-weight:bold">ErrorPercent</span>(now time.Time) <span style="color:#458;font-weight:bold">int</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	m.Mutex.<span style="color:#900;font-weight:bold">RLock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#000;font-weight:bold">defer</span> m.Mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#8be9fd;font-style:italic">var</span> errPct <span style="color:#8be9fd">float64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	reqs <span style="color:#ff79c6">:=</span> m.<span style="color:#50fa7b">requestsLocked</span>().<span style="color:#50fa7b">Sum</span>(now)            <span style="color:#6272a4">// 计算过去 10s 内累计的请求数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	errs <span style="color:#ff79c6">:=</span> m.<span style="color:#50fa7b">DefaultCollector</span>().<span style="color:#50fa7b">Errors</span>().<span style="color:#50fa7b">Sum</span>(now) <span style="color:#6272a4">// 计算过去 10s 内累计的请求失败数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#ff79c6">if</span> reqs &gt; <span style="color:#bd93f9">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		errPct = (<span style="color:#8be9fd;font-style:italic">float64</span>(errs) <span style="color:#ff79c6">/</span> <span style="color:#8be9fd;font-style:italic">float64</span>(reqs)) <span style="color:#ff79c6">*</span> <span style="color:#bd93f9">100</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#000;font-weight:bold">var</span> errPct <span style="color:#458;font-weight:bold">float64</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	reqs <span style="color:#000;font-weight:bold">:=</span> m.<span style="color:#900;font-weight:bold">requestsLocked</span>().<span style="color:#900;font-weight:bold">Sum</span>(now)            <span style="color:#998;font-style:italic">// 计算过去 10s 内累计的请求数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	errs <span style="color:#000;font-weight:bold">:=</span> m.<span style="color:#900;font-weight:bold">DefaultCollector</span>().<span style="color:#900;font-weight:bold">Errors</span>().<span style="color:#900;font-weight:bold">Sum</span>(now) <span style="color:#998;font-style:italic">// 计算过去 10s 内累计的请求失败数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">if</span> reqs &gt; <span style="color:#099">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		errPct = (<span style="color:#0086b3">float64</span>(errs) <span style="color:#000;font-weight:bold">/</span> <span style="color:#0086b3">float64</span>(reqs)) <span style="color:#000;font-weight:bold">*</span> <span style="color:#099">100</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	<span style="color:#6272a4">// 向上取整，好奇为什么不直接用 math.Ceil(errPct)
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4"></span>	<span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">int</span>(errPct <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">0.5</span>)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	<span style="color:#998;font-style:italic">// 向上取整，好奇为什么不直接用 math.Ceil(errPct)
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">int</span>(errPct <span style="color:#000;font-weight:bold">+</span> <span style="color:#099">0.5</span>)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4">// 根据错误率计算当前健康度，当错误率到达阈值返回 false，未达到阈值返回 true
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (m <span style="color:#ff79c6">*</span>metricExchange) <span style="color:#50fa7b">IsHealthy</span>(now time.Time) <span style="color:#8be9fd">bool</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	<span style="color:#ff79c6">return</span> m.<span style="color:#50fa7b">ErrorPercent</span>(now) &lt; <span style="color:#50fa7b">getSettings</span>(m.Name).ErrorPercentThreshold
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic">// 根据错误率计算当前健康度，当错误率到达阈值返回 false，未达到阈值返回 true
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (m <span style="color:#000;font-weight:bold">*</span>metricExchange) <span style="color:#900;font-weight:bold">IsHealthy</span>(now time.Time) <span style="color:#458;font-weight:bold">bool</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	<span style="color:#000;font-weight:bold">return</span> m.<span style="color:#900;font-weight:bold">ErrorPercent</span>(now) &lt; <span style="color:#900;font-weight:bold">getSettings</span>(m.Name).ErrorPercentThreshold
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
 </code></pre></div><p>首先，调用 <code>m.ErrorPercent(now)</code> 获取默认收集器过去 10s 内的请求总数和请求错误数，然后计算出错误率，并做向上取整。</p>
 <p>然后，获取 hystrix-go 配置的错误率阈值 <code>ErrorPercentThreshold</code>。</p>
 <p>一旦 <code>m.ErrorPercent(now) &lt; getSettings(m.Name).ErrorPercentThreshold</code> 表明当前服务的错误率超过了阈值，即健康度偏低，这样简单粗暴的方式来判断是否需要熔断的。</p>
 <h4 id="默认收集器">默认收集器</h4>
 <p>该仓库除了提供默认的收集器外，还提供了其他几个收集器，其实只要实现了 <code>MetricCollector</code> 接口都可以作为收集器。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> MetricCollector <span style="color:#8be9fd;font-style:italic">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#6272a4">// Update accepts a set of metrics from a command execution for remote instrumentation
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Update</span>(MetricResult)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#6272a4">// Reset resets the internal counters and timers.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#6272a4"></span>	<span style="color:#50fa7b">Reset</span>()
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> MetricCollector <span style="color:#000;font-weight:bold">interface</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#998;font-style:italic">// Update accepts a set of metrics from a command execution for remote instrumentation
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>	<span style="color:#900;font-weight:bold">Update</span>(MetricResult)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#998;font-style:italic">// Reset resets the internal counters and timers.
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>	<span style="color:#900;font-weight:bold">Reset</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
 </code></pre></div><p>我们主要看下默认的收集器：</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">type</span> DefaultMetricCollector <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	mutex <span style="color:#ff79c6">*</span>sync.RWMutex
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> DefaultMetricCollector <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	mutex <span style="color:#000;font-weight:bold">*</span>sync.RWMutex
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	numRequests <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求总数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#6272a4"></span>	errors      <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计错误总数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	successes               <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求成功数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#6272a4"></span>	failures                <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求失败数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#6272a4"></span>	rejects                 <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求被拒绝数（触发限流）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#6272a4"></span>	shortCircuits           <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求被熔断数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#6272a4"></span>	timeouts                <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求超时数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#6272a4"></span>	contextCanceled         <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求 ctx 取消数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#6272a4"></span>	contextDeadlineExceeded <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计请求 ctx 超时数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#6272a4"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	fallbackSuccesses <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计 fallback 成功数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span>	fallbackFailures  <span style="color:#ff79c6">*</span>rolling.Number <span style="color:#6272a4">// 统计 fallback 失败数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#6272a4"></span>	totalDuration     <span style="color:#ff79c6">*</span>rolling.Timing <span style="color:#6272a4">// 统计所有请求总耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#6272a4"></span>	runDuration       <span style="color:#ff79c6">*</span>rolling.Timing <span style="color:#6272a4">// 统计当个请求耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#6272a4"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	numRequests <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求总数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	errors      <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计错误总数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	successes               <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求成功数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	failures                <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求失败数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	rejects                 <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求被拒绝数（触发限流）
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	shortCircuits           <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求被熔断数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	timeouts                <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求超时数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	contextCanceled         <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求 ctx 取消数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	contextDeadlineExceeded <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计请求 ctx 超时数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	fallbackSuccesses <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计 fallback 成功数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>	fallbackFailures  <span style="color:#000;font-weight:bold">*</span>rolling.Number <span style="color:#998;font-style:italic">// 统计 fallback 失败数
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	totalDuration     <span style="color:#000;font-weight:bold">*</span>rolling.Timing <span style="color:#998;font-style:italic">// 统计所有请求总耗时
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>	runDuration       <span style="color:#000;font-weight:bold">*</span>rolling.Timing <span style="color:#998;font-style:italic">// 统计当个请求耗时
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>这里我们主要看下 <code>*rolling.Number</code>，它才是状态最终保存的地方。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#8be9fd;font-style:italic">type</span> Number <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Buckets <span style="color:#8be9fd;font-style:italic">map</span>[<span style="color:#8be9fd">int64</span>]<span style="color:#ff79c6">*</span>numberBucket
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	Mutex   <span style="color:#ff79c6">*</span>sync.RWMutex
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> Number <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	Buckets <span style="color:#000;font-weight:bold">map</span>[<span style="color:#458;font-weight:bold">int64</span>]<span style="color:#000;font-weight:bold">*</span>numberBucket
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	Mutex   <span style="color:#000;font-weight:bold">*</span>sync.RWMutex
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#8be9fd;font-style:italic">type</span> numberBucket <span style="color:#8be9fd;font-style:italic">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	Value <span style="color:#8be9fd">float64</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#000;font-weight:bold">type</span> numberBucket <span style="color:#000;font-weight:bold">struct</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	Value <span style="color:#458;font-weight:bold">float64</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
 </code></pre></div><p>Number 保存了 10 秒内的 Buckets 数据信息，每一个 Bucket 的统计时长为 1 秒。字典字段 <code>Buckets map[int64]*numberBucket</code> 中的 Key 保存的是当前时间（秒时间戳）。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#6272a4">// 获取当前时间戳对应的 numberBucket，不存在时创建
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (r <span style="color:#ff79c6">*</span>Number) <span style="color:#50fa7b">getCurrentBucket</span>() <span style="color:#ff79c6">*</span>numberBucket {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	now <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">Now</span>().<span style="color:#50fa7b">Unix</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#8be9fd;font-style:italic">var</span> bucket <span style="color:#ff79c6">*</span>numberBucket
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#8be9fd;font-style:italic">var</span> ok <span style="color:#8be9fd">bool</span>
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 获取当前时间戳对应的 numberBucket，不存在时创建
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (r <span style="color:#000;font-weight:bold">*</span>Number) <span style="color:#900;font-weight:bold">getCurrentBucket</span>() <span style="color:#000;font-weight:bold">*</span>numberBucket {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	now <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">Unix</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#000;font-weight:bold">var</span> bucket <span style="color:#000;font-weight:bold">*</span>numberBucket
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#000;font-weight:bold">var</span> ok <span style="color:#458;font-weight:bold">bool</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#ff79c6">if</span> bucket, ok = r.Buckets[now]; !ok {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		bucket = <span style="color:#ff79c6">&amp;</span>numberBucket{}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#000;font-weight:bold">if</span> bucket, ok = r.Buckets[now]; !ok {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		bucket = <span style="color:#000;font-weight:bold">&amp;</span>numberBucket{}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		r.Buckets[now] = bucket
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#ff79c6">return</span> bucket
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#000;font-weight:bold">return</span> bucket
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#6272a4">// 移除 10s 以前的 numberBucket
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (r <span style="color:#ff79c6">*</span>Number) <span style="color:#50fa7b">removeOldBuckets</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	now <span style="color:#ff79c6">:=</span> time.<span style="color:#50fa7b">Now</span>().<span style="color:#50fa7b">Unix</span>() <span style="color:#ff79c6">-</span> <span style="color:#bd93f9">10</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">// 移除 10s 以前的 numberBucket
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (r <span style="color:#000;font-weight:bold">*</span>Number) <span style="color:#900;font-weight:bold">removeOldBuckets</span>() {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	now <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">Unix</span>() <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">10</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#ff79c6">for</span> timestamp <span style="color:#ff79c6">:=</span> <span style="color:#ff79c6">range</span> r.Buckets {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		<span style="color:#6272a4">// TODO: configurable rolling window
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#6272a4"></span>		<span style="color:#ff79c6">if</span> timestamp <span style="color:#ff79c6">&lt;=</span> now {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>			<span style="color:#8be9fd;font-style:italic">delete</span>(r.Buckets, timestamp)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#000;font-weight:bold">for</span> timestamp <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> r.Buckets {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		<span style="color:#998;font-style:italic">// TODO: configurable rolling window
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> timestamp <span style="color:#000;font-weight:bold">&lt;=</span> now {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>			<span style="color:#0086b3">delete</span>(r.Buckets, timestamp)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#6272a4">// 增加当前时间对应的 numberBucket 值
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#6272a4"></span><span style="color:#8be9fd;font-style:italic">func</span> (r <span style="color:#ff79c6">*</span>Number) <span style="color:#50fa7b">Increment</span>(i <span style="color:#8be9fd">float64</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>	<span style="color:#ff79c6">if</span> i <span style="color:#ff79c6">==</span> <span style="color:#bd93f9">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		<span style="color:#ff79c6">return</span>
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic">// 增加当前时间对应的 numberBucket 值
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (r <span style="color:#000;font-weight:bold">*</span>Number) <span style="color:#900;font-weight:bold">Increment</span>(i <span style="color:#458;font-weight:bold">float64</span>) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>	<span style="color:#000;font-weight:bold">if</span> i <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		<span style="color:#000;font-weight:bold">return</span>
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>	}
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	r.Mutex.<span style="color:#50fa7b">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	<span style="color:#ff79c6">defer</span> r.Mutex.<span style="color:#50fa7b">Unlock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	r.Mutex.<span style="color:#900;font-weight:bold">Lock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	<span style="color:#000;font-weight:bold">defer</span> r.Mutex.<span style="color:#900;font-weight:bold">Unlock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>	b <span style="color:#ff79c6">:=</span> r.<span style="color:#50fa7b">getCurrentBucket</span>() <span style="color:#6272a4">// 获取当前 numberBucket
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span style="color:#6272a4"></span>	b.Value <span style="color:#ff79c6">+=</span> i              <span style="color:#6272a4">// numberBucket.Value += i
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span style="color:#6272a4"></span>	r.<span style="color:#50fa7b">removeOldBuckets</span>()      <span style="color:#6272a4">// 移除 10s 以前的 numberBucket
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#6272a4"></span>}
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>	b <span style="color:#000;font-weight:bold">:=</span> r.<span style="color:#900;font-weight:bold">getCurrentBucket</span>() <span style="color:#998;font-style:italic">// 获取当前 numberBucket
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span style="color:#998;font-style:italic"></span>	b.Value <span style="color:#000;font-weight:bold">+=</span> i              <span style="color:#998;font-style:italic">// numberBucket.Value += i
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span><span style="color:#998;font-style:italic"></span>	r.<span style="color:#900;font-weight:bold">removeOldBuckets</span>()      <span style="color:#998;font-style:italic">// 移除 10s 以前的 numberBucket
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#998;font-style:italic"></span>}
 </code></pre></div><p>*Number 除了上面的三个方法，还实现了 UpdateMax、Sum、Max、Avg 方法，代码比较简单，这里不再说明。</p>
 <p>默认收集器 DefaultMetricCollector 的 Update 方法才是最终更新统计信息的地方。</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#8be9fd;font-style:italic">func</span> (d <span style="color:#ff79c6">*</span>DefaultMetricCollector) <span style="color:#50fa7b">Update</span>(r MetricResult) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	d.mutex.<span style="color:#50fa7b">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#ff79c6">defer</span> d.mutex.<span style="color:#50fa7b">RUnlock</span>()
+<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (d <span style="color:#000;font-weight:bold">*</span>DefaultMetricCollector) <span style="color:#900;font-weight:bold">Update</span>(r MetricResult) {
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	d.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">defer</span> d.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	d.numRequests.<span style="color:#50fa7b">Increment</span>(r.Attempts)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	d.errors.<span style="color:#50fa7b">Increment</span>(r.Errors)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	d.successes.<span style="color:#50fa7b">Increment</span>(r.Successes)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	d.failures.<span style="color:#50fa7b">Increment</span>(r.Failures)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	d.rejects.<span style="color:#50fa7b">Increment</span>(r.Rejects)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	d.shortCircuits.<span style="color:#50fa7b">Increment</span>(r.ShortCircuits)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	d.timeouts.<span style="color:#50fa7b">Increment</span>(r.Timeouts)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	d.fallbackSuccesses.<span style="color:#50fa7b">Increment</span>(r.FallbackSuccesses)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	d.fallbackFailures.<span style="color:#50fa7b">Increment</span>(r.FallbackFailures)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	d.contextCanceled.<span style="color:#50fa7b">Increment</span>(r.ContextCanceled)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	d.contextDeadlineExceeded.<span style="color:#50fa7b">Increment</span>(r.ContextDeadlineExceeded)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	d.numRequests.<span style="color:#900;font-weight:bold">Increment</span>(r.Attempts)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	d.errors.<span style="color:#900;font-weight:bold">Increment</span>(r.Errors)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	d.successes.<span style="color:#900;font-weight:bold">Increment</span>(r.Successes)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	d.failures.<span style="color:#900;font-weight:bold">Increment</span>(r.Failures)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	d.rejects.<span style="color:#900;font-weight:bold">Increment</span>(r.Rejects)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	d.shortCircuits.<span style="color:#900;font-weight:bold">Increment</span>(r.ShortCircuits)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	d.timeouts.<span style="color:#900;font-weight:bold">Increment</span>(r.Timeouts)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	d.fallbackSuccesses.<span style="color:#900;font-weight:bold">Increment</span>(r.FallbackSuccesses)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	d.fallbackFailures.<span style="color:#900;font-weight:bold">Increment</span>(r.FallbackFailures)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	d.contextCanceled.<span style="color:#900;font-weight:bold">Increment</span>(r.ContextCanceled)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	d.contextDeadlineExceeded.<span style="color:#900;font-weight:bold">Increment</span>(r.ContextDeadlineExceeded)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	d.totalDuration.<span style="color:#50fa7b">Add</span>(r.TotalDuration)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	d.runDuration.<span style="color:#50fa7b">Add</span>(r.RunDuration)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	d.totalDuration.<span style="color:#900;font-weight:bold">Add</span>(r.TotalDuration)
+<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	d.runDuration.<span style="color:#900;font-weight:bold">Add</span>(r.RunDuration)
 <span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>}
 </code></pre></div><p>可以看到，Update 方法内部其实是调用的 *rolling.Number 的 Increment 方法来更新数据的。</p>
 <h3 id="参考">参考</h3>
@@ -325,9 +433,9 @@
             
             <ul class="clearfix">
                 
-                <li><a href='https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
+                <li><a href='/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB'>Go源码阅读</a></li>
                 
-                <li><a href='https://maratrix.cn/tags/hystrix-go'>hystrix-go</a></li>
+                <li><a href='/tags/hystrix-go'>hystrix-go</a></li>
                 
             </ul>
             
@@ -340,7 +448,7 @@
     
     <div class="post bg-white">
       <script src="https://utteranc.es/client.js"
-            repo= "your github repo"
+            repo= "maratrixx/maratrixx.github.io"
             issue-term="pathname"
             theme="github-light"
             crossorigin="anonymous"
@@ -349,6 +457,58 @@
     </div>
     
 </div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
 
                 </div>
 
@@ -412,7 +572,7 @@
     
 
     <section class="widget">
-        <h3 class="widget-title">分类</h3>
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
 <ul class="widget-list">
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
@@ -443,7 +603,7 @@
     </section>
 
     <section class="widget">
-        <h3 class="widget-title">标签</h3>
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
 <div class="tagcloud">
     
     <a href="https://maratrix.cn/tags/Git/">Git</a>
@@ -558,49 +718,6 @@
             </div>
         </div>
     </div>
-    <footer id="footer">
-    <div class="container">
-        &copy; 2021 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>.
-        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
-        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/flysnow-org/maupassant-hugo" target="_blank">maupassant</a>.
-        
-    </div>
-</footer>
-
-
-    
-    <script type="text/javascript">
-        window.MathJax = {
-            tex2jax: {
-                inlineMath: [['$', '$']],
-                processEscapes: true
-                }
-            };
-    </script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
-
-
-<a id="rocket" href="#top"></a>
-<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
-
-<script type="application/javascript">
-var doNotTrack = false;
-if (!doNotTrack) {
-	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-	ga('create', 'UA-164520269-1', 'auto');
-	
-	ga('send', 'pageview');
-}
-</script>
-<script async src='https://www.google-analytics.com/analytics.js'></script>
-
-
-
-    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
-
-
-
-
 </body>
 
 </html>

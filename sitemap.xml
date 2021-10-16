@@ -1,568 +1,342 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Go/</loc>
     <lastmod>2021-04-28T18:38:26+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/go/</loc>
     <lastmod>2021-04-28T18:38:26+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/04/28/go-deps/</loc>
     <lastmod>2021-04-28T18:38:26+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/04/09/gnu-makefile/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Linux/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/linux/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/makefile/</loc>
     <lastmod>2021-04-09T09:17:14+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Prometheus/</loc>
     <lastmod>2021-03-17T09:00:40+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Prometheus/</loc>
     <lastmod>2021-03-17T09:00:40+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/03/17/go-metrics/</loc>
     <lastmod>2021-03-17T09:00:40+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/</loc>
     <lastmod>2021-03-17T09:00:40+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/go1.16/</loc>
     <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</loc>
     <lastmod>2021-03-10T08:58:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/03/10/go1.16-module/</loc>
     <lastmod>2021-03-10T08:06:49+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/embed/</loc>
     <lastmod>2021-02-21T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/02/21/go-embed-syntax/</loc>
     <lastmod>2021-02-21T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Grafana/</loc>
     <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/02/11/grafana-quick-start/</loc>
     <lastmod>2021-02-11T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/</loc>
     <lastmod>2021-02-10T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/02/08/prometheus-intro/</loc>
     <lastmod>2021-02-08T11:20:18+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
     <lastmod>2021-01-28T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/</loc>
     <lastmod>2021-01-28T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/hystrix-go/</loc>
     <lastmod>2021-01-28T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</loc>
     <lastmod>2021-01-28T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/</loc>
     <lastmod>2021-01-28T09:23:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/27/hystrix-go-metrics-read/</loc>
     <lastmod>2021-01-27T08:45:02+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</loc>
     <lastmod>2021-01-25T22:31:12+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</loc>
     <lastmod>2021-01-24T10:36:09+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/sentinel/</loc>
     <lastmod>2021-01-20T09:25:05+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</loc>
     <lastmod>2021-01-20T09:25:05+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/19/sentinel-flow-control-notes/</loc>
     <lastmod>2021-01-19T08:11:23+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/</loc>
     <lastmod>2021-01-19T08:11:23+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/15/how-to-use-protoc-notes/</loc>
     <lastmod>2021-01-15T09:36:47+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/grpc/</loc>
     <lastmod>2021-01-15T09:36:47+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/protobuf/</loc>
     <lastmod>2021-01-15T09:36:47+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/protobuf/</loc>
     <lastmod>2021-01-15T09:36:47+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/protoc/</loc>
     <lastmod>2021-01-15T09:36:47+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</loc>
     <lastmod>2021-01-10T23:12:12+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/</loc>
     <lastmod>2021-01-10T23:12:12+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/</loc>
     <lastmod>2021-01-06T23:13:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/</loc>
     <lastmod>2021-01-06T23:13:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/12/31/2020-summary/</loc>
     <lastmod>2020-12-31T14:02:48+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2020-12-31T14:02:48+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/</loc>
     <lastmod>2020-12-31T14:02:48+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/12/17/go-cond-build/</loc>
     <lastmod>2020-12-17T23:00:41+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/</loc>
     <lastmod>2020-12-17T23:00:41+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/</loc>
     <lastmod>2020-12-17T23:00:41+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/09/16/linux-comm-dd/</loc>
     <lastmod>2020-09-16T19:27:00+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/</loc>
     <lastmod>2020-09-16T19:27:00+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/channel/</loc>
     <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</loc>
     <lastmod>2020-08-25T22:40:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/context/</loc>
     <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/07/12/go-context-source-read/</loc>
     <lastmod>2020-07-12T16:55:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/</loc>
     <lastmod>2020-06-14T18:36:57+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/06/14/go-fast-random/</loc>
     <lastmod>2020-06-14T18:36:57+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</loc>
     <lastmod>2020-06-13T09:11:02+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/</loc>
     <lastmod>2020-06-13T09:11:02+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/</loc>
     <lastmod>2020-04-25T20:50:34+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/</loc>
     <lastmod>2020-04-21T11:55:18+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/20/go-nocopy-notes/</loc>
     <lastmod>2020-04-20T21:56:22+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/14/strings-builder-source-note/</loc>
     <lastmod>2020-04-14T11:55:41+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/14/go-hijack-note/</loc>
     <lastmod>2020-04-14T11:53:21+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Nginx/</loc>
     <lastmod>2020-04-14T11:47:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/nginx/</loc>
     <lastmod>2020-04-14T11:47:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/04/14/smooth-weighted-round-robin/</loc>
     <lastmod>2020-04-14T11:47:28+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/about/</loc>
     <lastmod>2020-04-10T00:13:27+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/read/</loc>
     <lastmod>2020-04-10T00:13:27+00:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Rust/</loc>
     <lastmod>2020-02-06T10:01:58+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/rust/</loc>
     <lastmod>2020-02-06T10:01:58+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/</loc>
     <lastmod>2020-02-06T10:01:58+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/05/006-rust-control-notes/</loc>
     <lastmod>2020-02-05T10:00:51+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</loc>
     <lastmod>2020-02-05T09:59:52+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/05/004-rust-types-notes/</loc>
     <lastmod>2020-02-05T09:51:09+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</loc>
     <lastmod>2020-02-04T09:49:40+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/04/002-rust-notes/</loc>
     <lastmod>2020-02-04T09:45:34+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/</loc>
     <lastmod>2020-02-04T09:45:20+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2020/02/04/000-rust-install-notes/</loc>
     <lastmod>2020-02-04T09:40:42+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/</loc>
     <lastmod>2019-09-28T10:18:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</loc>
     <lastmod>2019-09-28T10:18:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2019/09/05/go-json-string-tag-notes/</loc>
     <lastmod>2019-09-05T10:15:11+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2019/07/31/go-overseer-notes/</loc>
     <lastmod>2019-07-31T10:12:16+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</loc>
     <lastmod>2019-07-12T10:10:42+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/Git/</loc>
     <lastmod>2014-06-27T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/Git/</loc>
     <lastmod>2014-06-27T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/27/git-branch/</loc>
     <lastmod>2014-06-27T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/26/git-remote-set/</loc>
     <lastmod>2014-06-26T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/25/git-add-remote/</loc>
     <lastmod>2014-06-25T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/24/git-version-manage/</loc>
     <lastmod>2014-06-24T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/23/git-del/</loc>
     <lastmod>2014-06-23T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/22/git-work-stash/</loc>
     <lastmod>2014-06-22T21:14:30+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/21/git-version-reset/</loc>
     <lastmod>2014-06-21T21:11:27+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/20/git-install/</loc>
     <lastmod>2014-06-20T20:35:36+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/06/19/git-create/</loc>
     <lastmod>2014-06-19T20:31:25+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/PHP/</loc>
     <lastmod>2014-05-12T20:27:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/PHP/</loc>
     <lastmod>2014-05-12T20:27:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/05/12/php-traits/</loc>
     <lastmod>2014-05-12T20:27:10+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/05/11/php-static-bind/</loc>
     <lastmod>2014-05-11T20:24:12+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/05/10/critical-value/</loc>
     <lastmod>2014-05-10T19:36:05+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/</loc>
     <lastmod>2014-05-10T19:36:05+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/</loc>
     <lastmod>2014-05-10T19:36:05+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/</loc>
     <lastmod>2014-03-07T19:28:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/post/2014/03/07/hello-world/</loc>
     <lastmod>2014-03-07T19:28:45+08:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/archives/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://maratrix.cn/search/</loc>
   </url>
-  
 </urlset>
