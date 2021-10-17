@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -237,9 +241,17 @@
 <h4 id="heading"></h4>
 <h2 id="rustup镜像">rustup镜像</h2>
 <p>把一下代码复制到<code>.bashrc</code>或者类似文件(<code>.zshrc</code>等)然后执行<code>source .bashrc</code>或者将其添加到环境变量</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#0086b3">export</span> RUSTUP<span style="color:#d14">\_</span>DIST<span style="color:#d14">\_</span>SERVER<span style="color:#000;font-weight:bold">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#0086b3">export</span> RUSTUP<span style="color:#d14">\_</span>UPDATE<span style="color:#d14">\_</span>ROOT<span style="color:#000;font-weight:bold">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
-</code></pre></div><ul>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#0086b3">export</span> RUSTUP<span style="color:#d14">\_</span>DIST<span style="color:#d14">\_</span>SERVER<span style="color:#000;font-weight:bold">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static
+<span style="color:#0086b3">export</span> RUSTUP<span style="color:#d14">\_</span>UPDATE<span style="color:#d14">\_</span>ROOT<span style="color:#000;font-weight:bold">=</span>https://mirrors.sjtug.sjtu.edu.cn/rust-static/rustup
+</code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>
 <p>可选的其他地址：</p>
 </li>
@@ -255,24 +267,61 @@
 </ul>
 <h2 id="cargo镜像">cargo镜像</h2>
 <p>Rust官方提供了<code>cargo</code>包管理工具，管理仓库为：<a href="https://crates.io">https://crates.io</a>。当我们在编译需要依赖<code>crates.io</code>的项目时，可能会由于网络问题导致依赖库下载失败。可以在<code>$HOME/.cargo/</code>下建立一个<code>config</code>文件，加入如下配置：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">[</span>source.crates-io<span style="color:#000;font-weight:bold">]</span> 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://github.com/rust-lang/crates.io-index&#34;</span> 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>replace-with <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;ustc&#34;</span> 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#000;font-weight:bold">[</span>source.ustc<span style="color:#000;font-weight:bold">]</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;git://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
-</code></pre></div><p>如果不能使用<code>git</code>的话，可以把<code>registry</code>替换成：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
-</code></pre></div><h2 id="hello-world">Hello World</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#000;font-weight:bold">[</span>source.crates-io<span style="color:#000;font-weight:bold">]</span> 
+<span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://github.com/rust-lang/crates.io-index&#34;</span> 
+replace-with <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;ustc&#34;</span> 
+<span style="color:#000;font-weight:bold">[</span>source.ustc<span style="color:#000;font-weight:bold">]</span>
+<span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;git://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>如果不能使用<code>git</code>的话，可以把<code>registry</code>替换成：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#008080">registry</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#34;https://mirrors.ustc.edu.cn/crates.io-index&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="hello-world">Hello World</h2>
 <p>编程第一课必须是<code>hello world</code>程序，创建<code>hello_world.rs</code>写入以下代码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#34;hello world&#34;</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>s);<span style="color:#bbb"> 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>然后编译运行：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustc hello_world.rs
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>./hello_world  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>//输出：hello world
-</code></pre></div><p>嗯，第一个Rust程序已经成功运行了。😁</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">  
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#34;hello world&#34;</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>s);<span style="color:#bbb"> 
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>然后编译运行：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">rustc hello_world.rs
+./hello_world  
+//输出：hello world
+</code></pre></td></tr></table>
+</div>
+</div><p>嗯，第一个Rust程序已经成功运行了。😁</p>
 <p>简单分析下：</p>
 <ul>
 <li>Rust源代码文件使用<code>.rs</code>结尾；</li>
@@ -295,20 +344,44 @@
 <p>默认情况下，用户不需要导入标准库，编译器会自动引入，系统会在每个 crate 开头自动插入一句话：</p>
 </li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">use</span><span style="color:#bbb"> </span>std::prelude::<span style="color:#a61717;background-color:#e3d2d2">\</span><span style="color:#000;font-weight:bold">*</span><span style="color:#bbb">
-</span></code></pre></div><h2 id="format格式说明">Format格式说明</h2>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">1</span>);<span style="color:#bbb">                          </span><span style="color:#998;font-style:italic">//默认打印用法 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:o}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">9</span>);<span style="color:#bbb">                        </span><span style="color:#998;font-style:italic">//八进制 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:x}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">255</span>);<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">//十六进制，小写
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:X}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">255</span>);<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">//十六进制，大写 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:p}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&amp;</span><span style="color:#099">0</span>);<span style="color:#bbb">                       </span><span style="color:#998;font-style:italic">//指针println!(&#34;{:b}&#34;, 15);                       //二进制 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:e}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">10000</span><span style="color:#000;font-weight:bold">f32</span>);<span style="color:#bbb">                 </span><span style="color:#998;font-style:italic">//科学计数，小写 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:E}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">10000</span><span style="color:#000;font-weight:bold">f32</span>);<span style="color:#bbb">                 </span><span style="color:#998;font-style:italic">//科学计数，大写 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:?}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#d14">&#34;test&#34;</span>);<span style="color:#bbb">                   </span><span style="color:#998;font-style:italic">//打印debug 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:#?}&#34;</span>,<span style="color:#bbb"> </span>(<span style="color:#d14">&#34;test1&#34;</span>,<span style="color:#bbb"> </span><span style="color:#d14">&#34;test2&#34;</span>));<span style="color:#bbb">      </span><span style="color:#998;font-style:italic">//带换行符和缩进的debug打印 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{a}, {b}, {b}&#34;</span>,<span style="color:#bbb"> </span>a<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;aa&#34;</span>,<span style="color:#bbb"> </span>b<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;bb&#34;</span>);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">//命名参数 }
-</span></code></pre></div><p>除了<code>println!</code> 宏，Rust还提供了其他一些宏，比如<code>format!, write!, writeln!</code>等，可以在<code>std::fmt</code>标准库内查看。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">use</span><span style="color:#bbb"> </span>std::prelude::<span style="color:#a61717;background-color:#e3d2d2">\</span><span style="color:#000;font-weight:bold">*</span><span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="format格式说明">Format格式说明</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">  
+</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">1</span>);<span style="color:#bbb">                          </span><span style="color:#998;font-style:italic">//默认打印用法 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:o}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">9</span>);<span style="color:#bbb">                        </span><span style="color:#998;font-style:italic">//八进制 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:x}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">255</span>);<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">//十六进制，小写
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:X}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">255</span>);<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">//十六进制，大写 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:p}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&amp;</span><span style="color:#099">0</span>);<span style="color:#bbb">                       </span><span style="color:#998;font-style:italic">//指针println!(&#34;{:b}&#34;, 15);                       //二进制 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:e}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">10000</span><span style="color:#000;font-weight:bold">f32</span>);<span style="color:#bbb">                 </span><span style="color:#998;font-style:italic">//科学计数，小写 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:E}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#099">10000</span><span style="color:#000;font-weight:bold">f32</span>);<span style="color:#bbb">                 </span><span style="color:#998;font-style:italic">//科学计数，大写 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:?}&#34;</span>,<span style="color:#bbb"> </span><span style="color:#d14">&#34;test&#34;</span>);<span style="color:#bbb">                   </span><span style="color:#998;font-style:italic">//打印debug 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{:#?}&#34;</span>,<span style="color:#bbb"> </span>(<span style="color:#d14">&#34;test1&#34;</span>,<span style="color:#bbb"> </span><span style="color:#d14">&#34;test2&#34;</span>));<span style="color:#bbb">      </span><span style="color:#998;font-style:italic">//带换行符和缩进的debug打印 
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{a}, {b}, {b}&#34;</span>,<span style="color:#bbb"> </span>a<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;aa&#34;</span>,<span style="color:#bbb"> </span>b<span style="color:#000;font-weight:bold">=</span><span style="color:#d14">&#34;bb&#34;</span>);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">//命名参数 }
+</span></code></pre></td></tr></table>
+</div>
+</div><p>除了<code>println!</code> 宏，Rust还提供了其他一些宏，比如<code>format!, write!, writeln!</code>等，可以在<code>std::fmt</code>标准库内查看。</p>
 <h4 id="设计标准输出宏的原因">设计标准输出宏的原因：</h4>
 <ul>
 <li>更好地错误检查，编译期内即可发现错误；</li>
@@ -318,6 +391,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/">https://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

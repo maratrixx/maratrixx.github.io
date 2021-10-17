@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -211,83 +215,184 @@
 <p>Prometheus 基于 Golang 编写、编译后的软件包，不依赖于任何的第三方依赖。用户只需要下载对应平台的二进制包，解压并且添加基本的配置即可正常启动 Prometheus Server。</p>
 <h4 id="从二进制包安装">从二进制包安装</h4>
 <p>对于非 Docker 用户，可以从 <a href="https://prometheus.io/download/">https://prometheus.io/download/</a> 找到最新版本的 Prometheus Sevrer 软件包：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>export VERSION=2.25.0
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>curl -LO  https://github.com/prometheus/prometheus/releases/download/v$VERSION/prometheus-$VERSION.darwin-amd64.tar.gz
-</code></pre></div><p>解压，查看 Prometheus 目录结构：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>tar -xzf prometheus-2.25.0.darwin-amd64.tar.gz
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>cd prometheus-2.25.0.darwin-amd64
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>tree -L 2 .
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>├── LICENSE
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>├── NOTICE
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>├── console_libraries
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>│   ├── menu.lib
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>│   └── prom.lib
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>├── consoles
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>│   ├── index.html.example
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>│   ├── node-cpu.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>│   ├── node-disk.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>│   ├── node-overview.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>│   ├── node.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>│   ├── prometheus-overview.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>│   └── prometheus.html
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>├── data
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>│   ├── chunks_head
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>│   ├── lock
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>│   ├── queries.active
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>│   └── wal
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>├── prometheus
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>├── prometheus.yml
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>└── promtool
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>5 directories, 16 files
-</code></pre></div><p>解压后当前目录会包含默认的 Prometheus 配置文件 promethes.yml:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span># my global config
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>global:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>  # scrape_timeout is set to the global default (10s).
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span># Alertmanager configuration
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>alerting:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>  alertmanagers:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>  - static_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    - targets:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>      # - alertmanager:9093
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span># Load rules once and periodically evaluate them according to the global &#39;evaluation_interval&#39;.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>rule_files:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>  # - &#34;first_rules.yml&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>  # - &#34;second_rules.yml&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span># A scrape configuration containing exactly one endpoint to scrape:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span># Here it&#39;s Prometheus itself.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>scrape_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>  # The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>  - job_name: &#39;prometheus&#39;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>    # metrics_path defaults to &#39;/metrics&#39;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    # scheme defaults to &#39;http&#39;.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>    static_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>    - targets: [&#39;localhost:9090&#39;]
-</code></pre></div><p>运行 Prometheus Server:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>./prometheus --config.file=&#34;prometheus.yml&#34; --web.listen-address=&#34;0.0.0.0:9090&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>level=info ts=2021-02-13T03:12:43.647Z caller=main.go:366 msg=&#34;No time or size retention was set so using the default time retention&#34; duration=15d
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>level=info ts=2021-02-13T03:12:43.648Z caller=main.go:404 msg=&#34;Starting Prometheus&#34; version=&#34;(version=2.25.0-rc.0, branch=HEAD, revision=526095f9fa6159a49a3adce177f3294ebcf37b1f)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>level=info ts=2021-02-13T03:12:43.648Z caller=main.go:409 build_context=&#34;(go=go1.15.8, user=root@2111579c2ad1, date=20210212-19:11:41)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>level=info ts=2021-02-13T03:12:43.648Z caller=main.go:410 host_details=(darwin)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>level=info ts=2021-02-13T03:12:43.648Z caller=main.go:411 fd_limits=&#34;(soft=256, hard=unlimited)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>level=info ts=2021-02-13T03:12:43.648Z caller=main.go:412 vm_limits=&#34;(soft=unlimited, hard=unlimited)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>level=info ts=2021-02-13T03:12:43.655Z caller=web.go:532 component=web msg=&#34;Start listening for connections&#34; address=0.0.0.0:9090
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>level=info ts=2021-02-13T03:12:43.658Z caller=main.go:779 msg=&#34;Starting TSDB ...&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>level=info ts=2021-02-13T03:12:43.662Z caller=tls_config.go:191 component=web msg=&#34;TLS is disabled.&#34; http2=false
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>......
-</code></pre></div><h4 id="使用容器安装">使用容器安装</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">export VERSION=2.25.0
+curl -LO  https://github.com/prometheus/prometheus/releases/download/v$VERSION/prometheus-$VERSION.darwin-amd64.tar.gz
+</code></pre></td></tr></table>
+</div>
+</div><p>解压，查看 Prometheus 目录结构：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">tar -xzf prometheus-2.25.0.darwin-amd64.tar.gz
+cd prometheus-2.25.0.darwin-amd64
+
+tree -L 2 .
+.
+├── LICENSE
+├── NOTICE
+├── console_libraries
+│   ├── menu.lib
+│   └── prom.lib
+├── consoles
+│   ├── index.html.example
+│   ├── node-cpu.html
+│   ├── node-disk.html
+│   ├── node-overview.html
+│   ├── node.html
+│   ├── prometheus-overview.html
+│   └── prometheus.html
+├── data
+│   ├── chunks_head
+│   ├── lock
+│   ├── queries.active
+│   └── wal
+├── prometheus
+├── prometheus.yml
+└── promtool
+
+5 directories, 16 files
+</code></pre></td></tr></table>
+</div>
+</div><p>解压后当前目录会包含默认的 Prometheus 配置文件 promethes.yml:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># my global config
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global &#39;evaluation_interval&#39;.
+rule_files:
+  # - &#34;first_rules.yml&#34;
+  # - &#34;second_rules.yml&#34;
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it&#39;s Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=&lt;job_name&gt;` to any timeseries scraped from this config.
+  - job_name: &#39;prometheus&#39;
+
+    # metrics_path defaults to &#39;/metrics&#39;
+    # scheme defaults to &#39;http&#39;.
+
+    static_configs:
+    - targets: [&#39;localhost:9090&#39;]
+</code></pre></td></tr></table>
+</div>
+</div><p>运行 Prometheus Server:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">./prometheus --config.file=&#34;prometheus.yml&#34; --web.listen-address=&#34;0.0.0.0:9090&#34;
+level=info ts=2021-02-13T03:12:43.647Z caller=main.go:366 msg=&#34;No time or size retention was set so using the default time retention&#34; duration=15d
+level=info ts=2021-02-13T03:12:43.648Z caller=main.go:404 msg=&#34;Starting Prometheus&#34; version=&#34;(version=2.25.0-rc.0, branch=HEAD, revision=526095f9fa6159a49a3adce177f3294ebcf37b1f)&#34;
+level=info ts=2021-02-13T03:12:43.648Z caller=main.go:409 build_context=&#34;(go=go1.15.8, user=root@2111579c2ad1, date=20210212-19:11:41)&#34;
+level=info ts=2021-02-13T03:12:43.648Z caller=main.go:410 host_details=(darwin)
+level=info ts=2021-02-13T03:12:43.648Z caller=main.go:411 fd_limits=&#34;(soft=256, hard=unlimited)&#34;
+level=info ts=2021-02-13T03:12:43.648Z caller=main.go:412 vm_limits=&#34;(soft=unlimited, hard=unlimited)&#34;
+level=info ts=2021-02-13T03:12:43.655Z caller=web.go:532 component=web msg=&#34;Start listening for connections&#34; address=0.0.0.0:9090
+level=info ts=2021-02-13T03:12:43.658Z caller=main.go:779 msg=&#34;Starting TSDB ...&#34;
+level=info ts=2021-02-13T03:12:43.662Z caller=tls_config.go:191 component=web msg=&#34;TLS is disabled.&#34; http2=false
+......
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="使用容器安装">使用容器安装</h4>
 <p>对于 Docker 用户，直接使用 Prometheus 的镜像即可启动 Prometheus Server：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>docker run -p 9090:9090 -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
-</code></pre></div><p>启动完成后，可以通过 http://localhost:9090/graph 访问 UI 界面：
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">docker run -p 9090:9090 -v /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+</code></pre></td></tr></table>
+</div>
+</div><p>启动完成后，可以通过 http://localhost:9090/graph 访问 UI 界面：
 
         <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213112552.png">
             <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213112552.png" />
@@ -304,54 +409,118 @@
         </a>
     </p>
 <p>Node Exporter 同样采用 Golang 编写，并且不存在任何的第三方依赖，只需要下载，解压即可运行。可以从 <a href="https://prometheus.io/download/">https://prometheus.io/download/</a> 获取最新的 Node exporter 版本的二进制包。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>curl -OL https://github.com/prometheus/node_exporter/releases/download/v1.1.0/node_exporter-1.1.0.darwin-amd64.tar.gz
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>tar -xzf node_exporter-1.1.0.darwin-amd64.tar.gz
-</code></pre></div><p>运行 Node exporter:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>cd node_exporter-1.1.0.darwin-amd64
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>./node_exporter
-</code></pre></div><p>启动成功后，可以看到以下输出：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>./node_exporter
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>level=info ts=2021-02-13T03:37:54.502Z caller=node_exporter.go:178 msg=&#34;Starting node_exporter&#34; version=&#34;(version=1.1.0, branch=HEAD, revision=0e74fbcd5fe3b98246292829a8e81e3133e17033)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>level=info ts=2021-02-13T03:37:54.503Z caller=node_exporter.go:179 msg=&#34;Build context&#34; build_context=&#34;(go=go1.15.8, user=root@cf7d8c880095, date=20210205-23:04:01)&#34;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>level=info ts=2021-02-13T03:37:54.503Z caller=filesystem_common.go:74 collector=filesystem msg=&#34;Parsed flag --collector.filesystem.ignored-mount-points&#34; flag=^/(dev)($|/)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>level=info ts=2021-02-13T03:37:54.503Z caller=filesystem_common.go:76 collector=filesystem msg=&#34;Parsed flag --collector.filesystem.ignored-fs-types&#34; flag=^devfs$
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>...
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>level=info ts=2021-02-13T03:37:54.503Z caller=node_exporter.go:195 msg=&#34;Listening on&#34; address=:9100
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>...
-</code></pre></div><p>访问 http://localhost:9100/metrics，可以看到当前 Node exporter 获取到的当前主机的所有监控数据，如下所示：
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">curl -OL https://github.com/prometheus/node_exporter/releases/download/v1.1.0/node_exporter-1.1.0.darwin-amd64.tar.gz
+tar -xzf node_exporter-1.1.0.darwin-amd64.tar.gz
+</code></pre></td></tr></table>
+</div>
+</div><p>运行 Node exporter:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">cd node_exporter-1.1.0.darwin-amd64
+./node_exporter
+</code></pre></td></tr></table>
+</div>
+</div><p>启动成功后，可以看到以下输出：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">./node_exporter
+level=info ts=2021-02-13T03:37:54.502Z caller=node_exporter.go:178 msg=&#34;Starting node_exporter&#34; version=&#34;(version=1.1.0, branch=HEAD, revision=0e74fbcd5fe3b98246292829a8e81e3133e17033)&#34;
+level=info ts=2021-02-13T03:37:54.503Z caller=node_exporter.go:179 msg=&#34;Build context&#34; build_context=&#34;(go=go1.15.8, user=root@cf7d8c880095, date=20210205-23:04:01)&#34;
+level=info ts=2021-02-13T03:37:54.503Z caller=filesystem_common.go:74 collector=filesystem msg=&#34;Parsed flag --collector.filesystem.ignored-mount-points&#34; flag=^/(dev)($|/)
+level=info ts=2021-02-13T03:37:54.503Z caller=filesystem_common.go:76 collector=filesystem msg=&#34;Parsed flag --collector.filesystem.ignored-fs-types&#34; flag=^devfs$
+...
+level=info ts=2021-02-13T03:37:54.503Z caller=node_exporter.go:195 msg=&#34;Listening on&#34; address=:9100
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>访问 http://localhost:9100/metrics，可以看到当前 Node exporter 获取到的当前主机的所有监控数据，如下所示：
 
         <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213113956.png">
             <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213113956.png" />
         </a>
     </p>
 <p>每一个监控指标之前都会有一段类似于如下形式的信息：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span># HELP node_cpu Seconds the cpus spent in each mode.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span># TYPE node_cpu counter
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>node_cpu{cpu=&#34;cpu0&#34;,mode=&#34;idle&#34;} 362812.7890625
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span># HELP node_load1 1m load average.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span># TYPE node_load1 gauge
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>node_load1 3.0703125
-</code></pre></div><p>其中 HELP 用于解释当前指标的含义，TYPE 则说明当前指标的数据类型。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"># HELP node_cpu Seconds the cpus spent in each mode.
+# TYPE node_cpu counter
+node_cpu{cpu=&#34;cpu0&#34;,mode=&#34;idle&#34;} 362812.7890625
+# HELP node_load1 1m load average.
+# TYPE node_load1 gauge
+node_load1 3.0703125
+</code></pre></td></tr></table>
+</div>
+</div><p>其中 HELP 用于解释当前指标的含义，TYPE 则说明当前指标的数据类型。</p>
 <h4 id="从node-exporter收集监控数据">从Node Exporter收集监控数据</h4>
 <p>为了能够让 Prometheus Server 能够从当前 Node exporter 获取到监控数据，这里需要修改 Prometheus 配置文件。编辑 prometheus.yml 并在 scrape_configs 节点下添加以下内容:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>scrape_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  - job_name: &#39;prometheus&#39;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    static_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>      - targets: [&#39;localhost:9090&#39;]
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>  # 采集node exporter监控数据
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>  - job_name: &#39;node&#39;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    static_configs:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>      - targets: [&#39;localhost:9100&#39;]
-</code></pre></div><p>重新启动 Prometheus Server，访问 http://localhost:9090，进入到 Prometheus Server。如果输入“up”并且点击执行按钮以后，可以看到如下结果：
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">scrape_configs:
+  - job_name: &#39;prometheus&#39;
+    static_configs:
+      - targets: [&#39;localhost:9090&#39;]
+  # 采集node exporter监控数据
+  - job_name: &#39;node&#39;
+    static_configs:
+      - targets: [&#39;localhost:9100&#39;]
+</code></pre></td></tr></table>
+</div>
+</div><p>重新启动 Prometheus Server，访问 http://localhost:9090，进入到 Prometheus Server。如果输入“up”并且点击执行按钮以后，可以看到如下结果：
 
         <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213114744.png">
             <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images//blog20210213114744.png" />
         </a>
     </p>
 <p>如果 Prometheus 能够正常从 Node exporter 获取数据，则会看到以下结果：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>up{instance=&#34;localhost:9090&#34;,job=&#34;prometheus&#34;}    1
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>up{instance=&#34;localhost:9100&#34;,job=&#34;node&#34;}    1
-</code></pre></div><p>其中“1”表示正常，反之“0”则为异常。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">up{instance=&#34;localhost:9090&#34;,job=&#34;prometheus&#34;}    1
+up{instance=&#34;localhost:9100&#34;,job=&#34;node&#34;}    1
+</code></pre></td></tr></table>
+</div>
+</div><p>其中“1”表示正常，反之“0”则为异常。</p>
 <h3 id="快速入门-promql">快速入门 PromQL</h3>
 <p>配置完 Prometheus 读取的数据源之后，Prometheus 便可以从 Node Exporter 获取到数据了。那么接下来我们如何查看到这些数据呢？答案是：Prometheus UI！</p>
 <p>Prometheus UI 是 Prometheus 内置的一个可视化管理界面，我们通过 http://localhost:9090 就可以访问到该页面。通过 Prometheus UI 可以查询 Prometheus 收集到的数据，而 Prometheus 定义了 PromQL 语言来作为查询监控数据的语言，与 SQL 类似。</p>
@@ -382,6 +551,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/">https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

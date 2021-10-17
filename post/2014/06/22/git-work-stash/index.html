@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -211,20 +215,46 @@
 <h3 id="暂存区">暂存区</h3>
 <p>Git的版本库里有很多的文件，其中比较重要的就是stage(或者index)文件，这个就是暂存区。还有Git为我们自动创建的第一个分支master，以及指向master的一个指针HEAD。</p>
 <p>前面我们知道，当我们要提交修改的文件时是分为两步的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>第一步：git add把文件添加进去，实际上是把文件修改添加到暂存区。
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>第二步：git commit把文件提交给版本库，实际上是把暂存区的所有内容提交到当前的分支。
-</code></pre></div><p>因为我们创建Git版本库时，Git自动为我们创建了唯一一个master分支，所以，现在，commit就是往master分支上提交更改。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">第一步：git add把文件添加进去，实际上是把文件修改添加到暂存区。
+第二步：git commit把文件提交给版本库，实际上是把暂存区的所有内容提交到当前的分支。
+</code></pre></td></tr></table>
+</div>
+</div><p>因为我们创建Git版本库时，Git自动为我们创建了唯一一个master分支，所以，现在，commit就是往master分支上提交更改。</p>
 <p>可以简单理解为，需要提交的文件修改通通放到暂存区，然后，一次性提交暂存区的所有修改。</p>
 <p>一旦提交后，如果又没有对工作区做任何修改，那么工作区就是“干净”的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git status
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"># On branch master</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>nothing to commit <span style="color:#000;font-weight:bold">(</span>working directory clean<span style="color:#000;font-weight:bold">)</span>
-</code></pre></div><h3 id="小结">小结</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git status
+<span style="color:#998;font-style:italic"># On branch master</span>
+nothing to commit <span style="color:#000;font-weight:bold">(</span>working directory clean<span style="color:#000;font-weight:bold">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="小结">小结</h3>
 <p>暂存区是Git非常重要的概念，弄明白了暂存区，就弄明白了Git的很多操作到底干了什么。</p>
 
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/06/22/git-work-stash/">https://maratrix.cn/post/2014/06/22/git-work-stash/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

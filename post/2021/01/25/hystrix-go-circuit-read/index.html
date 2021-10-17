@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -203,56 +207,116 @@
         <div class="post-content">
             <p><a href="/post/2021/01/24/hystrix-go-source-read/">上一篇</a>我们分析 hystrix-go 主流程时知道，对于每个 command 都有一个对应的断路器，而且在 GoC 中首先要通过 <code>GetCircuit(name)</code> 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。</p>
 <p>回顾下 command 结构体：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> command <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#998;font-style:italic">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>    circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker <span style="color:#998;font-style:italic">// 断路器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>今天我们来看下断路器 CircuitBreaker 是如何实现的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> command <span style="color:#000;font-weight:bold">struct</span> {
+    <span style="color:#998;font-style:italic">// ...
+</span><span style="color:#998;font-style:italic"></span>    circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker <span style="color:#998;font-style:italic">// 断路器
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// ...
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>今天我们来看下断路器 CircuitBreaker 是如何实现的。</p>
 <h3 id="源码实现">源码实现</h3>
 <h4 id="circuitbreaker-配置">CircuitBreaker 配置</h4>
 <p>首先看下断路器结构体：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// CircuitBreaker 断路器，根据当前的健康度来决定放行还是熔断
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> CircuitBreaker <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	Name                   <span style="color:#458;font-weight:bold">string</span>           <span style="color:#998;font-style:italic">// 自定义的断路器名字，也就是 ConfigureCommand 传入的 name
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	open                   <span style="color:#458;font-weight:bold">bool</span>             <span style="color:#998;font-style:italic">// 是否为打开状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	forceOpen              <span style="color:#458;font-weight:bold">bool</span>             <span style="color:#998;font-style:italic">// 是否强制打开断路器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	mutex                  <span style="color:#000;font-weight:bold">*</span>sync.RWMutex    <span style="color:#998;font-style:italic">// 保护锁
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	openedOrLastTestedTime <span style="color:#458;font-weight:bold">int64</span>            <span style="color:#998;font-style:italic">// 上一次尝试检查服务是否恢复的时间戳
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	executorPool           <span style="color:#000;font-weight:bold">*</span>executorPool    <span style="color:#998;font-style:italic">// 令牌池+相关运行统计指标，后续文章分析
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	metrics                <span style="color:#000;font-weight:bold">*</span>metricExchange  <span style="color:#998;font-style:italic">// 统计收集器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>CircuitBreaker 结构体已经做详细注释，还是比较简单的，其中 executorPool 和 metrics 作用分别是流量控制和收集上报事件，会在后续文章详细介绍，这里只需要知道用途即可，不影响往下阅读。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// CircuitBreaker 断路器，根据当前的健康度来决定放行还是熔断
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> CircuitBreaker <span style="color:#000;font-weight:bold">struct</span> {
+	Name                   <span style="color:#458;font-weight:bold">string</span>           <span style="color:#998;font-style:italic">// 自定义的断路器名字，也就是 ConfigureCommand 传入的 name
+</span><span style="color:#998;font-style:italic"></span>	open                   <span style="color:#458;font-weight:bold">bool</span>             <span style="color:#998;font-style:italic">// 是否为打开状态
+</span><span style="color:#998;font-style:italic"></span>	forceOpen              <span style="color:#458;font-weight:bold">bool</span>             <span style="color:#998;font-style:italic">// 是否强制打开断路器
+</span><span style="color:#998;font-style:italic"></span>	mutex                  <span style="color:#000;font-weight:bold">*</span>sync.RWMutex    <span style="color:#998;font-style:italic">// 保护锁
+</span><span style="color:#998;font-style:italic"></span>	openedOrLastTestedTime <span style="color:#458;font-weight:bold">int64</span>            <span style="color:#998;font-style:italic">// 上一次尝试检查服务是否恢复的时间戳
+</span><span style="color:#998;font-style:italic"></span>	executorPool           <span style="color:#000;font-weight:bold">*</span>executorPool    <span style="color:#998;font-style:italic">// 令牌池+相关运行统计指标，后续文章分析
+</span><span style="color:#998;font-style:italic"></span>	metrics                <span style="color:#000;font-weight:bold">*</span>metricExchange  <span style="color:#998;font-style:italic">// 统计收集器
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>CircuitBreaker 结构体已经做详细注释，还是比较简单的，其中 executorPool 和 metrics 作用分别是流量控制和收集上报事件，会在后续文章详细介绍，这里只需要知道用途即可，不影响往下阅读。</p>
 <h4 id="getcircuit-方法">GetCircuit 方法</h4>
 <p>前面提到我们通过 GetCircuit(name) 来获取断路器，看下内部如何实现：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// GetCircuit 根据 name 命令参数返回熔断器对象，或者在不存在时创建它
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GetCircuit</span>(name <span style="color:#458;font-weight:bold">string</span>) (<span style="color:#000;font-weight:bold">*</span>CircuitBreaker, <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#458;font-weight:bold">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	circuitBreakersMutex.<span style="color:#900;font-weight:bold">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	_, ok <span style="color:#000;font-weight:bold">:=</span> circuitBreakers[name]
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#998;font-style:italic">// 断路器不存在时创建
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> !ok {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		circuitBreakersMutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		circuitBreakersMutex.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		<span style="color:#000;font-weight:bold">defer</span> circuitBreakersMutex.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		<span style="color:#998;font-style:italic">// 由于需要先释放读锁，然后加写锁，所以二次检查防止加写锁期间其他协程已经创建
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> cb, ok <span style="color:#000;font-weight:bold">:=</span> circuitBreakers[name]; ok {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>			<span style="color:#000;font-weight:bold">return</span> cb, <span style="color:#000;font-weight:bold">false</span>, <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		<span style="color:#998;font-style:italic">// 新建熔断器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>		circuitBreakers[name] = <span style="color:#900;font-weight:bold">newCircuitBreaker</span>(name)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	} <span style="color:#000;font-weight:bold">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		<span style="color:#000;font-weight:bold">defer</span> circuitBreakersMutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#998;font-style:italic">// 参数1: 断路器对象
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 参数2: 是否为新建
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 参数3: 错误信息
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> circuitBreakers[name], !ok, <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>}
-</code></pre></div><p>整体逻辑就是，首先看下是否存在名字为 name 的断路器，有的话直接取出来返回；没有的话新建一个断路器对象，保存起来并返回。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// GetCircuit 根据 name 命令参数返回熔断器对象，或者在不存在时创建它
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GetCircuit</span>(name <span style="color:#458;font-weight:bold">string</span>) (<span style="color:#000;font-weight:bold">*</span>CircuitBreaker, <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#458;font-weight:bold">error</span>) {
+	circuitBreakersMutex.<span style="color:#900;font-weight:bold">RLock</span>()
+	_, ok <span style="color:#000;font-weight:bold">:=</span> circuitBreakers[name]
+
+	<span style="color:#998;font-style:italic">// 断路器不存在时创建
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> !ok {
+		circuitBreakersMutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
+		circuitBreakersMutex.<span style="color:#900;font-weight:bold">Lock</span>()
+		<span style="color:#000;font-weight:bold">defer</span> circuitBreakersMutex.<span style="color:#900;font-weight:bold">Unlock</span>()
+
+		<span style="color:#998;font-style:italic">// 由于需要先释放读锁，然后加写锁，所以二次检查防止加写锁期间其他协程已经创建
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> cb, ok <span style="color:#000;font-weight:bold">:=</span> circuitBreakers[name]; ok {
+			<span style="color:#000;font-weight:bold">return</span> cb, <span style="color:#000;font-weight:bold">false</span>, <span style="color:#000;font-weight:bold">nil</span>
+		}
+
+		<span style="color:#998;font-style:italic">// 新建熔断器
+</span><span style="color:#998;font-style:italic"></span>		circuitBreakers[name] = <span style="color:#900;font-weight:bold">newCircuitBreaker</span>(name)
+	} <span style="color:#000;font-weight:bold">else</span> {
+		<span style="color:#000;font-weight:bold">defer</span> circuitBreakersMutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
+	}
+
+	<span style="color:#998;font-style:italic">// 参数1: 断路器对象
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 参数2: 是否为新建
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 参数3: 错误信息
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> circuitBreakers[name], !ok, <span style="color:#000;font-weight:bold">nil</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>整体逻辑就是，首先看下是否存在名字为 name 的断路器，有的话直接取出来返回；没有的话新建一个断路器对象，保存起来并返回。</p>
 <p>但要注意的是为什么要两次加锁？</p>
 <ul>
 <li>使用读锁：检查名字为 name 的断路器是否存在，不存在时需要写入操作，所以需要释放读锁，添加写锁。</li>
@@ -260,126 +324,261 @@
 </ul>
 <h4 id="创建断路器newcircuitbreaker">创建断路器：newCircuitBreaker</h4>
 <p>使用 newCircuitBreaker 创建断路器，代码很简单：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 创建断路器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">newCircuitBreaker</span>(name <span style="color:#458;font-weight:bold">string</span>) <span style="color:#000;font-weight:bold">*</span>CircuitBreaker {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	c <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>CircuitBreaker{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	c.Name = name
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	c.metrics = <span style="color:#900;font-weight:bold">newMetricExchange</span>(name)    <span style="color:#998;font-style:italic">// 创建统计收集器对象
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	c.executorPool = <span style="color:#900;font-weight:bold">newExecutorPool</span>(name) <span style="color:#998;font-style:italic">// 创建流量控制对象
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	c.mutex = <span style="color:#000;font-weight:bold">&amp;</span>sync.RWMutex{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#000;font-weight:bold">return</span> c
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
-</code></pre></div><h4 id="allowrequest-方法">AllowRequest 方法</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 创建断路器
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">newCircuitBreaker</span>(name <span style="color:#458;font-weight:bold">string</span>) <span style="color:#000;font-weight:bold">*</span>CircuitBreaker {
+	c <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>CircuitBreaker{}
+	c.Name = name
+	c.metrics = <span style="color:#900;font-weight:bold">newMetricExchange</span>(name)    <span style="color:#998;font-style:italic">// 创建统计收集器对象
+</span><span style="color:#998;font-style:italic"></span>	c.executorPool = <span style="color:#900;font-weight:bold">newExecutorPool</span>(name) <span style="color:#998;font-style:italic">// 创建流量控制对象
+</span><span style="color:#998;font-style:italic"></span>	c.mutex = <span style="color:#000;font-weight:bold">&amp;</span>sync.RWMutex{}
+
+	<span style="color:#000;font-weight:bold">return</span> c
+}
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="allowrequest-方法">AllowRequest 方法</h4>
 <p>在上一篇文章，我们知道通过调用 <code>cmd.circuit.AllowRequest()</code>来判断当前请求时熔断还是放行，这里看下内部实现原理。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">AllowRequest</span>() <span style="color:#458;font-weight:bold">bool</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#998;font-style:italic">// 当断路器打开时，会判断是否允许尝试检查服务已经恢复
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 当断路器关闭时，直接返回 true
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> !circuit.<span style="color:#900;font-weight:bold">IsOpen</span>() <span style="color:#000;font-weight:bold">||</span> circuit.<span style="color:#900;font-weight:bold">allowSingleTest</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-</code></pre></div><p>代码逻辑为：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">AllowRequest</span>() <span style="color:#458;font-weight:bold">bool</span> {
+	<span style="color:#998;font-style:italic">// 当断路器打开时，会判断是否允许尝试检查服务已经恢复
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 当断路器关闭时，直接返回 true
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> !circuit.<span style="color:#900;font-weight:bold">IsOpen</span>() <span style="color:#000;font-weight:bold">||</span> circuit.<span style="color:#900;font-weight:bold">allowSingleTest</span>()
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>代码逻辑为：</p>
 <ul>
 <li>首先通过 <code>!circuit.IsOpen()</code> 检查断路器为关闭状态，是则直接返回 true；</li>
 <li>当 <code>!circuit.IsOpen()</code> 为 false，即断路器为开启状态时，再检查是否允许尝试检查服务已经恢复</li>
 </ul>
 <p>我们分别看下 <code>IsOpen()</code> 和 <code>allowSingleTest()</code> 方法。</p>
 <h5 id="isopen-方法">IsOpen 方法</h5>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// IsOpen 需要在每次执行调用前来检查是否可以尝试执行，IsOpen 为 true 的话表示断路器为打开状态，即禁止尝试执行
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">IsOpen</span>() <span style="color:#458;font-weight:bold">bool</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	o <span style="color:#000;font-weight:bold">:=</span> circuit.forceOpen <span style="color:#000;font-weight:bold">||</span> circuit.open <span style="color:#998;font-style:italic">// 优先检查是否强制打开
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#998;font-style:italic">// 一旦为打开状态，直接返回 true
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> o {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#998;font-style:italic">// 判断是否触发开启断路器检查的最小请求量（相当于 sentinel 的静默请求数量）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 如果还没到达 RequestVolumeThreshold 请求量，直接放行，不做断路器检查
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">uint64</span>(circuit.metrics.<span style="color:#900;font-weight:bold">Requests</span>().<span style="color:#900;font-weight:bold">Sum</span>(time.<span style="color:#900;font-weight:bold">Now</span>())) &lt; <span style="color:#900;font-weight:bold">getSettings</span>(circuit.Name).RequestVolumeThreshold {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#998;font-style:italic">// 根据当前的错误率判断健康度
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 当不是健康状态时，打开断路器开关，并返回 true
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> !circuit.metrics.<span style="color:#900;font-weight:bold">IsHealthy</span>(time.<span style="color:#900;font-weight:bold">Now</span>()) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		<span style="color:#998;font-style:italic">// 太多的错误会触发断路器为打开状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic"></span>		circuit.<span style="color:#900;font-weight:bold">setOpen</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#998;font-style:italic">// 当为健康状态时，返回 false
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>}
-</code></pre></div><p>首先，通过 forceOpen 和 open 参数看下断路器是否为打开状态，是则直接返回 true。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// IsOpen 需要在每次执行调用前来检查是否可以尝试执行，IsOpen 为 true 的话表示断路器为打开状态，即禁止尝试执行
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">IsOpen</span>() <span style="color:#458;font-weight:bold">bool</span> {
+	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
+	o <span style="color:#000;font-weight:bold">:=</span> circuit.forceOpen <span style="color:#000;font-weight:bold">||</span> circuit.open <span style="color:#998;font-style:italic">// 优先检查是否强制打开
+</span><span style="color:#998;font-style:italic"></span>	circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
+
+	<span style="color:#998;font-style:italic">// 一旦为打开状态，直接返回 true
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> o {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">true</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 判断是否触发开启断路器检查的最小请求量（相当于 sentinel 的静默请求数量）
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 如果还没到达 RequestVolumeThreshold 请求量，直接放行，不做断路器检查
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">uint64</span>(circuit.metrics.<span style="color:#900;font-weight:bold">Requests</span>().<span style="color:#900;font-weight:bold">Sum</span>(time.<span style="color:#900;font-weight:bold">Now</span>())) &lt; <span style="color:#900;font-weight:bold">getSettings</span>(circuit.Name).RequestVolumeThreshold {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 根据当前的错误率判断健康度
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 当不是健康状态时，打开断路器开关，并返回 true
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> !circuit.metrics.<span style="color:#900;font-weight:bold">IsHealthy</span>(time.<span style="color:#900;font-weight:bold">Now</span>()) {
+		<span style="color:#998;font-style:italic">// 太多的错误会触发断路器为打开状态
+</span><span style="color:#998;font-style:italic"></span>		circuit.<span style="color:#900;font-weight:bold">setOpen</span>()
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">true</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 当为健康状态时，返回 false
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>首先，通过 forceOpen 和 open 参数看下断路器是否为打开状态，是则直接返回 true。</p>
 <p>然后，判断当前是否触发开启断路器检查的最小请求量（相当于 sentinel 的静默请求数量），如果还没到达 RequestVolumeThreshold 请求量，直接放行，不做断路器检查。这里是为了防止服务刚启动时，请求量较少，一旦有错误就会有较高的错误率，容易误判。</p>
 <p>最后，通过调用 <code>circuit.metrics.IsHealthy(time.Now())</code> 来判断当前的健康度，当健康度低于设置的阈值时，触发熔断并设置当前断路器为打开状态。</p>
 <p>否则，返回 false。</p>
 <h5 id="allowsingletest-方法">allowSingleTest 方法</h5>
 <p>当断路器为打开状态时，我们总要有策略来尝试检查服务是否已经恢复，不能一直处于熔断状态，allowSingleTest 的作用就是判断是否允许服务已经恢复。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 判断是否允许检查服务已经恢复
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">allowSingleTest</span>() <span style="color:#458;font-weight:bold">bool</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#000;font-weight:bold">defer</span> circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	now <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">UnixNano</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	openedOrLastTestedTime <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">LoadInt64</span>(<span style="color:#000;font-weight:bold">&amp;</span>circuit.openedOrLastTestedTime)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#998;font-style:italic">// 当断路器为打开状态 &amp;&amp; 已经经过了允许尝试时间窗口 &amp;&amp; cas 成功，才允许进行尝试检查服务已经恢复
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> circuit.open <span style="color:#000;font-weight:bold">&amp;&amp;</span> now &gt; openedOrLastTestedTime<span style="color:#000;font-weight:bold">+</span><span style="color:#900;font-weight:bold">getSettings</span>(circuit.Name).SleepWindow.<span style="color:#900;font-weight:bold">Nanoseconds</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		swapped <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">CompareAndSwapInt64</span>(<span style="color:#000;font-weight:bold">&amp;</span>circuit.openedOrLastTestedTime, openedOrLastTestedTime, now)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		<span style="color:#000;font-weight:bold">if</span> swapped {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>			log.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;hystrix-go: allowing single test to possibly close circuit %v&#34;</span>, circuit.Name)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		<span style="color:#000;font-weight:bold">return</span> swapped
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>}
-</code></pre></div><p><code>circuit.openedOrLastTestedTime</code>：保存最近一次触发熔断或者尝试服务是否已经恢复的时间。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 判断是否允许检查服务已经恢复
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">allowSingleTest</span>() <span style="color:#458;font-weight:bold">bool</span> {
+	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
+	<span style="color:#000;font-weight:bold">defer</span> circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
+
+	now <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">UnixNano</span>()
+	openedOrLastTestedTime <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">LoadInt64</span>(<span style="color:#000;font-weight:bold">&amp;</span>circuit.openedOrLastTestedTime)
+
+	<span style="color:#998;font-style:italic">// 当断路器为打开状态 &amp;&amp; 已经经过了允许尝试时间窗口 &amp;&amp; cas 成功，才允许进行尝试检查服务已经恢复
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> circuit.open <span style="color:#000;font-weight:bold">&amp;&amp;</span> now &gt; openedOrLastTestedTime<span style="color:#000;font-weight:bold">+</span><span style="color:#900;font-weight:bold">getSettings</span>(circuit.Name).SleepWindow.<span style="color:#900;font-weight:bold">Nanoseconds</span>() {
+		swapped <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">CompareAndSwapInt64</span>(<span style="color:#000;font-weight:bold">&amp;</span>circuit.openedOrLastTestedTime, openedOrLastTestedTime, now)
+		<span style="color:#000;font-weight:bold">if</span> swapped {
+			log.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;hystrix-go: allowing single test to possibly close circuit %v&#34;</span>, circuit.Name)
+		}
+		<span style="color:#000;font-weight:bold">return</span> swapped
+	}
+
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><code>circuit.openedOrLastTestedTime</code>：保存最近一次触发熔断或者尝试服务是否已经恢复的时间。</p>
 <p><code>getSettings(circuit.Name).SleepWindow</code>：为全局时间窗口，当熔断器被打开后，控制过多久后去尝试探测服务是否可用了，默认值是 5000ms。</p>
 <p>allowSingleTest 逻辑为当断路器为打开状态 &amp;&amp; 已经过了允许尝试时间窗口 &amp;&amp; CAS 更新为当前时间成功，才允许进行尝试检查服务是否已经恢复。</p>
 <h4 id="上报事件">上报事件</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// ReportEvent 记录统计指标，以跟踪最近的错误率并将数据公开给仪表板
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">ReportEvent</span>(eventTypes []<span style="color:#458;font-weight:bold">string</span>, start time.Time, runDuration time.Duration) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">len</span>(eventTypes) <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#000;font-weight:bold">return</span> fmt.<span style="color:#900;font-weight:bold">Errorf</span>(<span style="color:#d14">&#34;no event types sent for metrics&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	o <span style="color:#000;font-weight:bold">:=</span> circuit.open
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#998;font-style:italic">// 当为成功事件 &amp;&amp; 当前断路器状态为打开时，将断路器状态置为关闭状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> eventTypes[<span style="color:#099">0</span>] <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;success&#34;</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> o {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		circuit.<span style="color:#900;font-weight:bold">setClose</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#000;font-weight:bold">var</span> concurrencyInUse <span style="color:#458;font-weight:bold">float64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#000;font-weight:bold">if</span> circuit.executorPool.Max &gt; <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		<span style="color:#998;font-style:italic">// 计算当前的并发量和支持的最大并发比率
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>		concurrencyInUse = <span style="color:#0086b3">float64</span>(circuit.executorPool.<span style="color:#900;font-weight:bold">ActiveCount</span>()) <span style="color:#000;font-weight:bold">/</span> <span style="color:#0086b3">float64</span>(circuit.executorPool.Max)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	<span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>	<span style="color:#000;font-weight:bold">case</span> circuit.metrics.Updates <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">&amp;</span>commandExecution{ <span style="color:#998;font-style:italic">// 发送命令执行的指标数据
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic"></span>		Types:            eventTypes,       <span style="color:#998;font-style:italic">// 事件列表
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>		Start:            start,            <span style="color:#998;font-style:italic">// 开始事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span style="color:#998;font-style:italic"></span>		RunDuration:      runDuration,      <span style="color:#998;font-style:italic">// 执行耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic"></span>		ConcurrencyInUse: concurrencyInUse, <span style="color:#998;font-style:italic">// 当前的并发占比
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#998;font-style:italic"></span>	}:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>	<span style="color:#000;font-weight:bold">default</span>:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		<span style="color:#000;font-weight:bold">return</span> CircuitError{Message: fmt.<span style="color:#900;font-weight:bold">Sprintf</span>(<span style="color:#d14">&#34;metrics channel (%v) is at capacity&#34;</span>, circuit.Name)}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>}
-</code></pre></div><p>ReportEvent 方法首先检查当前为成功事件 &amp;&amp; 断路器状态为打开时，将断路器状态置为关闭状态。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">if</span> eventTypes[<span style="color:#099">0</span>] <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;success&#34;</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> o {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    circuit.<span style="color:#900;font-weight:bold">setClose</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
-</code></pre></div><p><strong>其中这块逻辑个人觉得不太适合，只有一次成功请求就要关闭断路器么？应该统计过去一段时间内的成功率才对吧？</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// ReportEvent 记录统计指标，以跟踪最近的错误率并将数据公开给仪表板
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (circuit <span style="color:#000;font-weight:bold">*</span>CircuitBreaker) <span style="color:#900;font-weight:bold">ReportEvent</span>(eventTypes []<span style="color:#458;font-weight:bold">string</span>, start time.Time, runDuration time.Duration) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">len</span>(eventTypes) <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
+		<span style="color:#000;font-weight:bold">return</span> fmt.<span style="color:#900;font-weight:bold">Errorf</span>(<span style="color:#d14">&#34;no event types sent for metrics&#34;</span>)
+	}
+
+	circuit.mutex.<span style="color:#900;font-weight:bold">RLock</span>()
+	o <span style="color:#000;font-weight:bold">:=</span> circuit.open
+	circuit.mutex.<span style="color:#900;font-weight:bold">RUnlock</span>()
+
+	<span style="color:#998;font-style:italic">// 当为成功事件 &amp;&amp; 当前断路器状态为打开时，将断路器状态置为关闭状态
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> eventTypes[<span style="color:#099">0</span>] <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;success&#34;</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> o {
+		circuit.<span style="color:#900;font-weight:bold">setClose</span>()
+	}
+
+	<span style="color:#000;font-weight:bold">var</span> concurrencyInUse <span style="color:#458;font-weight:bold">float64</span>
+	<span style="color:#000;font-weight:bold">if</span> circuit.executorPool.Max &gt; <span style="color:#099">0</span> {
+		<span style="color:#998;font-style:italic">// 计算当前的并发量和支持的最大并发比率
+</span><span style="color:#998;font-style:italic"></span>		concurrencyInUse = <span style="color:#0086b3">float64</span>(circuit.executorPool.<span style="color:#900;font-weight:bold">ActiveCount</span>()) <span style="color:#000;font-weight:bold">/</span> <span style="color:#0086b3">float64</span>(circuit.executorPool.Max)
+	}
+
+	<span style="color:#000;font-weight:bold">select</span> {
+	<span style="color:#000;font-weight:bold">case</span> circuit.metrics.Updates <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">&amp;</span>commandExecution{ <span style="color:#998;font-style:italic">// 发送命令执行的指标数据
+</span><span style="color:#998;font-style:italic"></span>		Types:            eventTypes,       <span style="color:#998;font-style:italic">// 事件列表
+</span><span style="color:#998;font-style:italic"></span>		Start:            start,            <span style="color:#998;font-style:italic">// 开始事件
+</span><span style="color:#998;font-style:italic"></span>		RunDuration:      runDuration,      <span style="color:#998;font-style:italic">// 执行耗时
+</span><span style="color:#998;font-style:italic"></span>		ConcurrencyInUse: concurrencyInUse, <span style="color:#998;font-style:italic">// 当前的并发占比
+</span><span style="color:#998;font-style:italic"></span>	}:
+	<span style="color:#000;font-weight:bold">default</span>:
+		<span style="color:#000;font-weight:bold">return</span> CircuitError{Message: fmt.<span style="color:#900;font-weight:bold">Sprintf</span>(<span style="color:#d14">&#34;metrics channel (%v) is at capacity&#34;</span>, circuit.Name)}
+	}
+
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>ReportEvent 方法首先检查当前为成功事件 &amp;&amp; 断路器状态为打开时，将断路器状态置为关闭状态。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">if</span> eventTypes[<span style="color:#099">0</span>] <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;success&#34;</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> o {
+    circuit.<span style="color:#900;font-weight:bold">setClose</span>()
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>其中这块逻辑个人觉得不太适合，只有一次成功请求就要关闭断路器么？应该统计过去一段时间内的成功率才对吧？</strong></p>
 <p>然后，计算当前的并发请求占比，用于统计和看板展示，没有其他用处。</p>
 <p>最后，上报给 <code>circuit.metrics.Updates</code> 统计控制器，用于计算服务健康度和看板展示。</p>
 <h3 id="参考">参考</h3>
@@ -388,6 +587,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/">https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -203,27 +207,79 @@
             <p>今天正式开始学Rust。</p>
 <h2 id="安装">安装</h2>
 <p>学习一门新语言，第一件事当然是先安装。官方推荐使用<code>rustup</code>工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>curl <span style="color:#000;font-weight:bold">--</span>proto <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>=https<span style="color:#a61717;background-color:#e3d2d2">&#39;</span> <span style="color:#000;font-weight:bold">--</span>tlsv1<span style="color:#099">.2</span> <span style="color:#000;font-weight:bold">-</span>sSf https:<span style="color:#998;font-style:italic">//sh.rustup.rs | sh
-</span></code></pre></div><p>其实就是，先下载安装<code>rustup</code>，然后使用<code>rustip</code>来安装Rust。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">curl <span style="color:#000;font-weight:bold">--</span>proto <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>=https<span style="color:#a61717;background-color:#e3d2d2">&#39;</span> <span style="color:#000;font-weight:bold">--</span>tlsv1<span style="color:#099">.2</span> <span style="color:#000;font-weight:bold">-</span>sSf https:<span style="color:#998;font-style:italic">//sh.rustup.rs | sh
+</span></code></pre></td></tr></table>
+</div>
+</div><p>其实就是，先下载安装<code>rustup</code>，然后使用<code>rustip</code>来安装Rust。</p>
 <h2 id="环境变量">环境变量</h2>
 <p>安装脚本自动将 Rust 加入系统 PATH 环境变量中，在下一次登录时生效。如果你希望立刻就开始使用 Rust 而不重启终端，在 shell 中运行如下命令，手动将 Rust 加入系统 PATH 变量中：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>source <span style="color:#a61717;background-color:#e3d2d2">$</span>HOME<span style="color:#000;font-weight:bold">/</span>.cargo<span style="color:#000;font-weight:bold">/</span>env
-</code></pre></div><p>或者，可以在 <code>~/.bash_profile</code> 文件中增加如下行：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>export PATH=<span style="color:#d14">&#34;$HOME/.cargo/bin:$PATH&#34;</span>
-</code></pre></div><h2 id="更新">更新</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">source <span style="color:#a61717;background-color:#e3d2d2">$</span>HOME<span style="color:#000;font-weight:bold">/</span>.cargo<span style="color:#000;font-weight:bold">/</span>env
+</code></pre></td></tr></table>
+</div>
+</div><p>或者，可以在 <code>~/.bash_profile</code> 文件中增加如下行：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">export PATH=<span style="color:#d14">&#34;$HOME/.cargo/bin:$PATH&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="更新">更新</h2>
 <p>我们使用<code>rustup</code>来管理安装Rust，当我们已经安装好<code>rustup</code>后，使用以下命令来更新Rust版本。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustup update
-</code></pre></div><h2 id="卸载">卸载</h2>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustup self uninstall
-</code></pre></div><p>此时，Rust和<code>rustup</code>都会被卸载掉。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rustup update
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="卸载">卸载</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rustup self uninstall
+</code></pre></td></tr></table>
+</div>
+</div><p>此时，Rust和<code>rustup</code>都会被卸载掉。</p>
 <h2 id="查看版本">查看版本</h2>
 <p>使用<code>rustc -V</code>或者<code>rustc --version</code>可查看安装的Rust版本号：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>rustc <span style="color:#000;font-weight:bold">-</span>V 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic">// rustc 1.40.0 (73528e339 2019-12-16)
-</span></code></pre></div>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">rustc <span style="color:#000;font-weight:bold">-</span>V 
+<span style="color:#998;font-style:italic">// rustc 1.40.0 (73528e339 2019-12-16)
+</span></code></pre></td></tr></table>
+</div>
+</div>
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/02/04/000-rust-install-notes/">https://maratrix.cn/post/2020/02/04/000-rust-install-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

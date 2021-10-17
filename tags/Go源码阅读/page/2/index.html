@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -99,7 +103,7 @@
         </div>
         
         <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1 2 3 4 5 6 str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} ss := &#34;&#34; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
         </div>
     </article>

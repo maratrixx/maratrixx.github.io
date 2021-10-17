@@ -22,7 +22,7 @@
       <pubDate>Wed, 05 Feb 2020 10:00:51 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/02/05/006-rust-control-notes/</guid>
-      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if条件{2//... 3}elseif条件{4//... 5}else{6//... 7}注意，这里的条件表达式不包含()括号，直接写</description>
+      <description>if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1 2 3 4 5 6 7 if条件{//... }elseif条件{//... }else{//... } 注意，这里的条件表达式不包含()括号，直</description>
     </item>
     
     <item>
@@ -31,7 +31,7 @@
       <pubDate>Wed, 05 Feb 2020 09:59:52 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</guid>
-      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32,b: bool)-&amp;gt; u32 {2//... 3}函数参数 函数可以定义多个参数，使用逗号,分隔</description>
+      <description>函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1 2 3 fn test_function(a: i32,b: bool)-&amp;gt; u32 {//... } 函数参数 函数可以定义多个参数，使用逗号,</description>
     </item>
     
     <item>
@@ -49,7 +49,7 @@
       <pubDate>Tue, 04 Feb 2020 09:49:40 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/</guid>
-      <description>变量声明 语法格式： 1let变量名: 变量类型=变量值;2letvar: i32 =123;有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必</description>
+      <description>变量声明 语法格式： 1 2 let变量名: 变量类型=变量值;letvar: i32 =123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理</description>
     </item>
     
     <item>
@@ -76,7 +76,7 @@
       <pubDate>Tue, 04 Feb 2020 09:40:42 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/02/04/000-rust-install-notes/</guid>
-      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &amp;#39;=https&amp;#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rust</description>
+      <description>今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1 curl --proto &amp;#39;=https&amp;#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rus</description>
     </item>
     
   </channel>

@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -204,25 +208,57 @@
 <p>图片</p>
 <p>目前，在GitHub上的这个learngit仓库还是空的，GitHub告诉我们，可以从这个仓库克隆出新的仓库，也可以把一个已有的本地仓库与之关联，然后，把本地仓库的内容推送到GitHub仓库。</p>
 <p>现在，我们根据GitHub的提示，在本地的learngit仓库下运行命令：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git remote add origin git@github.com:GithubName/learngit.git
-</code></pre></div><p>请千万注意，把上面的GithubName替换成你自己的GitHub账户名.</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git remote add origin git@github.com:GithubName/learngit.git
+</code></pre></td></tr></table>
+</div>
+</div><p>请千万注意，把上面的GithubName替换成你自己的GitHub账户名.</p>
 <p>添加后，远程库的名字就是origin，这是Git默认的叫法，也可以改成别的，但是origin这个名字一看就知道是远程库。</p>
 <p>下一步，就可以把本地库的所有内容推送到远程库上：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git push -u origin master
-</code></pre></div><p>把本地库的内容推送到远程，用git push命令，实际上是把当前分支master推送到远程。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git push -u origin master
+</code></pre></td></tr></table>
+</div>
+</div><p>把本地库的内容推送到远程，用git push命令，实际上是把当前分支master推送到远程。</p>
 <p>由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送到远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令。</p>
 <p>从现在起，只要本地作了提交，就可以通过命令：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git push origin master
-</code></pre></div><p>把本地master分支的最新修改推送至GitHub，现在，就拥有了真正的分布式版本库！</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git push origin master
+</code></pre></td></tr></table>
+</div>
+</div><p>把本地master分支的最新修改推送至GitHub，现在，就拥有了真正的分布式版本库！</p>
 <h2 id="克隆远程库">克隆远程库</h2>
 <p>现在，我们已经有了一个远程learngit仓库，假设我们没有本地的版本仓库，那么就需要从远程进行克隆了。</p>
 <p>要克隆远程仓库，可以使用git clone命令来达到目的,最后可以加上一个自己命名的文件名，不写则使用默认的。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git clone git@github.com:GithubName/learngit.git （可以自己加上文件名）
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>Cloning into <span style="color:#d14">&#39;learngit&#39;</span>...
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>remote: Counting objects: 3, <span style="color:#000;font-weight:bold">done</span>.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>remote: Total <span style="color:#099">3</span> <span style="color:#000;font-weight:bold">(</span>delta 0<span style="color:#000;font-weight:bold">)</span>, reused <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">(</span>delta 0<span style="color:#000;font-weight:bold">)</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>Receiving objects: 100% <span style="color:#000;font-weight:bold">(</span>3/3<span style="color:#000;font-weight:bold">)</span>, <span style="color:#000;font-weight:bold">done</span>.
-</code></pre></div><p>如果有多个人协作开发，那么每个人各自从远程克隆一份就可以了。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git clone git@github.com:GithubName/learngit.git （可以自己加上文件名）
+Cloning into <span style="color:#d14">&#39;learngit&#39;</span>...
+remote: Counting objects: 3, <span style="color:#000;font-weight:bold">done</span>.
+remote: Total <span style="color:#099">3</span> <span style="color:#000;font-weight:bold">(</span>delta 0<span style="color:#000;font-weight:bold">)</span>, reused <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">(</span>delta 0<span style="color:#000;font-weight:bold">)</span>
+Receiving objects: 100% <span style="color:#000;font-weight:bold">(</span>3/3<span style="color:#000;font-weight:bold">)</span>, <span style="color:#000;font-weight:bold">done</span>.
+</code></pre></td></tr></table>
+</div>
+</div><p>如果有多个人协作开发，那么每个人各自从远程克隆一份就可以了。</p>
 <p>你也许还注意到，GitHub给出的地址不止一个，还可以用https://github.com/GIthubName/learngit.git这样的地址。实际上，Git支持多种协议，默认的git://使用ssh，但也可以使用https等其他协议。</p>
 <p>注意</p>
 <p>使用https除了速度慢以外，还有个最大的麻烦是每次推送都必须输入口令。</p>
@@ -237,6 +273,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/06/25/git-add-remote/">https://maratrix.cn/post/2014/06/25/git-add-remote/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

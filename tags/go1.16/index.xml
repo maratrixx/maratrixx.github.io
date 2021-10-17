@@ -13,7 +13,7 @@
       <pubDate>Wed, 10 Mar 2021 08:58:45 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</guid>
-      <description>支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1// $GOROOT/src/io/fs/fs.go 2 3// An FS</description>
+      <description>支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1 2 3 4 5 6</description>
     </item>
     
     <item>

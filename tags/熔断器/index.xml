@@ -13,7 +13,7 @@
       <pubDate>Thu, 28 Jan 2021 09:23:28 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/</guid>
-      <description>在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &amp;lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go</description>
+      <description>在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1 cmd.ticket = &amp;lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析</description>
     </item>
     
     <item>

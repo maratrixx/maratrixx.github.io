@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -225,19 +229,45 @@
 <li>当所有者（变量）离开作用域时，这个值将被丢弃；</li>
 </ul>
 <h2 id="变量作用域">变量作用域</h2>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{<span style="color:#bbb">                     		 </span><span style="color:#998;font-style:italic">// s 在这里无效, 它尚未声明
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#34;hello&#34;</span>;<span style="color:#bbb">  		 </span><span style="color:#998;font-style:italic">// 从此处起，s 是有效的
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb"> 	</span><span style="color:#998;font-style:italic">//...				 	 // 使用 s
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">                      		 </span><span style="color:#998;font-style:italic">// 此作用域已结束，s 不再有效
-</span></code></pre></div><h2 id="string类型"><code>String</code>类型</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">{<span style="color:#bbb">                     		 </span><span style="color:#998;font-style:italic">// s 在这里无效, 它尚未声明
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#d14">&#34;hello&#34;</span>;<span style="color:#bbb">  		 </span><span style="color:#998;font-style:italic">// 从此处起，s 是有效的
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb"> 	</span><span style="color:#998;font-style:italic">//...				 	 // 使用 s
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">                      		 </span><span style="color:#998;font-style:italic">// 此作用域已结束，s 不再有效
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="string类型"><code>String</code>类型</h2>
 <p><code>String</code>类型被分配到堆上，所以能够存储在编译时未知大小的文本。可以使用 <code>from</code> 函数基于字符串字面值来创建 <code>String</code>，如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span></code></pre></div><p>这两个冒号<code>（::）</code>是运算符，允许将特定的 <code>from</code> 函数置于 <code>String</code> 类型的命名空间下，而不需要使用类似 string_from 这样的名字。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这两个冒号<code>（::）</code>是运算符，允许将特定的 <code>from</code> 函数置于 <code>String</code> 类型的命名空间下，而不需要使用类似 string_from 这样的名字。</p>
 <p>修改此类字符串 ：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">mut</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span>s.push_str(<span style="color:#d14">&#34;, world!&#34;</span>);<span style="color:#bbb"> 	</span><span style="color:#998;font-style:italic">// push_str() 在字符串后追加字面值
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>s);<span style="color:#bbb"> 			</span><span style="color:#998;font-style:italic">// 将打印 `hello, world!`
-</span></code></pre></div><p>那么这里有什么区别呢？为什么 String 可变而字面值却不行呢？<strong>区别在于两个类型对内存的处理上。</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">mut</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>s.push_str(<span style="color:#d14">&#34;, world!&#34;</span>);<span style="color:#bbb"> 	</span><span style="color:#998;font-style:italic">// push_str() 在字符串后追加字面值
+</span><span style="color:#998;font-style:italic"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>s);<span style="color:#bbb"> 			</span><span style="color:#998;font-style:italic">// 将打印 `hello, world!`
+</span></code></pre></td></tr></table>
+</div>
+</div><p>那么这里有什么区别呢？为什么 String 可变而字面值却不行呢？<strong>区别在于两个类型对内存的处理上。</strong></p>
 <h2 id="内存与分配">内存与分配</h2>
 <p>字符串字面值，我们在编译时就知道其内容，所以文本被直接硬编码进最终的可执行文件中。</p>
 <p>对于 <code>String</code> 类型，为了支持一个可变，可增长的文本片段，需要在堆上分配一块在编译时未知大小的内存来存放内容。</p>
@@ -248,21 +278,48 @@
 </ul>
 <p><strong>Rust 采取的策略是：内存在拥有它的变量离开作用域后就被自动释放。</strong></p>
 <p>👆上面这句话很重要，建议读三遍。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 从此处起，s 是有效的
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#998;font-style:italic">// 使用 s
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">                                  </span><span style="color:#998;font-style:italic">// 此作用域已结束，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                   </span><span style="color:#998;font-style:italic">// s 不再有效
-</span></code></pre></div><p>这是一个将 <code>String</code> 需要的内存返回给操作系统的很自然的位置：<strong>当 s 离开作用域的时候</strong>。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 从此处起，s 是有效的
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span><span style="color:#998;font-style:italic">// 使用 s
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">                                  </span><span style="color:#998;font-style:italic">// 此作用域已结束，
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                   </span><span style="color:#998;font-style:italic">// s 不再有效
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这是一个将 <code>String</code> 需要的内存返回给操作系统的很自然的位置：<strong>当 s 离开作用域的时候</strong>。</p>
 <p>当变量离开作用域，Rust 为我们调用一个特殊的函数，这个函数叫做 <code>drop</code>。在这里 <code>String</code> 的作者可以放置释放内存的代码。Rust 在结尾的 <code>}</code> 处自动调用 <code>drop</code>。</p>
 <h4 id="数据移动">数据移动</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>x;<span style="color:#bbb">
-</span></code></pre></div><p>我们大致可以猜到这在干什么：“将 <code>5</code> 绑定到 <code>x</code>；接着生成一个值 <code>x</code> 的拷贝并绑定到 <code>y</code>”。现在有了两个变量，<code>x</code> 和 <code>y</code>，都等于 <code>5</code>。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>x;<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>我们大致可以猜到这在干什么：“将 <code>5</code> 绑定到 <code>x</code>；接着生成一个值 <code>x</code> 的拷贝并绑定到 <code>y</code>”。现在有了两个变量，<code>x</code> 和 <code>y</code>，都等于 <code>5</code>。</p>
 <p>现在看看这个 String 版本：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
-</span></code></pre></div><p>这看起来与上面的代码非常类似，所以我们可能会假设他们的运行方式也是类似的：也就是说，第二行可能会生成一个 s1 的拷贝并绑定到 s2 上。<strong>不过，事实上并不完全是这样。</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这看起来与上面的代码非常类似，所以我们可能会假设他们的运行方式也是类似的：也就是说，第二行可能会生成一个 s1 的拷贝并绑定到 s2 上。<strong>不过，事实上并不完全是这样。</strong></p>
 <p>👇下面这张图展示了<code>String</code>类型的底层存储由三部分组成：</p>
 <ul>
 <li>一个指向存放字符串内容内存的指针</li>
@@ -283,20 +340,44 @@
 <p>之前我们提到过当变量离开作用域后，Rust 自动调用 <code>drop</code> 函数并清理变量的堆内存。不过上图展示了两个数据指针指向了同一位置。这就有了一个问题：当 s2 和 s1 离开作用域，他们都会尝试释放相同的内存。这是一个叫做 <strong>二次释放</strong>的错误，也是之前提到过的内存安全性 bug 之一。两次释放（相同）内存会导致内存污染，它可能会导致潜在的安全漏洞。</p>
 <p>为了确保内存安全，Rust的处理是，<strong>与其尝试拷贝被分配的内存，Rust 则认为 s1 不再有效，因此 Rust 不需要在 s1 离开作用域后清理任何东西。</strong></p>
 <p>看看在 s2 被创建之后尝试使用 s1 会发生什么：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
-</span></code></pre></div><p>你会得到一个类似如下的错误，因为 Rust 禁止你使用无效的引用。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>error[E0382]: <span style="color:#458;font-weight:bold">borrow</span><span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>moved<span style="color:#bbb"> </span>value: <span style="color:#a61717;background-color:#e3d2d2">`</span>s1<span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">-</span>-&gt; <span style="color:#458;font-weight:bold">src</span><span style="color:#000;font-weight:bold">/</span>main.rs:<span style="color:#099">4</span>:<span style="color:#099">31</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span><span style="color:#099">2</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">         </span><span style="color:#000;font-weight:bold">--</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">move</span><span style="color:#bbb"> </span>occurs<span style="color:#bbb"> </span>because<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span>s1<span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb"> </span>has<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">type</span> <span style="color:#a61717;background-color:#e3d2d2">`</span>std::string::<span style="color:#0086b3">String</span><span style="color:#a61717;background-color:#e3d2d2">`</span>,<span style="color:#bbb"> </span>which<span style="color:#bbb"> </span>does<span style="color:#bbb"> </span>not<span style="color:#bbb"> </span>implement<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#0086b3">Copy</span><span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">trait</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb"></span><span style="color:#099">3</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">              </span><span style="color:#000;font-weight:bold">--</span><span style="color:#bbb"> </span>value<span style="color:#bbb"> </span>moved<span style="color:#bbb"> </span>here<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#bbb"></span><span style="color:#099">4</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">                                  </span><span style="color:#000;font-weight:bold">^^</span><span style="color:#bbb"> </span>value<span style="color:#bbb"> </span>borrowed<span style="color:#bbb"> </span>here<span style="color:#bbb"> </span>after<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">move</span><span style="color:#bbb">
-</span></code></pre></div><p>如果你在其他语言中听说过术语 <code>浅拷贝（shallow copy）和 深拷贝（deep copy）</code>，那么拷贝指针、长度和容量而不拷贝数据可能听起来像<code>浅拷贝</code>。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
+</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>你会得到一个类似如下的错误，因为 Rust 禁止你使用无效的引用。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">error[E0382]: <span style="color:#458;font-weight:bold">borrow</span><span style="color:#bbb"> </span>of<span style="color:#bbb"> </span>moved<span style="color:#bbb"> </span>value: <span style="color:#a61717;background-color:#e3d2d2">`</span>s1<span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb">
+</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">-</span>-&gt; <span style="color:#458;font-weight:bold">src</span><span style="color:#000;font-weight:bold">/</span>main.rs:<span style="color:#099">4</span>:<span style="color:#099">31</span><span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#099">2</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">         </span><span style="color:#000;font-weight:bold">--</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">move</span><span style="color:#bbb"> </span>occurs<span style="color:#bbb"> </span>because<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span>s1<span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb"> </span>has<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">type</span> <span style="color:#a61717;background-color:#e3d2d2">`</span>std::string::<span style="color:#0086b3">String</span><span style="color:#a61717;background-color:#e3d2d2">`</span>,<span style="color:#bbb"> </span>which<span style="color:#bbb"> </span>does<span style="color:#bbb"> </span>not<span style="color:#bbb"> </span>implement<span style="color:#bbb"> </span>the<span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#0086b3">Copy</span><span style="color:#a61717;background-color:#e3d2d2">`</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">trait</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#099">3</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1;<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">              </span><span style="color:#000;font-weight:bold">--</span><span style="color:#bbb"> </span>value<span style="color:#bbb"> </span>moved<span style="color:#bbb"> </span>here<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#099">4</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">     </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
+</span><span style="color:#bbb">  </span><span style="color:#000;font-weight:bold">|</span><span style="color:#bbb">                                  </span><span style="color:#000;font-weight:bold">^^</span><span style="color:#bbb"> </span>value<span style="color:#bbb"> </span>borrowed<span style="color:#bbb"> </span>here<span style="color:#bbb"> </span>after<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">move</span><span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>如果你在其他语言中听说过术语 <code>浅拷贝（shallow copy）和 深拷贝（deep copy）</code>，那么拷贝指针、长度和容量而不拷贝数据可能听起来像<code>浅拷贝</code>。</p>
 <p>这种 Rust 使第一个变量无效的操作被称为 <strong><code>移动（move）</code></strong>，而不是浅拷贝。</p>
 <p>那么当s1被移动到s2时，究竟发生了什么？
 
@@ -308,17 +389,35 @@
 <p>另外，这里还隐含了一个设计选择：<strong>Rust 永远也不会自动创建数据的 “深拷贝”</strong>。因此，任何 自动 的复制可以被认为对运行时性能影响较小。</p>
 <h4 id="克隆">克隆</h4>
 <p>如果确实需要复制<code>String</code>堆上的数据，可以使用<code>clone</code>方法。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1.clone();<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
-</span></code></pre></div><p>运行可以正常输出。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s1.clone();<span style="color:#bbb">
+</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;s1 = {}, s2 = {}&#34;</span>,<span style="color:#bbb"> </span>s1,<span style="color:#bbb"> </span>s2);<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>运行可以正常输出。</p>
 <p>但是要注意，当调用<code>clone</code>方法时可能比较消耗资源。</p>
 <h4 id="拷贝">拷贝</h4>
 <p>继续讨论下面的一段代码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>x;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;x = {}, y = {}&#34;</span>,<span style="color:#bbb"> </span>x,<span style="color:#bbb"> </span>y);<span style="color:#bbb">
-</span></code></pre></div><p>运行发现也没报错，和我们上面介绍的很矛盾：没有调<code>clone</code>，x也没被移动到y中。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>x;<span style="color:#bbb">
+</span><span style="color:#bbb"></span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;x = {}, y = {}&#34;</span>,<span style="color:#bbb"> </span>x,<span style="color:#bbb"> </span>y);<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>运行发现也没报错，和我们上面介绍的很矛盾：没有调<code>clone</code>，x也没被移动到y中。</p>
 <p>原因是这种在编译时就已知大小的类型会被存储在栈上，拷贝也相当快速，就没必要在创建变量 y 后使 x 无效，即相当于自动调用了<code>clone</code>。</p>
 <p><strong><code>Copy trait </code></strong>
 如果一个类型拥有<code>Copy trait</code>，一个旧的变量在将其赋值给其他变量后仍然可用（比如上面代码里面<code>x</code>）。Rust 不允许自身或其任何部分实现了<code>Drop trait</code> 的类型使用 <code>Copy trait</code>。</p>
@@ -333,75 +432,158 @@
 </ul>
 <h2 id="所有权与函数">所有权与函数</h2>
 <p>将值传递给函数在语义上与给变量赋值相似，向函数传递值可能会移动或者复制，就像赋值语句一样。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// s 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#bbb">    </span>takes_ownership(s);<span style="color:#bbb">             </span><span style="color:#998;font-style:italic">// s 的值移动到函数里 ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                    </span><span style="color:#998;font-style:italic">// ... 所以到这里不再有效
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">// x 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#bbb">    </span>makes_copy(x);<span style="color:#bbb">                  </span><span style="color:#998;font-style:italic">// x 应该移动函数里，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                    </span><span style="color:#998;font-style:italic">// 但 i32 是 Copy 的，所以在后面可继续使用 x
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里, x 先移出了作用域，然后是 s。但因为 s 的值已被移走，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 所以不会有特殊操作
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">takes_ownership</span>(some_string: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_string 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>some_string);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里，some_string 移出作用域并调用 `drop` 方法。占用的内存被释放
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">makes_copy</span>(some_integer: <span style="color:#458;font-weight:bold">i32</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_integer 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>some_integer);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里，some_integer 移出作用域。不会有特殊操作
-</span></code></pre></div><h2 id="返回值和作用域">返回值和作用域</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// s 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>takes_ownership(s);<span style="color:#bbb">             </span><span style="color:#998;font-style:italic">// s 的值移动到函数里 ...
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                    </span><span style="color:#998;font-style:italic">// ... 所以到这里不再有效
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">                      </span><span style="color:#998;font-style:italic">// x 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>makes_copy(x);<span style="color:#bbb">                  </span><span style="color:#998;font-style:italic">// x 应该移动函数里，
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                    </span><span style="color:#998;font-style:italic">// 但 i32 是 Copy 的，所以在后面可继续使用 x
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里, x 先移出了作用域，然后是 s。但因为 s 的值已被移走，
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 所以不会有特殊操作
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">takes_ownership</span>(some_string: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_string 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>some_string);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里，some_string 移出作用域并调用 `drop` 方法。占用的内存被释放
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">makes_copy</span>(some_integer: <span style="color:#458;font-weight:bold">i32</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_integer 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;{}&#34;</span>,<span style="color:#bbb"> </span>some_integer);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里，some_integer 移出作用域。不会有特殊操作
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="返回值和作用域">返回值和作用域</h2>
 <p>返回值也可以转移所有权。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>gives_ownership();<span style="color:#bbb">         </span><span style="color:#998;font-style:italic">// gives_ownership 将返回值
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// 移给 s1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">     </span><span style="color:#998;font-style:italic">// s2 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s3<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>takes_and_gives_back(s2);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// s2 被移动到
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// takes_and_gives_back 中, 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// 它也将返回值移给 s3
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 所以什么也不会发生。s1 移出作用域并被丢弃
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">gives_ownership</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#0086b3">String</span> {<span style="color:#bbb">             </span><span style="color:#998;font-style:italic">// gives_ownership 将返回值移动给
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                             </span><span style="color:#998;font-style:italic">// 调用它的函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>some_string<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_string 进入作用域.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#bbb">    </span>some_string<span style="color:#bbb">                              </span><span style="color:#998;font-style:italic">// 返回 some_string 并移出给调用的函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#bbb"></span><span style="color:#998;font-style:italic">// takes_and_gives_back 将传入字符串并返回该值
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">takes_and_gives_back</span>(a_string: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#0086b3">String</span> {<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// a_string 进入作用域
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#bbb">    </span>a_string<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 返回 a_string 并移出给调用的函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>变量的所有权总是遵循相同的模式：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>gives_ownership();<span style="color:#bbb">         </span><span style="color:#998;font-style:italic">// gives_ownership 将返回值
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// 移给 s1
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s2<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">     </span><span style="color:#998;font-style:italic">// s2 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s3<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>takes_and_gives_back(s2);<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// s2 被移动到
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// takes_and_gives_back 中, 
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                        </span><span style="color:#998;font-style:italic">// 它也将返回值移给 s3
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// 这里, s3 移出作用域并被丢弃。s2 也移出作用域，但已被移走，
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 所以什么也不会发生。s1 移出作用域并被丢弃
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">gives_ownership</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#0086b3">String</span> {<span style="color:#bbb">             </span><span style="color:#998;font-style:italic">// gives_ownership 将返回值移动给
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">                                             </span><span style="color:#998;font-style:italic">// 调用它的函数
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>some_string<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// some_string 进入作用域.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>some_string<span style="color:#bbb">                              </span><span style="color:#998;font-style:italic">// 返回 some_string 并移出给调用的函数
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#998;font-style:italic">// takes_and_gives_back 将传入字符串并返回该值
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">takes_and_gives_back</span>(a_string: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#0086b3">String</span> {<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// a_string 进入作用域
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>a_string<span style="color:#bbb">  </span><span style="color:#998;font-style:italic">// 返回 a_string 并移出给调用的函数
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>变量的所有权总是遵循相同的模式：</p>
 <ul>
 <li>将值赋给另一个变量时移动它，除非变量类型实现了<code>Copy trait</code>注解。</li>
 <li>当持有堆中数据值的变量离开作用域时，其值将通过<code> drop</code> 被清理掉，除非数据被移动为另一个变量所有。</li>
 </ul>
 <h4 id="多值返回">多值返回</h4>
 <p>函数或者方法可以使用<code>元组</code>来实现多值返回。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>(s2,<span style="color:#bbb"> </span>len)<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>calculate_length(s1);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;The length of &#39;{}&#39; is {}.&#34;</span>,<span style="color:#bbb"> </span>s2,<span style="color:#bbb"> </span>len);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">calculate_length</span>(s: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>-&gt; (<span style="color:#0086b3">String</span>,<span style="color:#bbb"> </span><span style="color:#458;font-weight:bold">usize</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>length<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s.len();<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// len() 返回字符串的长度
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>(s,<span style="color:#bbb"> </span>length)<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>s1<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#0086b3">String</span>::from(<span style="color:#d14">&#34;hello&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>(s2,<span style="color:#bbb"> </span>len)<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>calculate_length(s1);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;The length of &#39;{}&#39; is {}.&#34;</span>,<span style="color:#bbb"> </span>s2,<span style="color:#bbb"> </span>len);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">calculate_length</span>(s: <span style="color:#0086b3">String</span>)<span style="color:#bbb"> </span>-&gt; (<span style="color:#0086b3">String</span>,<span style="color:#bbb"> </span><span style="color:#458;font-weight:bold">usize</span>)<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>length<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>s.len();<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">// len() 返回字符串的长度
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>(s,<span style="color:#bbb"> </span>length)<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div>
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/">https://maratrix.cn/post/2020/02/06/007-rust-ownership-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

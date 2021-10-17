@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -99,7 +103,7 @@
         </div>
         
         <div class="post-content">
-            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go……
+            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1 cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析……
             <p class="readmore"><a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">阅读全文</a></p>
         </div>
     </article>
@@ -145,7 +149,7 @@
         </div>
         
         <div class="post-content">
-            上一篇我们分析 hystrix-go 主流程时知道，对于每个 command 都有一个对应的断路器，而且在 GoC 中首先要通过 GetCircuit(name) 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。 回顾下 command 结构体： 1type command struct { 2 // ... 3 circuit……
+            上一篇我们分析 hystrix-go 主流程时知道，对于每个 command 都有一个对应的断路器，而且在 GoC 中首先要通过 GetCircuit(name) 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。 回顾下 command 结构体： 1 2 3 4 5 type command struct {……
             <p class="readmore"><a href="https://maratrix.cn/post/2021/01/25/hystrix-go-circuit-read/">阅读全文</a></p>
         </div>
     </article>
@@ -237,7 +241,7 @@
         </div>
         
         <div class="post-content">
-            本文基于 Go1.14 源码阅读 1package runtime 2 3// 此文件实现了 Go 的 channel 4 5// 变种: 6// c.sendq 和 c.recvq 中至少一个为空，除非是 unbuffered channle 和单个 goroutine 7// 阻塞在 select 语句中同时使用发送和接受的这种情况。这时 c.sendq 和 c.recvq 的长度由 8// select 语句的大小限制。 9// 10// 对于 buffered chann……
+            本文基于 Go1.14 源码阅读 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/08/25/go-channel-source-read/">阅读全文</a></p>
         </div>
     </article>
@@ -306,7 +310,7 @@
         </div>
         
         <div class="post-content">
-            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
+            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 var once sync.Once onceBody := func() { fmt.Println(&#34;Only once&#34;) }……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
         </div>
     </article>

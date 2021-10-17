@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -209,21 +213,41 @@
 <p>当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup。</p>
 <h3 id="使用实例">使用实例</h3>
 <p>看一个 Go 官方提供的使用实例：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">var</span> wg sync.WaitGroup
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">var</span> urls = []<span style="color:#458;font-weight:bold">string</span>{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#d14">&#34;http://www.golang.org/&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#d14">&#34;http://www.google.com/&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#d14">&#34;http://www.somestupidname.com/&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#000;font-weight:bold">for</span> _, url <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> urls {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	wg.<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#099">1</span>)   <span style="color:#998;font-style:italic">// 增加一个任务
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>(url <span style="color:#458;font-weight:bold">string</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		<span style="color:#000;font-weight:bold">defer</span> wg.<span style="color:#900;font-weight:bold">Done</span>() <span style="color:#998;font-style:italic">//任务完成
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>		http.<span style="color:#900;font-weight:bold">Get</span>(url)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}(url)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>wg.<span style="color:#900;font-weight:bold">Wait</span>()   <span style="color:#998;font-style:italic">//阻塞等待所有任务完成
-</span></code></pre></div><p>可以看到，使用非常简单。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> wg sync.WaitGroup
+<span style="color:#000;font-weight:bold">var</span> urls = []<span style="color:#458;font-weight:bold">string</span>{
+	<span style="color:#d14">&#34;http://www.golang.org/&#34;</span>,
+	<span style="color:#d14">&#34;http://www.google.com/&#34;</span>,
+	<span style="color:#d14">&#34;http://www.somestupidname.com/&#34;</span>,
+}
+<span style="color:#000;font-weight:bold">for</span> _, url <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> urls {
+	wg.<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#099">1</span>)   <span style="color:#998;font-style:italic">// 增加一个任务
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>(url <span style="color:#458;font-weight:bold">string</span>) {
+		<span style="color:#000;font-weight:bold">defer</span> wg.<span style="color:#900;font-weight:bold">Done</span>() <span style="color:#998;font-style:italic">//任务完成
+</span><span style="color:#998;font-style:italic"></span>		http.<span style="color:#900;font-weight:bold">Get</span>(url)
+	}(url)
+}
+wg.<span style="color:#900;font-weight:bold">Wait</span>()   <span style="color:#998;font-style:italic">//阻塞等待所有任务完成
+</span></code></pre></td></tr></table>
+</div>
+</div><p>可以看到，使用非常简单。</p>
 <p><code>Add</code>方法用于增加一个任务，<code>Done</code>方法在完成该任务时调用，<code>Wait</code>方法用于阻塞等待所有任务完成。</p>
 <h3 id="信号量">信号量</h3>
 <p>sync.WaitGroup 源码是基于计数器状态和信号量来实现的，看下维基百科的<a href="https://zh.wikipedia.org/wiki/%E4%BF%A1%E5%8F%B7%E9%87%8F">信号量介绍</a>。</p>
@@ -234,32 +258,71 @@
 </ul>
 <h3 id="源码分析">源码分析</h3>
 <p>接下来，我们看下 sync.WaitGroup 的源码是如何实现的。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>本文基于：go1.14
-</code></pre></div><h4 id="结构体">结构体</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> WaitGroup <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#998;font-style:italic">// noCopy 标记不可复制，使用 go vet 作为检测使用，并因此只能进行指针传递，从而保证全局唯一
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>    noCopy noCopy
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>    <span style="color:#998;font-style:italic">// 64位值：高32位为计数器，低32位为等待计数。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 不使用64位值是因为32位的编译器不能确保64位原子操作的位对齐 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 一个uit32占4个byte，我们分配了12个byte对齐的8个byte作为计数，剩下4个用于信号量的存储
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#998;font-style:italic"></span>    state1 [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uint32</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
-</code></pre></div><p>sync.WaiyGroup 的结构也很简单，只包含了 noCopy 和 state1 两个字段。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">本文基于：go1.14
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="结构体">结构体</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> WaitGroup <span style="color:#000;font-weight:bold">struct</span> {
+    <span style="color:#998;font-style:italic">// noCopy 标记不可复制，使用 go vet 作为检测使用，并因此只能进行指针传递，从而保证全局唯一
+</span><span style="color:#998;font-style:italic"></span>    noCopy noCopy
+    
+    <span style="color:#998;font-style:italic">// 64位值：高32位为计数器，低32位为等待计数。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 不使用64位值是因为32位的编译器不能确保64位原子操作的位对齐 
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 一个uit32占4个byte，我们分配了12个byte对齐的8个byte作为计数，剩下4个用于信号量的存储
+</span><span style="color:#998;font-style:italic"></span>    state1 [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uint32</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>sync.WaiyGroup 的结构也很简单，只包含了 noCopy 和 state1 两个字段。</p>
 <p>noCopy 使用 go vet 来做静态检查，当发生复制时会报错提示，但不影响程序编译运行，这里需要注意一下。noCopy 的实现原理分析请移步👉<a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">这篇博客</a>。</p>
 <p>state1 的使用就比较值得推敲了，sync.WaitGroup 是通过原子操作信号量和计数器来实现的，而信号量和计数器都保存在 <code>[3]uint32</code> 内，我们看下源码是如何取的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// state 函数返回计数器状态和信号量的指针
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">state</span>() (statep <span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>, semap <span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint32</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">// 判定地址是否8位对齐
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">uintptr</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1))<span style="color:#000;font-weight:bold">%</span><span style="color:#099">8</span> <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#998;font-style:italic">// 前8bytes做uint64指针计数状态，后4bytes做信号量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> (<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1)), <span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">2</span>]
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	} <span style="color:#000;font-weight:bold">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>        <span style="color:#998;font-style:italic">// 后8bytes做uint64指针计数状态，前4bytes做信号量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> (<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">1</span>])), <span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">0</span>]
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-</code></pre></div><p>state1 包含了 worker 计数器、waiter 计数器和信号量，取值逻辑是：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// state 函数返回计数器状态和信号量的指针
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">state</span>() (statep <span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>, semap <span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint32</span>) {
+    <span style="color:#998;font-style:italic">// 判定地址是否8位对齐
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">uintptr</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1))<span style="color:#000;font-weight:bold">%</span><span style="color:#099">8</span> <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
+        <span style="color:#998;font-style:italic">// 前8bytes做uint64指针计数状态，后4bytes做信号量
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> (<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1)), <span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">2</span>]
+	} <span style="color:#000;font-weight:bold">else</span> {
+        <span style="color:#998;font-style:italic">// 后8bytes做uint64指针计数状态，前4bytes做信号量
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> (<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">uint64</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">1</span>])), <span style="color:#000;font-weight:bold">&amp;</span>wg.state1[<span style="color:#099">0</span>]
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>state1 包含了 worker 计数器、waiter 计数器和信号量，取值逻辑是：</p>
 <ul>
 <li>worker 计数器：v 是 statep *uint64 的左 32 位</li>
 <li>waiter 计数器：w 是 statep *uint64 的右 32 位</li>
@@ -268,16 +331,35 @@
 <p>通过 state 方法我们可以看出，计数状态值是 <code>*uint64</code> 类型，信号量是 <code>*uint32</code> 类型，然后在使用时通过原子操作来读取，这里就涉及到<strong>内存对齐</strong>的知识点了。</p>
 <p>作为 Go 标准库自带的公共组件肯定是要考虑到不同平台的兼容问题，在 64 位平台原子操作 uint64 类型没有问题，但在 32 位平台操作 uint64 类型可能会发生报错，为什么呢？</p>
 <p>在 <a href="https://golang.org/pkg/sync/atomic/#pkg-note-BUG">atomic-bug</a> 中提到：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>On x86-32, the 64-bit functions use instructions unavailable before the Pentium MMX.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>On non-Linux ARM, the 64-bit functions use instructions unavailable before the ARMv6k core.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>On ARM, x86-32, and 32-bit MIPS, it is the caller’s responsibility to arrange <span style="color:#000;font-weight:bold">for</span> 64-bit alignment of 64-bit words accessed atomically. The first word in a variable or in an allocated struct, array, or slice can be relied upon to be 64-bit aligned.
-</code></pre></div><p>也就是说，在 32 位系统上想要原子操作 64 位字（如uint64）的话，需要由调用方保证其数据地址是 64 位对齐的，否则原子访问会有异常。那该如何保证呢？🤔</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">On x86-32, the 64-bit functions use instructions unavailable before the Pentium MMX.
+On non-Linux ARM, the 64-bit functions use instructions unavailable before the ARMv6k core.
+
+On ARM, x86-32, and 32-bit MIPS, it is the caller’s responsibility to arrange <span style="color:#000;font-weight:bold">for</span> 64-bit alignment of 64-bit words accessed atomically. The first word in a variable or in an allocated struct, array, or slice can be relied upon to be 64-bit aligned.
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是说，在 32 位系统上想要原子操作 64 位字（如uint64）的话，需要由调用方保证其数据地址是 64 位对齐的，否则原子访问会有异常。那该如何保证呢？🤔</p>
 <p>在 <a href="https://golang.org/ref/spec#Package_unsafe">unsafe 包规范</a>中提到：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Computer architectures may require memory addresses to be aligned; that is, <span style="color:#000;font-weight:bold">for</span> addresses of a variable to be a multiple of a factor, the variable’s type’s alignment. The <span style="color:#000;font-weight:bold">function</span> Alignof takes an expression denoting a variable of any <span style="color:#0086b3">type</span> and returns the alignment of the <span style="color:#000;font-weight:bold">(</span><span style="color:#0086b3">type</span> of the<span style="color:#000;font-weight:bold">)</span> variable in bytes. For a variable x:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>uintptr<span style="color:#000;font-weight:bold">(</span>unsafe.Pointer<span style="color:#000;font-weight:bold">(</span>&amp;x<span style="color:#000;font-weight:bold">))</span> % unsafe.Alignof<span style="color:#000;font-weight:bold">(</span>x<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>
-</code></pre></div><p>也就是说，如果类型 t 的对齐保证是 n，那么类型 t 的每个值的地址在运行时必须是 n 的倍数。上面的 state 方法正是基于这个规则来实现即便在 32 平台依然可以保证 uint64 是内存对齐的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Computer architectures may require memory addresses to be aligned; that is, <span style="color:#000;font-weight:bold">for</span> addresses of a variable to be a multiple of a factor, the variable’s type’s alignment. The <span style="color:#000;font-weight:bold">function</span> Alignof takes an expression denoting a variable of any <span style="color:#0086b3">type</span> and returns the alignment of the <span style="color:#000;font-weight:bold">(</span><span style="color:#0086b3">type</span> of the<span style="color:#000;font-weight:bold">)</span> variable in bytes. For a variable x:
+
+uintptr<span style="color:#000;font-weight:bold">(</span>unsafe.Pointer<span style="color:#000;font-weight:bold">(</span>&amp;x<span style="color:#000;font-weight:bold">))</span> % unsafe.Alignof<span style="color:#000;font-weight:bold">(</span>x<span style="color:#000;font-weight:bold">)</span> <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是说，如果类型 t 的对齐保证是 n，那么类型 t 的每个值的地址在运行时必须是 n 的倍数。上面的 state 方法正是基于这个规则来实现即便在 32 平台依然可以保证 uint64 是内存对齐的。</p>
 <p>那么 noCopy 和 state1 字段能否可以调换位置呢？留个思考在这里🤔。</p>
 <p>关于这块内存对齐的介绍，先说到这里，后面会单独总结篇博客来详细说明下，敬请期待~</p>
 <h4 id="add">Add</h4>
@@ -286,84 +368,175 @@
 <li>worker 减少到零值，所有阻塞的 waiter 都会被释放</li>
 <li>worker 减少到负数，会发生 panic</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Add</span>(delta <span style="color:#458;font-weight:bold">int</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    <span style="color:#998;font-style:italic">//获取计数状态和信号量的指针
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>    statep, semap <span style="color:#000;font-weight:bold">:=</span> wg.<span style="color:#900;font-weight:bold">state</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#998;font-style:italic">//statep 高32位表示worker计数，低32位表示waiter计数状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//使用原子加操作worker计数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	state <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">AddUint64</span>(statep, <span style="color:#0086b3">uint64</span>(delta)<span style="color:#000;font-weight:bold">&lt;&lt;</span><span style="color:#099">32</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">int32</span>(state <span style="color:#000;font-weight:bold">&gt;&gt;</span> <span style="color:#099">32</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    w <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">uint32</span>(state)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#998;font-style:italic">//如果计数worker减少到负数，则panic
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> v &lt; <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: negative WaitGroup counter&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    <span style="color:#998;font-style:italic">//添加与等待并发调用，报panic
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> w <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> delta &gt; <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> v <span style="color:#000;font-weight:bold">==</span> <span style="color:#0086b3">int32</span>(delta) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    <span style="color:#998;font-style:italic">//worder计数添加成功
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> v &gt; <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">||</span> w <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>		<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    <span style="color:#998;font-style:italic">//这时 Goroutine 已经将计数器清零，且等待器大于零（并发调用导致）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//这时不允许出现并发使用导致的状态突变，否则就应该 panic
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//- Add 不能与 Wait 并发调用
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//- Wait 在计数器已经归零的情况下，不能再继续增加等待器了
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//仍然检查来保证 WaitGroup 不会被滥用
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">*</span>statep <span style="color:#000;font-weight:bold">!=</span> state {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>    <span style="color:#998;font-style:italic">// 重置计数器为0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">*</span>statep = <span style="color:#099">0</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>	<span style="color:#000;font-weight:bold">for</span> ; w <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span>; w<span style="color:#000;font-weight:bold">--</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>        <span style="color:#998;font-style:italic">//根据waiter计数依次释放信号，唤醒阻塞等待的waiter
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#998;font-style:italic"></span>		<span style="color:#900;font-weight:bold">runtime_Semrelease</span>(semap, <span style="color:#000;font-weight:bold">false</span>, <span style="color:#099">0</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
-</code></pre></div><h4 id="done">Done</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Add</span>(delta <span style="color:#458;font-weight:bold">int</span>) {
+    <span style="color:#998;font-style:italic">//获取计数状态和信号量的指针
+</span><span style="color:#998;font-style:italic"></span>    statep, semap <span style="color:#000;font-weight:bold">:=</span> wg.<span style="color:#900;font-weight:bold">state</span>()
+    
+    <span style="color:#998;font-style:italic">//statep 高32位表示worker计数，低32位表示waiter计数状态
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//使用原子加操作worker计数
+</span><span style="color:#998;font-style:italic"></span>	state <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">AddUint64</span>(statep, <span style="color:#0086b3">uint64</span>(delta)<span style="color:#000;font-weight:bold">&lt;&lt;</span><span style="color:#099">32</span>)
+	v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">int32</span>(state <span style="color:#000;font-weight:bold">&gt;&gt;</span> <span style="color:#099">32</span>)
+    w <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">uint32</span>(state)
+    
+    <span style="color:#998;font-style:italic">//如果计数worker减少到负数，则panic
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> v &lt; <span style="color:#099">0</span> {
+		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: negative WaitGroup counter&#34;</span>)
+    }
+    
+    <span style="color:#998;font-style:italic">//添加与等待并发调用，报panic
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> w <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> delta &gt; <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> v <span style="color:#000;font-weight:bold">==</span> <span style="color:#0086b3">int32</span>(delta) {
+		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
+    }
+    
+    <span style="color:#998;font-style:italic">//worder计数添加成功
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> v &gt; <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">||</span> w <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
+		<span style="color:#000;font-weight:bold">return</span>
+    }
+
+    <span style="color:#998;font-style:italic">//这时 Goroutine 已经将计数器清零，且等待器大于零（并发调用导致）
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//这时不允许出现并发使用导致的状态突变，否则就应该 panic
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//- Add 不能与 Wait 并发调用
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//- Wait 在计数器已经归零的情况下，不能再继续增加等待器了
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">//仍然检查来保证 WaitGroup 不会被滥用
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">*</span>statep <span style="color:#000;font-weight:bold">!=</span> state {
+		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup misuse: Add called concurrently with Wait&#34;</span>)
+	}
+    
+    <span style="color:#998;font-style:italic">// 重置计数器为0
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">*</span>statep = <span style="color:#099">0</span>
+	<span style="color:#000;font-weight:bold">for</span> ; w <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span>; w<span style="color:#000;font-weight:bold">--</span> {
+        <span style="color:#998;font-style:italic">//根据waiter计数依次释放信号，唤醒阻塞等待的waiter
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#900;font-weight:bold">runtime_Semrelease</span>(semap, <span style="color:#000;font-weight:bold">false</span>, <span style="color:#099">0</span>)
+	}
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="done">Done</h4>
 <p>Done 方法其实就是 Add(-1):</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Done</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	wg.<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
-</code></pre></div><h4 id="wait">Wait</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Done</span>() {
+	wg.<span style="color:#900;font-weight:bold">Add</span>(<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)
+}
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="wait">Wait</h4>
 <p>Wait 方法的逻辑是修改 waiter 计数器，并阻塞等待信号量释放，同样去掉了 race 相关的代码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">//Wait 方法保持阻塞等待直到 worker计数减少到 0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Wait</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">//获取计数器状态和信号量的指针
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	statep, semap <span style="color:#000;font-weight:bold">:=</span> wg.<span style="color:#900;font-weight:bold">state</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#000;font-weight:bold">for</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        state <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">LoadUint64</span>(statep)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#998;font-style:italic">//worker计数状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>        v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">int32</span>(state <span style="color:#000;font-weight:bold">&gt;&gt;</span> <span style="color:#099">32</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#998;font-style:italic">//waiter计数状态
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>		w <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">uint32</span>(state)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#000;font-weight:bold">if</span> v <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>			<span style="color:#998;font-style:italic">//当worker计数为 0 时，直接返回不需要阻塞等待
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>        }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        <span style="color:#998;font-style:italic">//原子增加 waiter 计数值，原子操作低 32 位，不需要移位
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//通过 cas 和 for 循环这种无锁编程来保证 Wait 方法的并发调用
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> atomic.<span style="color:#900;font-weight:bold">CompareAndSwapUint64</span>(statep, state, state<span style="color:#000;font-weight:bold">+</span><span style="color:#099">1</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>            <span style="color:#998;font-style:italic">//阻塞等待信号量的释放
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>			<span style="color:#900;font-weight:bold">runtime_Semacquire</span>(semap)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>			<span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">*</span>statep <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>				<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup is reused before previous Wait has returned&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>            }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>            <span style="color:#998;font-style:italic">//信号量获取成功
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>}
-</code></pre></div><h3 id="小结">小结</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">//Wait 方法保持阻塞等待直到 worker计数减少到 0
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (wg <span style="color:#000;font-weight:bold">*</span>WaitGroup) <span style="color:#900;font-weight:bold">Wait</span>() {
+    <span style="color:#998;font-style:italic">//获取计数器状态和信号量的指针
+</span><span style="color:#998;font-style:italic"></span>	statep, semap <span style="color:#000;font-weight:bold">:=</span> wg.<span style="color:#900;font-weight:bold">state</span>()
+	<span style="color:#000;font-weight:bold">for</span> {
+        state <span style="color:#000;font-weight:bold">:=</span> atomic.<span style="color:#900;font-weight:bold">LoadUint64</span>(statep)
+        <span style="color:#998;font-style:italic">//worker计数状态
+</span><span style="color:#998;font-style:italic"></span>        v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">int32</span>(state <span style="color:#000;font-weight:bold">&gt;&gt;</span> <span style="color:#099">32</span>)
+        <span style="color:#998;font-style:italic">//waiter计数状态
+</span><span style="color:#998;font-style:italic"></span>		w <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">uint32</span>(state)
+		<span style="color:#000;font-weight:bold">if</span> v <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> {
+			<span style="color:#998;font-style:italic">//当worker计数为 0 时，直接返回不需要阻塞等待
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">return</span>
+        }
+        
+        <span style="color:#998;font-style:italic">//原子增加 waiter 计数值，原子操作低 32 位，不需要移位
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//通过 cas 和 for 循环这种无锁编程来保证 Wait 方法的并发调用
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> atomic.<span style="color:#900;font-weight:bold">CompareAndSwapUint64</span>(statep, state, state<span style="color:#000;font-weight:bold">+</span><span style="color:#099">1</span>) {
+            <span style="color:#998;font-style:italic">//阻塞等待信号量的释放
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#900;font-weight:bold">runtime_Semacquire</span>(semap)
+			<span style="color:#000;font-weight:bold">if</span> <span style="color:#000;font-weight:bold">*</span>statep <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span> {
+				<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;sync: WaitGroup is reused before previous Wait has returned&#34;</span>)
+            }
+            <span style="color:#998;font-style:italic">//信号量获取成功
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">return</span>
+		}
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="小结">小结</h3>
 <ul>
 <li>Add 操作必须早于 Wait 调用，否则会发生 panic</li>
 <li>WaitGroup 不保证 worker 的执行顺序</li>
@@ -378,6 +551,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

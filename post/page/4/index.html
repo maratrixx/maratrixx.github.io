@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -92,7 +96,7 @@
         </div>
         
         <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
+            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &#34;CONNECT&#34; { w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &#34;405 must CONNECT\n&#34;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error())……
         </div>
         <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
     </article>
@@ -169,7 +173,7 @@
         </div>
         
         <div class="post-content">
-            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1if条件{2//... 3}elseif条件{4//... 5}else{6//... 7}注意，这里的条件表达式不包含()括号，直接写……
+            if表达式 Rust的if...else if ... else基本语法和大多编程语言类似，这里不再赘述。 1 2 3 4 5 6 7 if条件{//... }elseif条件{//... }else{//... } 注意，这里的条件表达式不包含()括号，直……
         </div>
         <p class="readmore"><a href="https://maratrix.cn/post/2020/02/05/006-rust-control-notes/">阅读全文</a></p>
     </article>
@@ -194,7 +198,7 @@
         </div>
         
         <div class="post-content">
-            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1fn test_function(a: i32,b: bool)-&gt; u32 {2//... 3}函数参数 函数可以定义多个参数，使用逗号,分隔……
+            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1 2 3 fn test_function(a: i32,b: bool)-&gt; u32 {//... } 函数参数 函数可以定义多个参数，使用逗号,……
         </div>
         <p class="readmore"><a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">阅读全文</a></p>
     </article>
@@ -244,7 +248,7 @@
         </div>
         
         <div class="post-content">
-            变量声明 语法格式： 1let变量名: 变量类型=变量值;2letvar: i32 =123;有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必……
+            变量声明 语法格式： 1 2 let变量名: 变量类型=变量值;letvar: i32 =123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理……
         </div>
         <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
     </article>
@@ -319,7 +323,7 @@
         </div>
         
         <div class="post-content">
-            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rust……
+            今天正式开始学Rust。 安装 学习一门新语言，第一件事当然是先安装。官方推荐使用rustup工具来管理安装，并提供一键安装命令，只需要在终端执行以下命令即可： 1 curl --proto &#39;=https&#39; --tlsv1.2 -sSf https://sh.rustup.rs | sh 其实就是，先下载安装rus……
         </div>
         <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/000-rust-install-notes/">阅读全文</a></p>
     </article>

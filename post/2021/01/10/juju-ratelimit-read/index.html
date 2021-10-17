@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -224,154 +228,351 @@
 <p><a href="https://github.com/juju/ratelimit">juju/ratelimit</a> 是基于令牌桶实现的 Go 限流开源方案，下面会结合其用法, 剖析其实现原理。</p>
 <h4 id="如何使用">如何使用</h4>
 <p>先看一个简单的例子：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>lim <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">NewBucketWithQuantum</span>(time.Second, <span style="color:#099">5</span>, <span style="color:#099">5</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; <span style="color:#099">10</span>; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    fmt.<span style="color:#900;font-weight:bold">Println</span>(i, lim.<span style="color:#900;font-weight:bold">TakeAvailable</span>(<span style="color:#099">1</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic">// output:
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic">// 0 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic">// 1 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic">// 2 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">// 3 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic">// 4 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic">// 5 0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic">// 6 0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">// 7 0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic">// 8 0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic">// 9 0
-</span></code></pre></div><p>首先通过 <code>NewBucketWithQuantum</code> 初始化限流对象，参数表示每秒最多允许 5 个请求，然后依次请求 <code>lim.TakeAvailable(1))</code> 获取一个令牌。可以看出，前五次请求是可以拿到令牌的，后五次请求拿不到令牌就会被拒绝。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">lim <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">NewBucketWithQuantum</span>(time.Second, <span style="color:#099">5</span>, <span style="color:#099">5</span>)
+
+<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; <span style="color:#099">10</span>; i<span style="color:#000;font-weight:bold">++</span> {
+    fmt.<span style="color:#900;font-weight:bold">Println</span>(i, lim.<span style="color:#900;font-weight:bold">TakeAvailable</span>(<span style="color:#099">1</span>))
+}
+
+<span style="color:#998;font-style:italic">// output:
+</span><span style="color:#998;font-style:italic">// 0 1
+</span><span style="color:#998;font-style:italic">// 1 1
+</span><span style="color:#998;font-style:italic">// 2 1
+</span><span style="color:#998;font-style:italic">// 3 1
+</span><span style="color:#998;font-style:italic">// 4 1
+</span><span style="color:#998;font-style:italic">// 5 0
+</span><span style="color:#998;font-style:italic">// 6 0
+</span><span style="color:#998;font-style:italic">// 7 0
+</span><span style="color:#998;font-style:italic">// 8 0
+</span><span style="color:#998;font-style:italic">// 9 0
+</span></code></pre></td></tr></table>
+</div>
+</div><p>首先通过 <code>NewBucketWithQuantum</code> 初始化限流对象，参数表示每秒最多允许 5 个请求，然后依次请求 <code>lim.TakeAvailable(1))</code> 获取一个令牌。可以看出，前五次请求是可以拿到令牌的，后五次请求拿不到令牌就会被拒绝。</p>
 <h4 id="初始化方法">初始化方法</h4>
 <p>该组件提供的初始化方法主要以下三类：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// 默认的初始化函数, 每一个周期内生成 1 个令牌, 默认 quantum = 1
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucket</span>(fillInterval time.Duration, capacity <span style="color:#458;font-weight:bold">int64</span>):
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic">// 跟 NewBucket 类似, 每个周期内生成 quantum 个令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucketWithQuantum</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>) 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic">// 每秒中产生 rate 速率的令牌，fillInterval 是计算出来的
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucketWithRate</span>(rate <span style="color:#458;font-weight:bold">float64</span>, capacity <span style="color:#458;font-weight:bold">int64</span>)
-</code></pre></div><p>以上三个初始化方法分别调用的是：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#900;font-weight:bold">NewBucketWithClock</span>(fillInterval time.Duration, capacity <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#900;font-weight:bold">NewBucketWithQuantumAndClock</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#900;font-weight:bold">NewBucketWithRateAndClock</span>(rate <span style="color:#458;font-weight:bold">float64</span>, capacity <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket 
-</code></pre></div><p>以上所有初始化方法最终都是调用的这个方法：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#900;font-weight:bold">NewBucketWithQuantumAndClock</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket
-</code></pre></div><h4 id="bucket-方法">*Bucket 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 返回可用的令牌数，当有消费者在等待令牌时，将为负
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Available</span>() <span style="color:#458;font-weight:bold">int64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic">// 返回令牌桶的容量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Capacity</span>() <span style="color:#458;font-weight:bold">int64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic">// 返回每秒放入令牌桶的速率
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Rate</span>() <span style="color:#458;font-weight:bold">float64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic">// 返回取出 count 令牌需要等待的时间，需要调用端进行 sleep 等待，注意 Take 方法不支持放回令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Take</span>(count <span style="color:#458;font-weight:bold">int64</span>) time.Duration
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic">// 返回可用的令牌数（不一定等于 count），如果没可用的令牌，将返回零，不会进行阻塞
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">TakeAvailable</span>(count <span style="color:#458;font-weight:bold">int64</span>) <span style="color:#458;font-weight:bold">int64</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">// 与 Take 类似，不同之处在于 TakeMaxDuration 仅在令牌的等待时间不大于 maxWait 时才从存储桶中提取令牌。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic">// 如果令牌变得比 maxWait 更长的时间才可用，则不执行任何操作并报告 false，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic">// 否则返回调用者应等待直到令牌实际可用的时间，并报告 true。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">TakeMaxDuration</span>(count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) (time.Duration, <span style="color:#458;font-weight:bold">bool</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">// 阻塞等待直能获取 count 令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Wait</span>(count <span style="color:#458;font-weight:bold">int64</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic">// 与 Wait 类似，不同之处在于，WaitMaxDuration 仅在需要等待不超过 maxWait 的情况下才会从存储桶中获取令牌。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic">// 返回是否已从存储桶中删除了所有令牌。如果未删除任何令牌，则立即返回。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">WaitMaxDuration</span>(count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) <span style="color:#458;font-weight:bold">bool</span>
-</code></pre></div><p>大家可以根据自己的使用场景选择合适的方法，接下来看下该限流器的源码实现。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 默认的初始化函数, 每一个周期内生成 1 个令牌, 默认 quantum = 1
+</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucket</span>(fillInterval time.Duration, capacity <span style="color:#458;font-weight:bold">int64</span>):
+<span style="color:#998;font-style:italic">// 跟 NewBucket 类似, 每个周期内生成 quantum 个令牌
+</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucketWithQuantum</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>) 
+<span style="color:#998;font-style:italic">// 每秒中产生 rate 速率的令牌，fillInterval 是计算出来的
+</span><span style="color:#998;font-style:italic"></span><span style="color:#900;font-weight:bold">NewBucketWithRate</span>(rate <span style="color:#458;font-weight:bold">float64</span>, capacity <span style="color:#458;font-weight:bold">int64</span>)
+</code></pre></td></tr></table>
+</div>
+</div><p>以上三个初始化方法分别调用的是：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#900;font-weight:bold">NewBucketWithClock</span>(fillInterval time.Duration, capacity <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket
+<span style="color:#900;font-weight:bold">NewBucketWithQuantumAndClock</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket 
+<span style="color:#900;font-weight:bold">NewBucketWithRateAndClock</span>(rate <span style="color:#458;font-weight:bold">float64</span>, capacity <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket 
+</code></pre></td></tr></table>
+</div>
+</div><p>以上所有初始化方法最终都是调用的这个方法：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#900;font-weight:bold">NewBucketWithQuantumAndClock</span>(fillInterval time.Duration, capacity, quantum <span style="color:#458;font-weight:bold">int64</span>, clock Clock) <span style="color:#000;font-weight:bold">*</span>Bucket
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="bucket-方法">*Bucket 方法</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 返回可用的令牌数，当有消费者在等待令牌时，将为负
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Available</span>() <span style="color:#458;font-weight:bold">int64</span>
+<span style="color:#998;font-style:italic">// 返回令牌桶的容量
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Capacity</span>() <span style="color:#458;font-weight:bold">int64</span>
+<span style="color:#998;font-style:italic">// 返回每秒放入令牌桶的速率
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Rate</span>() <span style="color:#458;font-weight:bold">float64</span>
+<span style="color:#998;font-style:italic">// 返回取出 count 令牌需要等待的时间，需要调用端进行 sleep 等待，注意 Take 方法不支持放回令牌
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Take</span>(count <span style="color:#458;font-weight:bold">int64</span>) time.Duration
+<span style="color:#998;font-style:italic">// 返回可用的令牌数（不一定等于 count），如果没可用的令牌，将返回零，不会进行阻塞
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">TakeAvailable</span>(count <span style="color:#458;font-weight:bold">int64</span>) <span style="color:#458;font-weight:bold">int64</span>
+<span style="color:#998;font-style:italic">// 与 Take 类似，不同之处在于 TakeMaxDuration 仅在令牌的等待时间不大于 maxWait 时才从存储桶中提取令牌。
+</span><span style="color:#998;font-style:italic">// 如果令牌变得比 maxWait 更长的时间才可用，则不执行任何操作并报告 false，
+</span><span style="color:#998;font-style:italic">// 否则返回调用者应等待直到令牌实际可用的时间，并报告 true。
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">TakeMaxDuration</span>(count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) (time.Duration, <span style="color:#458;font-weight:bold">bool</span>)
+<span style="color:#998;font-style:italic">// 阻塞等待直能获取 count 令牌
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Wait</span>(count <span style="color:#458;font-weight:bold">int64</span>)
+<span style="color:#998;font-style:italic">// 与 Wait 类似，不同之处在于，WaitMaxDuration 仅在需要等待不超过 maxWait 的情况下才会从存储桶中获取令牌。
+</span><span style="color:#998;font-style:italic">// 返回是否已从存储桶中删除了所有令牌。如果未删除任何令牌，则立即返回。
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">WaitMaxDuration</span>(count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) <span style="color:#458;font-weight:bold">bool</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>大家可以根据自己的使用场景选择合适的方法，接下来看下该限流器的源码实现。</p>
 <h3 id="源码分析">源码分析</h3>
 <h4 id="bucket">Bucket</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> Bucket <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	clock Clock
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	startTime time.Time         <span style="color:#998;font-style:italic">// Bucket 被创建时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	capacity <span style="color:#458;font-weight:bold">int64</span>              <span style="color:#998;font-style:italic">// Bucket 令牌最大容量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	quantum <span style="color:#458;font-weight:bold">int64</span>               <span style="color:#998;font-style:italic">// 每次放入 quantum 个令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	fillInterval time.Duration  <span style="color:#998;font-style:italic">// 放入令牌的间隔
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    mu sync.Mutex           <span style="color:#998;font-style:italic">// 互斥锁，保护以下变量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	availableTokens <span style="color:#458;font-weight:bold">int64</span>   <span style="color:#998;font-style:italic">// 当前可用的令牌数，可能为负
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	latestTick <span style="color:#458;font-weight:bold">int64</span>        <span style="color:#998;font-style:italic">// 保存最新的 tick，也就是从创建 Bucket 到现在的时钟周期
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>这里我们可以看出，Bucket 内部使用了互斥锁来保证并发的安全性，所以在高并发场景下会有很大的性能损耗。<a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/">上一篇</a> 我们知道 uber-go/ratelimit 并没有使用锁，而是通过 for + cas 这种模式来保证无锁化编程（lock free），这样对比着分析不同的限流器实现可以更好的掌握其设计。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Bucket <span style="color:#000;font-weight:bold">struct</span> {
+	clock Clock
+
+	startTime time.Time         <span style="color:#998;font-style:italic">// Bucket 被创建时间
+</span><span style="color:#998;font-style:italic"></span>	capacity <span style="color:#458;font-weight:bold">int64</span>              <span style="color:#998;font-style:italic">// Bucket 令牌最大容量
+</span><span style="color:#998;font-style:italic"></span>	quantum <span style="color:#458;font-weight:bold">int64</span>               <span style="color:#998;font-style:italic">// 每次放入 quantum 个令牌
+</span><span style="color:#998;font-style:italic"></span>	fillInterval time.Duration  <span style="color:#998;font-style:italic">// 放入令牌的间隔
+</span><span style="color:#998;font-style:italic"></span>
+    mu sync.Mutex           <span style="color:#998;font-style:italic">// 互斥锁，保护以下变量
+</span><span style="color:#998;font-style:italic"></span>	availableTokens <span style="color:#458;font-weight:bold">int64</span>   <span style="color:#998;font-style:italic">// 当前可用的令牌数，可能为负
+</span><span style="color:#998;font-style:italic"></span>	latestTick <span style="color:#458;font-weight:bold">int64</span>        <span style="color:#998;font-style:italic">// 保存最新的 tick，也就是从创建 Bucket 到现在的时钟周期
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>这里我们可以看出，Bucket 内部使用了互斥锁来保证并发的安全性，所以在高并发场景下会有很大的性能损耗。<a href="https://maratrix.cn/post/2021/01/06/uber-go-ratelimit-read/">上一篇</a> 我们知道 uber-go/ratelimit 并没有使用锁，而是通过 for + cas 这种模式来保证无锁化编程（lock free），这样对比着分析不同的限流器实现可以更好的掌握其设计。</p>
 <h4 id="take-方法">Take 方法</h4>
 <p>我们先从 Take 方法看起，其他几个获取令牌的方法实现大同小异。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// 返回取出 count 令牌需要等待的时间，需要调用端进行 sleep 等待，注意 Take 方法不支持放回令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Take</span>(count <span style="color:#458;font-weight:bold">int64</span>) time.Duration {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	tb.mu.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#000;font-weight:bold">defer</span> tb.mu.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	d, _ <span style="color:#000;font-weight:bold">:=</span> tb.<span style="color:#900;font-weight:bold">take</span>(tb.clock.<span style="color:#900;font-weight:bold">Now</span>(), count, infinityDuration)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#000;font-weight:bold">return</span> d
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-</code></pre></div><p>可以看出 Take 方法内部实现，首先是加锁操作，保证并发安全。然后 Take 方法又调用了内部的 take 方法，第三个调用参数是 <code>infinityDuration</code> 表示无穷时间:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">const</span> infinityDuration time.Duration = <span style="color:#099">0x7fffffffffffffff</span>
-</code></pre></div><h4 id="take-方法-1">take 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// now 表示获取令牌的时间，也就是当前时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic">// count 表示获取的令牌数量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic">// maxWait 表示等待的最长时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">take</span>(now time.Time, count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) (time.Duration, <span style="color:#458;font-weight:bold">bool</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#000;font-weight:bold">if</span> count <span style="color:#000;font-weight:bold">&lt;=</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#998;font-style:italic">// 计算从 startTime 到 now 经历的 tick 时间间隔数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>    tick <span style="color:#000;font-weight:bold">:=</span> tb.<span style="color:#900;font-weight:bold">currentTick</span>(now)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#998;font-style:italic">// 调整当前可用的令牌数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 超过令牌桶大小时，剩余的令牌数等于桶大小
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>    tb.<span style="color:#900;font-weight:bold">adjustavailableTokens</span>(tick)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    <span style="color:#998;font-style:italic">// 当 availableTokens &gt;= count 时，直接返回 0, true
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	avail <span style="color:#000;font-weight:bold">:=</span> tb.availableTokens <span style="color:#000;font-weight:bold">-</span> count
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#000;font-weight:bold">if</span> avail <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">0</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>		tb.availableTokens = avail
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>    <span style="color:#998;font-style:italic">// 计算下一个放入令牌的整数倍周期，防止 int64(小于 1) 为零的情况
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic"></span>    endTick <span style="color:#000;font-weight:bold">:=</span> tick <span style="color:#000;font-weight:bold">+</span> (<span style="color:#000;font-weight:bold">-</span>avail<span style="color:#000;font-weight:bold">+</span>tb.quantum<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)<span style="color:#000;font-weight:bold">/</span>tb.quantum
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    <span style="color:#998;font-style:italic">// 计算下一个放入令牌的时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic"></span>    endTime <span style="color:#000;font-weight:bold">:=</span> tb.startTime.<span style="color:#900;font-weight:bold">Add</span>(time.<span style="color:#900;font-weight:bold">Duration</span>(endTick) <span style="color:#000;font-weight:bold">*</span> tb.fillInterval)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>    <span style="color:#998;font-style:italic">// 计算需要等待的时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#998;font-style:italic"></span>    waitTime <span style="color:#000;font-weight:bold">:=</span> endTime.<span style="color:#900;font-weight:bold">Sub</span>(now)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>    <span style="color:#998;font-style:italic">// 当最大等待时间 &lt; waitTime 时，直接返回 0，false 表示无法获取到令牌数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> waitTime &gt; maxWait {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">false</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>    tb.availableTokens = avail
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>    <span style="color:#998;font-style:italic">// 如果 waitTime != 0，调用方需要阻塞等待 waitTime 的时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> waitTime, <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>
-</code></pre></div><h4 id="currenttick">currentTick</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">currentTick</span>(now time.Time) <span style="color:#458;font-weight:bold">int64</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#998;font-style:italic">// 由于 tb.fillInterval 表示放入令牌的时间间隔
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 所以这里计算的是从开始到 now 时间经历了多少个放令牌的间隔数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 即 tick * tb.quantum 等于当前的令牌总数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">int64</span>(now.<span style="color:#900;font-weight:bold">Sub</span>(tb.startTime) <span style="color:#000;font-weight:bold">/</span> tb.fillInterval)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
-</code></pre></div><h4 id="adjustavailabletokens">adjustavailableTokens</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">adjustavailableTokens</span>(tick <span style="color:#458;font-weight:bold">int64</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	lastTick <span style="color:#000;font-weight:bold">:=</span> tb.latestTick
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    tb.latestTick = tick
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#998;font-style:italic">// 当可用的令牌数已达到桶的容量，直接返回
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> tb.availableTokens <span style="color:#000;font-weight:bold">&gt;=</span> tb.capacity {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>		<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#998;font-style:italic">// (tick - lastTick) * tb.quantum 表示从上次请求到本次请求所产生的的令牌数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// tb.availableTokens += (tick - lastTick) * tb.quantum 表示桶内剩余的token数量 + 新产生的token数量
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>    tb.availableTokens <span style="color:#000;font-weight:bold">+=</span> (tick <span style="color:#000;font-weight:bold">-</span> lastTick) <span style="color:#000;font-weight:bold">*</span> tb.quantum
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#998;font-style:italic">// 如果产生的令牌数量超过了桶的容量，只保留桶大小数量的令牌即可
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> tb.availableTokens &gt; tb.capacity {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		tb.availableTokens = tb.capacity
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>}
-</code></pre></div><p>通过源码我们可以看到：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 返回取出 count 令牌需要等待的时间，需要调用端进行 sleep 等待，注意 Take 方法不支持放回令牌
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">Take</span>(count <span style="color:#458;font-weight:bold">int64</span>) time.Duration {
+	tb.mu.<span style="color:#900;font-weight:bold">Lock</span>()
+	<span style="color:#000;font-weight:bold">defer</span> tb.mu.<span style="color:#900;font-weight:bold">Unlock</span>()
+	d, _ <span style="color:#000;font-weight:bold">:=</span> tb.<span style="color:#900;font-weight:bold">take</span>(tb.clock.<span style="color:#900;font-weight:bold">Now</span>(), count, infinityDuration)
+	<span style="color:#000;font-weight:bold">return</span> d
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看出 Take 方法内部实现，首先是加锁操作，保证并发安全。然后 Take 方法又调用了内部的 take 方法，第三个调用参数是 <code>infinityDuration</code> 表示无穷时间:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">const</span> infinityDuration time.Duration = <span style="color:#099">0x7fffffffffffffff</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="take-方法-1">take 方法</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// now 表示获取令牌的时间，也就是当前时间
+</span><span style="color:#998;font-style:italic">// count 表示获取的令牌数量
+</span><span style="color:#998;font-style:italic">// maxWait 表示等待的最长时间
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">take</span>(now time.Time, count <span style="color:#458;font-weight:bold">int64</span>, maxWait time.Duration) (time.Duration, <span style="color:#458;font-weight:bold">bool</span>) {
+	<span style="color:#000;font-weight:bold">if</span> count <span style="color:#000;font-weight:bold">&lt;=</span> <span style="color:#099">0</span> {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">true</span>
+	}
+
+    <span style="color:#998;font-style:italic">// 计算从 startTime 到 now 经历的 tick 时间间隔数
+</span><span style="color:#998;font-style:italic"></span>    tick <span style="color:#000;font-weight:bold">:=</span> tb.<span style="color:#900;font-weight:bold">currentTick</span>(now)
+    
+    <span style="color:#998;font-style:italic">// 调整当前可用的令牌数
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 超过令牌桶大小时，剩余的令牌数等于桶大小
+</span><span style="color:#998;font-style:italic"></span>    tb.<span style="color:#900;font-weight:bold">adjustavailableTokens</span>(tick)
+    
+    <span style="color:#998;font-style:italic">// 当 availableTokens &gt;= count 时，直接返回 0, true
+</span><span style="color:#998;font-style:italic"></span>	avail <span style="color:#000;font-weight:bold">:=</span> tb.availableTokens <span style="color:#000;font-weight:bold">-</span> count
+	<span style="color:#000;font-weight:bold">if</span> avail <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#099">0</span> {
+		tb.availableTokens = avail
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">true</span>
+	}
+    
+    <span style="color:#998;font-style:italic">// 计算下一个放入令牌的整数倍周期，防止 int64(小于 1) 为零的情况
+</span><span style="color:#998;font-style:italic"></span>    endTick <span style="color:#000;font-weight:bold">:=</span> tick <span style="color:#000;font-weight:bold">+</span> (<span style="color:#000;font-weight:bold">-</span>avail<span style="color:#000;font-weight:bold">+</span>tb.quantum<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>)<span style="color:#000;font-weight:bold">/</span>tb.quantum
+    
+    <span style="color:#998;font-style:italic">// 计算下一个放入令牌的时间
+</span><span style="color:#998;font-style:italic"></span>    endTime <span style="color:#000;font-weight:bold">:=</span> tb.startTime.<span style="color:#900;font-weight:bold">Add</span>(time.<span style="color:#900;font-weight:bold">Duration</span>(endTick) <span style="color:#000;font-weight:bold">*</span> tb.fillInterval)
+    
+    <span style="color:#998;font-style:italic">// 计算需要等待的时间
+</span><span style="color:#998;font-style:italic"></span>    waitTime <span style="color:#000;font-weight:bold">:=</span> endTime.<span style="color:#900;font-weight:bold">Sub</span>(now)
+    
+    <span style="color:#998;font-style:italic">// 当最大等待时间 &lt; waitTime 时，直接返回 0，false 表示无法获取到令牌数
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> waitTime &gt; maxWait {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#099">0</span>, <span style="color:#000;font-weight:bold">false</span>
+	}
+    tb.availableTokens = avail
+    
+    <span style="color:#998;font-style:italic">// 如果 waitTime != 0，调用方需要阻塞等待 waitTime 的时间
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> waitTime, <span style="color:#000;font-weight:bold">true</span>
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="currenttick">currentTick</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">currentTick</span>(now time.Time) <span style="color:#458;font-weight:bold">int64</span> {
+    <span style="color:#998;font-style:italic">// 由于 tb.fillInterval 表示放入令牌的时间间隔
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 所以这里计算的是从开始到 now 时间经历了多少个放令牌的间隔数
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 即 tick * tb.quantum 等于当前的令牌总数
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">int64</span>(now.<span style="color:#900;font-weight:bold">Sub</span>(tb.startTime) <span style="color:#000;font-weight:bold">/</span> tb.fillInterval)
+}
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="adjustavailabletokens">adjustavailableTokens</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (tb <span style="color:#000;font-weight:bold">*</span>Bucket) <span style="color:#900;font-weight:bold">adjustavailableTokens</span>(tick <span style="color:#458;font-weight:bold">int64</span>) {
+	lastTick <span style="color:#000;font-weight:bold">:=</span> tb.latestTick
+    tb.latestTick = tick
+    <span style="color:#998;font-style:italic">// 当可用的令牌数已达到桶的容量，直接返回
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> tb.availableTokens <span style="color:#000;font-weight:bold">&gt;=</span> tb.capacity {
+		<span style="color:#000;font-weight:bold">return</span>
+    }
+    
+    <span style="color:#998;font-style:italic">// (tick - lastTick) * tb.quantum 表示从上次请求到本次请求所产生的的令牌数
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// tb.availableTokens += (tick - lastTick) * tb.quantum 表示桶内剩余的token数量 + 新产生的token数量
+</span><span style="color:#998;font-style:italic"></span>    tb.availableTokens <span style="color:#000;font-weight:bold">+=</span> (tick <span style="color:#000;font-weight:bold">-</span> lastTick) <span style="color:#000;font-weight:bold">*</span> tb.quantum
+    
+    <span style="color:#998;font-style:italic">// 如果产生的令牌数量超过了桶的容量，只保留桶大小数量的令牌即可
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> tb.availableTokens &gt; tb.capacity {
+		tb.availableTokens = tb.capacity
+	}
+	<span style="color:#000;font-weight:bold">return</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>通过源码我们可以看到：</p>
 <ul>
 <li>jujue/ratelimit 计算出请求间隔中应该产生的token的数量, 并没有另启一个 goroutine 专门定时生产令牌</li>
 <li>桶内令牌在产生过程中是累加的, 同时减去每次调用消耗的数量</li>
@@ -399,6 +600,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/">https://maratrix.cn/post/2021/01/10/juju-ratelimit-read/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -204,30 +208,68 @@
         <div class="post-content">
             <h2 id="if表达式"><code>if</code>表达式</h2>
 <p>Rust的<code>if...else if ... else</code>基本语法和大多编程语言类似，这里不再赘述。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">条件</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">条件</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>注意，这里的条件表达式不包含<code>()</code>括号，直接写表达式即可：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&gt;</span><span style="color:#bbb"> </span><span style="color:#099">0</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;number was three&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><h2 id="在let中使用if">在<code>let</code>中使用<code>if</code></h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">条件</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span><span style="color:#a61717;background-color:#e3d2d2">条件</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>注意，这里的条件表达式不包含<code>()</code>括号，直接写表达式即可：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">&gt;</span><span style="color:#bbb"> </span><span style="color:#099">0</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;number was three&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="在let中使用if">在<code>let</code>中使用<code>if</code></h2>
 <p>因为 if 是一个表达式，我们可以在 let 语句的右侧使用它：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>condition<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">true</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>condition<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">        </span><span style="color:#099">5</span><span style="color:#bbb">	
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb">    </span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb">        </span><span style="color:#099">6</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#bbb">    </span>};<span style="color:#bbb">		</span><span style="color:#998;font-style:italic">//不要漏掉这里的分号`;`
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;number = {}&#34;</span>,<span style="color:#bbb"> </span>number);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>这里有三点要注意：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>condition<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">true</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>number<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>condition<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#099">5</span><span style="color:#bbb">	
+</span><span style="color:#bbb">    </span>}<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">else</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#099">6</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>};<span style="color:#bbb">		</span><span style="color:#998;font-style:italic">//不要漏掉这里的分号`;`
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;number = {}&#34;</span>,<span style="color:#bbb"> </span>number);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这里有三点要注意：</p>
 <ul>
 <li><code>if</code>表达式大括号最后的分号<code>;</code>不能漏掉；</li>
 <li><code>if...else</code>代码块里面的表达式不能加<code>;</code>分号；</li>
@@ -242,38 +284,86 @@
 </ul>
 <h4 id="loop循环"><code>loop</code>循环</h4>
 <p><code>loop</code>其实就是个死循环，除非明确告诉要求停止。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">loop</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">        </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;again!&#34;</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>当然，我们可以使用<code>break</code>来停止循环，<code>break</code>还可以返回一个值。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">mut</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">0</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>result<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">loop</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#bbb">        </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+=</span><span style="color:#bbb"> </span><span style="color:#099">1</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">==</span><span style="color:#bbb"> </span><span style="color:#099">10</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#bbb">            </span><span style="color:#000;font-weight:bold">break</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">*</span><span style="color:#bbb"> </span><span style="color:#099">2</span>;<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">//这里经测试，尾部的分号可加可不加，都可以
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">        </span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#bbb">    </span>assert_eq<span style="color:#000;font-weight:bold">!</span>(result,<span style="color:#bbb"> </span><span style="color:#099">20</span>);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><h4 id="while循环"><code>while</code>循环</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">loop</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;again!&#34;</span>);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>当然，我们可以使用<code>break</code>来停止循环，<code>break</code>还可以返回一个值。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">mut</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">0</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>result<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">loop</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+=</span><span style="color:#bbb"> </span><span style="color:#099">1</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">if</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">==</span><span style="color:#bbb"> </span><span style="color:#099">10</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">            </span><span style="color:#000;font-weight:bold">break</span><span style="color:#bbb"> </span>counter<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">*</span><span style="color:#bbb"> </span><span style="color:#099">2</span>;<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">//这里经测试，尾部的分号可加可不加，都可以
+</span><span style="color:#998;font-style:italic"></span><span style="color:#bbb">        </span>}<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>assert_eq<span style="color:#000;font-weight:bold">!</span>(result,<span style="color:#bbb"> </span><span style="color:#099">20</span>);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><h4 id="while循环"><code>while</code>循环</h4>
 <p>在程序中计算循环的条件也很常见。当条件为真，执行循环。当条件不再为真，调用 break 停止循环。这个循环类型可以通过组合 <code>loop、if、else 和 break</code> 来实现。</p>
 <p>然而，这个模式太常用了，Rust 为此内置了一个语言结构，它被称为 <code>while 循环</code>。</p>
 <h4 id="for循环"><code>for</code>循环</h4>
 <p>Rust也提供了更加常用的<code>for</code>循环：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>a<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>[<span style="color:#099">10</span>,<span style="color:#bbb"> </span><span style="color:#099">20</span>,<span style="color:#bbb"> </span><span style="color:#099">30</span>,<span style="color:#bbb"> </span><span style="color:#099">40</span>,<span style="color:#bbb"> </span><span style="color:#099">50</span>];<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">for</span><span style="color:#bbb"> </span>element<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">in</span><span style="color:#bbb"> </span>a.iter()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">        </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;the value is: {}&#34;</span>,<span style="color:#bbb"> </span>element);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>循环中也可以使用<code>continue</code>和<code>break</code>语法。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>a<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>[<span style="color:#099">10</span>,<span style="color:#bbb"> </span><span style="color:#099">20</span>,<span style="color:#bbb"> </span><span style="color:#099">30</span>,<span style="color:#bbb"> </span><span style="color:#099">40</span>,<span style="color:#bbb"> </span><span style="color:#099">50</span>];<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">for</span><span style="color:#bbb"> </span>element<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">in</span><span style="color:#bbb"> </span>a.iter()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;the value is: {}&#34;</span>,<span style="color:#bbb"> </span>element);<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>}<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>循环中也可以使用<code>continue</code>和<code>break</code>语法。</p>
 
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/02/05/006-rust-control-notes/">https://maratrix.cn/post/2020/02/05/006-rust-control-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -213,155 +217,348 @@
         <div class="post-content">
             <h2 id="背景之字符串拼接">背景之字符串拼接</h2>
 <p>在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>str <span style="color:#000;font-weight:bold">:=</span> []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;aa&#34;</span>, <span style="color:#d14">&#34;bb&#34;</span>, <span style="color:#d14">&#34;cc&#34;</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>ss <span style="color:#000;font-weight:bold">:=</span> <span style="color:#d14">&#34;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	ss <span style="color:#000;font-weight:bold">+=</span> s
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>fmt.<span style="color:#900;font-weight:bold">Println</span>(ss)
-</code></pre></div><p>相信大部分人都会使用<code>+</code>操作符或者<code>fmt.Sprinf</code>进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内存分配、数据拷贝等操作，在高并发系统中不得不考虑更优的解决方案。所以一开始我经常使用<code>bytes.Buffer</code>。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">str <span style="color:#000;font-weight:bold">:=</span> []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;aa&#34;</span>, <span style="color:#d14">&#34;bb&#34;</span>, <span style="color:#d14">&#34;cc&#34;</span>}
+ss <span style="color:#000;font-weight:bold">:=</span> <span style="color:#d14">&#34;&#34;</span>
+<span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
+	ss <span style="color:#000;font-weight:bold">+=</span> s
+}
+fmt.<span style="color:#900;font-weight:bold">Println</span>(ss)
+</code></pre></td></tr></table>
+</div>
+</div><p>相信大部分人都会使用<code>+</code>操作符或者<code>fmt.Sprinf</code>进行拼接，但要注意的是，在 Go 语言中字符串是不可变的，也就是说每次修改都会导致字符串创建、销毁、内存分配、数据拷贝等操作，在高并发系统中不得不考虑更优的解决方案。所以一开始我经常使用<code>bytes.Buffer</code>。</p>
 <h2 id="使用-bytesbuffer">使用 bytes.Buffer</h2>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>str <span style="color:#000;font-weight:bold">:=</span> []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;aa&#34;</span>, <span style="color:#d14">&#34;bb&#34;</span>, <span style="color:#d14">&#34;cc&#34;</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	buf.<span style="color:#900;font-weight:bold">WriteString</span>(s)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>fmt.<span style="color:#900;font-weight:bold">Println</span>(buf.<span style="color:#900;font-weight:bold">String</span>())
-</code></pre></div><p><code>bytes.Buffer</code>内部使用<code>[]byte</code>来存储写入的数据（包括<code>string</code>、<code>byte</code>、<code>rune</code>类型），从而一定程度避免了每次数据写入都重新分配内存和数据拷贝操作。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">str <span style="color:#000;font-weight:bold">:=</span> []<span style="color:#458;font-weight:bold">string</span>{<span style="color:#d14">&#34;aa&#34;</span>, <span style="color:#d14">&#34;bb&#34;</span>, <span style="color:#d14">&#34;cc&#34;</span>}
+<span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
+<span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
+	buf.<span style="color:#900;font-weight:bold">WriteString</span>(s)
+}
+fmt.<span style="color:#900;font-weight:bold">Println</span>(buf.<span style="color:#900;font-weight:bold">String</span>())
+</code></pre></td></tr></table>
+</div>
+</div><p><code>bytes.Buffer</code>内部使用<code>[]byte</code>来存储写入的数据（包括<code>string</code>、<code>byte</code>、<code>rune</code>类型），从而一定程度避免了每次数据写入都重新分配内存和数据拷贝操作。</p>
 <p>但要注意<code>buf.String()</code>方法会进行<code>[]byte</code>到<code>string</code>的类型转换，最终还是会导致一次内存申请和数据拷贝。看一下源码实现：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Buffer) <span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#000;font-weight:bold">if</span> b <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		<span style="color:#998;font-style:italic">// Special case, useful in debugging.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;&lt;nil&gt;&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">string</span>(b.buf[b.off:]) <span style="color:#998;font-style:italic">//发生类型转换
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>接下来就该<code>strings.Builder</code>出场了。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Buffer) <span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span> {
+	<span style="color:#000;font-weight:bold">if</span> b <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+		<span style="color:#998;font-style:italic">// Special case, useful in debugging.
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;&lt;nil&gt;&#34;</span>
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">string</span>(b.buf[b.off:]) <span style="color:#998;font-style:italic">//发生类型转换
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>接下来就该<code>strings.Builder</code>出场了。</p>
 <h2 id="使用-stringsbuilder">使用 strings.Builder</h2>
 <p>为了改进<code>bytes.Buffer</code>拼接的性能，在 Go 1.10 及以后，我们可以使用性能更强的 <code>strings.Builder</code> 完成字符串的拼接操作。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">var</span> builder strings.Builder
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	builder.<span style="color:#900;font-weight:bold">WriteString</span>(s)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>fmt.<span style="color:#900;font-weight:bold">Println</span>(builder.<span style="color:#900;font-weight:bold">String</span>())
-</code></pre></div><h2 id="benchmark">Benchmark</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> builder strings.Builder
+<span style="color:#000;font-weight:bold">for</span> _, s <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> str {
+	builder.<span style="color:#900;font-weight:bold">WriteString</span>(s)
+}
+fmt.<span style="color:#900;font-weight:bold">Println</span>(builder.<span style="color:#900;font-weight:bold">String</span>())
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="benchmark">Benchmark</h2>
 <p>这里我们做下以上使用方式的性能对比：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkPlus</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#000;font-weight:bold">var</span> s <span style="color:#458;font-weight:bold">string</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		s <span style="color:#000;font-weight:bold">+=</span> <span style="color:#d14">&#34;hello world&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		_ = s
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkFormat</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">var</span> s <span style="color:#458;font-weight:bold">string</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		s = fmt.<span style="color:#900;font-weight:bold">Sprintf</span>(<span style="color:#d14">&#34;%s%s&#34;</span>, s, <span style="color:#d14">&#34;hello world&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		_ = s
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBuffer</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>		buf.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		_ = buf.<span style="color:#900;font-weight:bold">String</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic">//buf.Bytes()仅作为对比buf.String()
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBufferBytes</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	<span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		buf.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		_ = buf.<span style="color:#900;font-weight:bold">Bytes</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBuilder</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	<span style="color:#000;font-weight:bold">var</span> builder strings.Builder
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>		builder.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span>		_ = builder.<span style="color:#900;font-weight:bold">String</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span><span style="color:#000;font-weight:bold">go</span> test <span style="color:#000;font-weight:bold">-</span>benchmem <span style="color:#000;font-weight:bold">-</span>run=^<span style="color:#a61717;background-color:#e3d2d2">$</span>  <span style="color:#000;font-weight:bold">-</span>bench=. <span style="color:#000;font-weight:bold">-</span>v <span style="color:#000;font-weight:bold">-</span>count=<span style="color:#099">1</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>BenchmarkPlus<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>          	  <span style="color:#099">110467</span>	    <span style="color:#099">123486</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">611592</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">1</span> allocs<span style="color:#000;font-weight:bold">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span>BenchmarkFormat<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>        	   <span style="color:#099">62427</span>	    <span style="color:#099">158490</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">692120</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">4</span> allocs<span style="color:#000;font-weight:bold">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>BenchmarkBuffer<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>        	   <span style="color:#099">87292</span>	    <span style="color:#099">104293</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">484132</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">1</span> allocs<span style="color:#000;font-weight:bold">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span>BenchmarkBufferBytes<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>   	<span style="color:#099">47784844</span>	        <span style="color:#099">26.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	      <span style="color:#099">26</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>BenchmarkBuilder<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>       	<span style="color:#099">59271824</span>	        <span style="color:#099">35.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	      <span style="color:#099">66</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
-</code></pre></div><p>从压测结果来看，<code>strings.Builder</code>性能最强，<code>BenchmarkBufferBytes</code>和<code>BenchmarkBuffer</code>为啥差别这么大，原因就在于<code>buf.String()</code>会发生一次类型转换，比较耗性能，开发中我们可以使用<code>buf.Bytes()</code>返回字节切片来规避这个问题。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkPlus</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+	<span style="color:#000;font-weight:bold">var</span> s <span style="color:#458;font-weight:bold">string</span>
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
+		s <span style="color:#000;font-weight:bold">+=</span> <span style="color:#d14">&#34;hello world&#34;</span>
+		_ = s
+	}
+}
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkFormat</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+	<span style="color:#000;font-weight:bold">var</span> s <span style="color:#458;font-weight:bold">string</span>
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
+		s = fmt.<span style="color:#900;font-weight:bold">Sprintf</span>(<span style="color:#d14">&#34;%s%s&#34;</span>, s, <span style="color:#d14">&#34;hello world&#34;</span>)
+		_ = s
+	}
+}
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBuffer</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+	<span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
+		buf.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
+		_ = buf.<span style="color:#900;font-weight:bold">String</span>()
+	}
+}
+
+<span style="color:#998;font-style:italic">//buf.Bytes()仅作为对比buf.String()
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBufferBytes</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+	<span style="color:#000;font-weight:bold">var</span> buf bytes.Buffer
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
+		buf.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
+		_ = buf.<span style="color:#900;font-weight:bold">Bytes</span>()
+	}
+}
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BenchmarkBuilder</span>(b <span style="color:#000;font-weight:bold">*</span>testing.B) {
+	<span style="color:#000;font-weight:bold">var</span> builder strings.Builder
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; b.N; i<span style="color:#000;font-weight:bold">++</span> {
+		builder.<span style="color:#900;font-weight:bold">WriteString</span>(<span style="color:#d14">&#34;hello world&#34;</span>)
+		_ = builder.<span style="color:#900;font-weight:bold">String</span>()
+	}
+}
+
+<span style="color:#000;font-weight:bold">go</span> test <span style="color:#000;font-weight:bold">-</span>benchmem <span style="color:#000;font-weight:bold">-</span>run=^<span style="color:#a61717;background-color:#e3d2d2">$</span>  <span style="color:#000;font-weight:bold">-</span>bench=. <span style="color:#000;font-weight:bold">-</span>v <span style="color:#000;font-weight:bold">-</span>count=<span style="color:#099">1</span>
+
+BenchmarkPlus<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>          	  <span style="color:#099">110467</span>	    <span style="color:#099">123486</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">611592</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">1</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+BenchmarkFormat<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>        	   <span style="color:#099">62427</span>	    <span style="color:#099">158490</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">692120</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">4</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+BenchmarkBuffer<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>        	   <span style="color:#099">87292</span>	    <span style="color:#099">104293</span> ns<span style="color:#000;font-weight:bold">/</span>op	  <span style="color:#099">484132</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">1</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+BenchmarkBufferBytes<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>   	<span style="color:#099">47784844</span>	        <span style="color:#099">26.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	      <span style="color:#099">26</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+BenchmarkBuilder<span style="color:#000;font-weight:bold">-</span><span style="color:#099">4</span>       	<span style="color:#099">59271824</span>	        <span style="color:#099">35.4</span> ns<span style="color:#000;font-weight:bold">/</span>op	      <span style="color:#099">66</span> B<span style="color:#000;font-weight:bold">/</span>op	       <span style="color:#099">0</span> allocs<span style="color:#000;font-weight:bold">/</span>op
+</code></pre></td></tr></table>
+</div>
+</div><p>从压测结果来看，<code>strings.Builder</code>性能最强，<code>BenchmarkBufferBytes</code>和<code>BenchmarkBuffer</code>为啥差别这么大，原因就在于<code>buf.String()</code>会发生一次类型转换，比较耗性能，开发中我们可以使用<code>buf.Bytes()</code>返回字节切片来规避这个问题。</p>
 <p>接下来，我们看下<code>strings.Builder</code>底层是如何实现的。</p>
 <h2 id="源码阅读">源码阅读</h2>
 <p>源码文件在<code>github.com/golang/go/src/strings/builder.go</code>。</p>
 <p><code>strings.Builder</code> 支持的方法是 <code>bytes.Buffer</code> 的子集，仔细看了一下，它实现了<code>io.Writer</code>接口，而 <code>bytes.Buffer</code> 实现了<code>io.Reader</code>和<code>io.Writer</code>两个接口。</p>
 <h4 id="stringsbuilder-结构体">strings.Builder 结构体</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> Builder <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	addr <span style="color:#000;font-weight:bold">*</span>Builder <span style="color:#998;font-style:italic">// of receiver, to detect copies by value
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>	buf  []<span style="color:#458;font-weight:bold">byte</span> 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-</code></pre></div><p>从结构体可以看出数据是存在<code>[]byte</code>中的，与 <code>bytes.Buffer</code> 思路类似，既然 <code>string</code> 在构建过程中，会不断地被销毁和重建，那么就通过底层使用一个 <code>buf []byte</code> 来存放字符串的内容，从而尽量避免这个问题。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Builder <span style="color:#000;font-weight:bold">struct</span> {
+	addr <span style="color:#000;font-weight:bold">*</span>Builder <span style="color:#998;font-style:italic">// of receiver, to detect copies by value
+</span><span style="color:#998;font-style:italic"></span>	buf  []<span style="color:#458;font-weight:bold">byte</span> 
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>从结构体可以看出数据是存在<code>[]byte</code>中的，与 <code>bytes.Buffer</code> 思路类似，既然 <code>string</code> 在构建过程中，会不断地被销毁和重建，那么就通过底层使用一个 <code>buf []byte</code> 来存放字符串的内容，从而尽量避免这个问题。</p>
 <p>注意里面还有个<code>addr</code>字段，等下会讲。</p>
 <h4 id="写入操作方法">写入操作方法</h4>
 <p>提供了四种写入方法：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteString</span>(s <span style="color:#458;font-weight:bold">string</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) {	<span style="color:#998;font-style:italic">//写入字符串
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>	b.<span style="color:#900;font-weight:bold">copyCheck</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	b.buf = <span style="color:#0086b3">append</span>(b.buf, s<span style="color:#000;font-weight:bold">...</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">len</span>(s), <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Write</span>(p []<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) 		<span style="color:#998;font-style:italic">//写入字节切片
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteByte</span>(c <span style="color:#458;font-weight:bold">byte</span>) <span style="color:#458;font-weight:bold">error</span>  			<span style="color:#998;font-style:italic">//写入字节
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteRune</span>(r <span style="color:#458;font-weight:bold">rune</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)  	<span style="color:#998;font-style:italic">//写入Rune
-</span></code></pre></div><p>对于写操作，其实就是简单的把数据追加到<code>buf []byte</code>中，利用<code>append</code>来进行底层的自动扩容。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteString</span>(s <span style="color:#458;font-weight:bold">string</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) {	<span style="color:#998;font-style:italic">//写入字符串
+</span><span style="color:#998;font-style:italic"></span>	b.<span style="color:#900;font-weight:bold">copyCheck</span>()
+	b.buf = <span style="color:#0086b3">append</span>(b.buf, s<span style="color:#000;font-weight:bold">...</span>)
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">len</span>(s), <span style="color:#000;font-weight:bold">nil</span>
+}
+<span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Write</span>(p []<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) 		<span style="color:#998;font-style:italic">//写入字节切片
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteByte</span>(c <span style="color:#458;font-weight:bold">byte</span>) <span style="color:#458;font-weight:bold">error</span>  			<span style="color:#998;font-style:italic">//写入字节
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">WriteRune</span>(r <span style="color:#458;font-weight:bold">rune</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)  	<span style="color:#998;font-style:italic">//写入Rune
+</span></code></pre></td></tr></table>
+</div>
+</div><p>对于写操作，其实就是简单的把数据追加到<code>buf []byte</code>中，利用<code>append</code>来进行底层的自动扩容。</p>
 <p>注意这里的每个写入方法开头都调用了<code>copyCheck</code>，和上面的<code>addr</code>字段是一回事，我们等会讲。</p>
 <h4 id="grow-扩容">Grow 扩容</h4>
 <p>和<code>bytes.Buffer</code>类似，<code>strings.Builder</code>也提供了<code>Grow</code>方法，可以让我们手动进行底层空间的扩容。当然，<code>Grow</code>会先判断空间是否够用，不够的话会进行扩容：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>buf <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#0086b3">len</span>(b.buf), <span style="color:#099">2</span><span style="color:#000;font-weight:bold">*</span><span style="color:#0086b3">cap</span>(b.buf)<span style="color:#000;font-weight:bold">+</span>n)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#0086b3">copy</span>(buf, b.buf)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>b.buf = buf
-</code></pre></div><h4 id="string-黑科技">String() 黑科技</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">buf <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#0086b3">len</span>(b.buf), <span style="color:#099">2</span><span style="color:#000;font-weight:bold">*</span><span style="color:#0086b3">cap</span>(b.buf)<span style="color:#000;font-weight:bold">+</span>n)
+<span style="color:#0086b3">copy</span>(buf, b.buf)
+b.buf = buf
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="string-黑科技">String() 黑科技</h4>
 <p><code>strings.Builder</code>之所以性能高，原因就在这了，其他的和<code>bytes.Buffer</code>并无太大差别。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// String returns the accumulated string.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">string</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>b.buf))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-</code></pre></div><p>解决 <code>bytes.Buffer</code> 存在的 <code>[]byte</code> 到 <code>string</code> 类型转换和内存拷贝问题，这里使用了一个 <code>unsafe.Pointer</code> 的指针转换操作，实现了直接将 <code>buf []byte</code> 转换为 <code>string</code> 类型，同时避免了内存申请、分配和销毁的问题。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// String returns the accumulated string.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span> {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">string</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>b.buf))
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>解决 <code>bytes.Buffer</code> 存在的 <code>[]byte</code> 到 <code>string</code> 类型转换和内存拷贝问题，这里使用了一个 <code>unsafe.Pointer</code> 的指针转换操作，实现了直接将 <code>buf []byte</code> 转换为 <code>string</code> 类型，同时避免了内存申请、分配和销毁的问题。</p>
 <p>当然我们也可以进行<code>string</code>到<code>[]byte</code>的零内存拷贝和申请转换：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">StringToBytes</span>(str <span style="color:#458;font-weight:bold">string</span>) []<span style="color:#458;font-weight:bold">byte</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	s <span style="color:#000;font-weight:bold">:=</span> (<span style="color:#000;font-weight:bold">*</span>[<span style="color:#099">2</span>]<span style="color:#458;font-weight:bold">uintptr</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>str))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	h <span style="color:#000;font-weight:bold">:=</span> [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uintptr</span>{s[<span style="color:#099">0</span>], s[<span style="color:#099">1</span>], s[<span style="color:#099">1</span>]}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span>[]<span style="color:#458;font-weight:bold">byte</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>h))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-</code></pre></div><h4 id="reset">Reset()</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">StringToBytes</span>(str <span style="color:#458;font-weight:bold">string</span>) []<span style="color:#458;font-weight:bold">byte</span> {
+	s <span style="color:#000;font-weight:bold">:=</span> (<span style="color:#000;font-weight:bold">*</span>[<span style="color:#099">2</span>]<span style="color:#458;font-weight:bold">uintptr</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>str))
+	h <span style="color:#000;font-weight:bold">:=</span> [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uintptr</span>{s[<span style="color:#099">0</span>], s[<span style="color:#099">1</span>], s[<span style="color:#099">1</span>]}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span>[]<span style="color:#458;font-weight:bold">byte</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>h))
+}
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="reset">Reset()</h4>
 <p><code>strings.Builder</code>同样提供了<code>Reset方法</code>，但和<code>bytes.Buffer()</code>实现的方式不同：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// Reset resets the Builder to be empty.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Reset</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	b.addr = <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	b.buf = <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>}
-</code></pre></div><p>看下<code>bytes.Buffer()</code>的实现：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// Reset resets the buffer to be empty,
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic">// but it retains the underlying storage for use by future writes.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic">// Reset is the same as Truncate(0).
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Buffer) <span style="color:#900;font-weight:bold">Reset</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	b.buf = b.buf[:<span style="color:#099">0</span>]
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	b.off = <span style="color:#099">0</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>	b.lastRead = opInvalid
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
-</code></pre></div><p>所以，我们没办法对<code>strings.Builder</code>申请的内存进行复用。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// Reset resets the Builder to be empty.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Reset</span>() {
+	b.addr = <span style="color:#000;font-weight:bold">nil</span>
+	b.buf = <span style="color:#000;font-weight:bold">nil</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>看下<code>bytes.Buffer()</code>的实现：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// Reset resets the buffer to be empty,
+</span><span style="color:#998;font-style:italic">// but it retains the underlying storage for use by future writes.
+</span><span style="color:#998;font-style:italic">// Reset is the same as Truncate(0).
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Buffer) <span style="color:#900;font-weight:bold">Reset</span>() {
+	b.buf = b.buf[:<span style="color:#099">0</span>]
+	b.off = <span style="color:#099">0</span>
+	b.lastRead = opInvalid
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>所以，我们没办法对<code>strings.Builder</code>申请的内存进行复用。</p>
 <h4 id="不允许复制">不允许复制</h4>
 <p>开头我们提到了结构体里面的<code>addr</code>字段，这里我们详细说下，首先看下<code>copyCheck()</code>方法的实现：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">copyCheck</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		b.addr = (<span style="color:#000;font-weight:bold">*</span>Builder)(<span style="color:#900;font-weight:bold">noescape</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(b)))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">!=</span> b {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;strings: illegal use of non-zero Builder copied by value&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-</code></pre></div><p>上面我们说到，程序在每次进行写入操作时，都会调用<code>copyCheck()</code>来检查：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">copyCheck</span>() {
+	<span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+		b.addr = (<span style="color:#000;font-weight:bold">*</span>Builder)(<span style="color:#900;font-weight:bold">noescape</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(b)))
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">!=</span> b {
+		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;strings: illegal use of non-zero Builder copied by value&#34;</span>)
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>上面我们说到，程序在每次进行写入操作时，都会调用<code>copyCheck()</code>来检查：</p>
 <ul>
 <li>当第一次调用时，会把当前<code>strings.Builder</code>实例的指针存入<code>addr</code>；</li>
 <li>后续每次调用，都会检查当前实例的指针是否和<code>addr</code>相等，不相等会发生<code>panic</code>；</li>
@@ -371,18 +568,35 @@
 <p>当然，从源码来看，在调用任何写入方法之前是可以进行copy的，此时还未进行<code>copyCheck</code>检查。</p>
 <h2 id="最佳实践">最佳实践</h2>
 <p>一般 Go 标准库中使用的方式都是会逐步被推广的，成为某些场景下的最佳实践方式。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 在不进行内存分配的情况下，将 []byte 转换为 string
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BytesToString</span>(b []<span style="color:#458;font-weight:bold">byte</span>) <span style="color:#458;font-weight:bold">string</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">string</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>b))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic">// 在不进行内存分配的情况下，将 string 转换为 []byte
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">StringToBytes</span>(str <span style="color:#458;font-weight:bold">string</span>) []<span style="color:#458;font-weight:bold">byte</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	s <span style="color:#000;font-weight:bold">:=</span> (<span style="color:#000;font-weight:bold">*</span>[<span style="color:#099">2</span>]<span style="color:#458;font-weight:bold">uintptr</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>str))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	h <span style="color:#000;font-weight:bold">:=</span> [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uintptr</span>{s[<span style="color:#099">0</span>], s[<span style="color:#099">1</span>], s[<span style="color:#099">1</span>]}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span>[]<span style="color:#458;font-weight:bold">byte</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>h))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-</code></pre></div><h2 id="小结">小结</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 在不进行内存分配的情况下，将 []byte 转换为 string
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">BytesToString</span>(b []<span style="color:#458;font-weight:bold">byte</span>) <span style="color:#458;font-weight:bold">string</span> {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span><span style="color:#458;font-weight:bold">string</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>b))
+}
+
+<span style="color:#998;font-style:italic">// 在不进行内存分配的情况下，将 string 转换为 []byte
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">StringToBytes</span>(str <span style="color:#458;font-weight:bold">string</span>) []<span style="color:#458;font-weight:bold">byte</span> {
+	s <span style="color:#000;font-weight:bold">:=</span> (<span style="color:#000;font-weight:bold">*</span>[<span style="color:#099">2</span>]<span style="color:#458;font-weight:bold">uintptr</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>str))
+	h <span style="color:#000;font-weight:bold">:=</span> [<span style="color:#099">3</span>]<span style="color:#458;font-weight:bold">uintptr</span>{s[<span style="color:#099">0</span>], s[<span style="color:#099">1</span>], s[<span style="color:#099">1</span>]}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">*</span>(<span style="color:#000;font-weight:bold">*</span>[]<span style="color:#458;font-weight:bold">byte</span>)(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(<span style="color:#000;font-weight:bold">&amp;</span>h))
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="小结">小结</h2>
 <p>本文通过在日常开发中使用到的字符接拼接方式进行了性能对比测试，抛出各个使用方式的问题点，从而引出从Go1.10官方发布的高性能<code>strings.Builder</code>，最后对<code>strings.Builder</code>源码和底层实现进行了解析。</p>
 <p>关于究竟使用哪种方式呢？各有利弊，我认为：<strong><code>bytes.Buffer</code>和<code>strings.Builder</code>使用哪种都可以</strong>。</p>
 <h5 id="推荐使用bytesbuffer">推荐使用<code>bytes.Buffer</code></h5>
@@ -415,6 +629,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">https://maratrix.cn/post/2020/04/14/strings-builder-source-note/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

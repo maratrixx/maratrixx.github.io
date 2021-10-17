@@ -22,7 +22,7 @@
       <pubDate>Wed, 10 Mar 2021 08:58:45 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</guid>
-      <description>支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1// $GOROOT/src/io/fs/fs.go 2 3// An FS</description>
+      <description>支持静态资源嵌入 参见之前的文章：Go1.16新特性|embed静态资源嵌入 新增 io/fs 的支持 Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。 io/fs 包的两个最重要的接口如下： 1 2 3 4 5 6</description>
     </item>
     
     <item>
@@ -58,7 +58,7 @@
       <pubDate>Tue, 25 Aug 2020 22:40:45 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/08/25/go-channel-source-read/</guid>
-      <description>本文基于 Go1.14 源码阅读 1package runtime 2 3// 此文件实现了 Go 的 channel 4 5// 变种: 6// c.sendq 和 c.recvq 中至少一个为空，除非是 unbuffered channle 和单个 goroutine 7// 阻塞在 select 语句中同时使用发送和接受的这种情况。这时 c.sendq 和 c.recvq 的长度由 8// select 语句的大小限制。 9// 10// 对于 buffered chann</description>
+      <description>本文基于 Go1.14 源码阅读 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91</description>
     </item>
     
     <item>
@@ -85,7 +85,7 @@
       <pubDate>Sat, 13 Jun 2020 09:11:02 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/06/13/go-directive-syntax/</guid>
-      <description>前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1//go:linkname localname importpath.name 该指令指示编译器</description>
+      <description>前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1 //go:linkname localname importpath.name 该指令指示编译</description>
     </item>
     
     <item>
@@ -103,7 +103,7 @@
       <pubDate>Tue, 21 Apr 2020 11:55:18 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/</guid>
-      <description>介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&amp;#34;Only once&amp;#34;) 4} 5done := make(chan bool) 6for i := 0; i &amp;lt; 10; i++ {</description>
+      <description>介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 var once sync.Once onceBody := func() { fmt.Println(&amp;#34;Only once&amp;#34;) }</description>
     </item>
     
     <item>
@@ -121,7 +121,7 @@
       <pubDate>Tue, 14 Apr 2020 11:55:41 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/04/14/strings-builder-source-note/</guid>
-      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} 2ss := &amp;#34;&amp;#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要</description>
+      <description>背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1 2 3 4 5 6 str := []string{&amp;#34;aa&amp;#34;, &amp;#34;bb&amp;#34;, &amp;#34;cc&amp;#34;} ss := &amp;#34;&amp;#34; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行</description>
     </item>
     
     <item>
@@ -130,7 +130,7 @@
       <pubDate>Tue, 14 Apr 2020 11:53:21 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2020/04/14/go-hijack-note/</guid>
-      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &amp;#34;CONNECT&amp;#34; { 4 w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &amp;#34;HTTP/1.0</description>
+      <description>最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &amp;#34;CONNECT&amp;#34; { w.Header().Set(&amp;#34;Content-Type&amp;#34;, &amp;#34;text/plain; charset=utf-8&amp;#34;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &amp;#34;405 must CONNECT\n&amp;#34;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&amp;#34;rpc hijacking &amp;#34;, req.RemoteAddr, &amp;#34;: &amp;#34;, err.Error())</description>
     </item>
     
     <item>
@@ -148,7 +148,7 @@
       <pubDate>Sat, 28 Sep 2019 10:18:10 +0800</pubDate>
       
       <guid>https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</guid>
-      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&amp;#34;/foo&amp;#34;, func(w</description>
+      <description>遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1 2 3 4 5 6</description>
     </item>
     
     <item>

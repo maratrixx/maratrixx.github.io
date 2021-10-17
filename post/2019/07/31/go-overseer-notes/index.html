@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -218,39 +222,77 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 </ol>
 </blockquote>
 <p>贴一下代码，欢迎大家拍砖：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">package</span> main
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">import</span> (
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#d14">&#34;fmt&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	<span style="color:#d14">&#34;net/http&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#d14">&#34;time&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#d14">&#34;github.com/jpillora/overseer&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#d14">&#34;github.com/jpillora/overseer/fetcher&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">var</span> BuildID = <span style="color:#d14">&#34;0&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">prog</span>(state overseer.State) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) listening...\n&#34;</span>, BuildID, state.ID)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	http.<span style="color:#900;font-weight:bold">Handle</span>(<span style="color:#d14">&#34;/&#34;</span>, http.<span style="color:#900;font-weight:bold">HandlerFunc</span>(<span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		d, _ <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">ParseDuration</span>(r.URL.<span style="color:#900;font-weight:bold">Query</span>().<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;d&#34;</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>		time.<span style="color:#900;font-weight:bold">Sleep</span>(d)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		fmt.<span style="color:#900;font-weight:bold">Fprintf</span>(w, <span style="color:#d14">&#34;app#%s (%s) says hello\n&#34;</span>, BuildID, state.ID)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	}))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	http.<span style="color:#900;font-weight:bold">Serve</span>(state.Listener, <span style="color:#000;font-weight:bold">nil</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) exiting...\n&#34;</span>, BuildID, state.ID)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic">//then create another &#39;main&#39; which runs the upgrades
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic">//&#39;main()&#39; is run in the initial process
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	overseer.<span style="color:#900;font-weight:bold">Run</span>(overseer.Config{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>		Program: prog,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>		Address: <span style="color:#d14">&#34;:5001&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>		Fetcher: <span style="color:#000;font-weight:bold">&amp;</span>fetcher.File{Path: <span style="color:#d14">&#34;my_app_next&#34;</span>},
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>		Debug:   <span style="color:#000;font-weight:bold">false</span>, <span style="color:#998;font-style:italic">//display log of overseer actions
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#998;font-style:italic"></span>	})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
-</code></pre></div><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">package</span> main
+
+<span style="color:#000;font-weight:bold">import</span> (
+	<span style="color:#d14">&#34;fmt&#34;</span>
+	<span style="color:#d14">&#34;net/http&#34;</span>
+	<span style="color:#d14">&#34;time&#34;</span>
+	<span style="color:#d14">&#34;github.com/jpillora/overseer&#34;</span>
+	<span style="color:#d14">&#34;github.com/jpillora/overseer/fetcher&#34;</span>
+)
+<span style="color:#000;font-weight:bold">var</span> BuildID = <span style="color:#d14">&#34;0&#34;</span>
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">prog</span>(state overseer.State) {
+	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) listening...\n&#34;</span>, BuildID, state.ID)
+	http.<span style="color:#900;font-weight:bold">Handle</span>(<span style="color:#d14">&#34;/&#34;</span>, http.<span style="color:#900;font-weight:bold">HandlerFunc</span>(<span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
+		d, _ <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">ParseDuration</span>(r.URL.<span style="color:#900;font-weight:bold">Query</span>().<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;d&#34;</span>))
+		time.<span style="color:#900;font-weight:bold">Sleep</span>(d)
+		fmt.<span style="color:#900;font-weight:bold">Fprintf</span>(w, <span style="color:#d14">&#34;app#%s (%s) says hello\n&#34;</span>, BuildID, state.ID)
+	}))
+	http.<span style="color:#900;font-weight:bold">Serve</span>(state.Listener, <span style="color:#000;font-weight:bold">nil</span>)
+	fmt.<span style="color:#900;font-weight:bold">Printf</span>(<span style="color:#d14">&#34;app#%s (%s) exiting...\n&#34;</span>, BuildID, state.ID)
+}
+
+<span style="color:#998;font-style:italic">//then create another &#39;main&#39; which runs the upgrades
+</span><span style="color:#998;font-style:italic">//&#39;main()&#39; is run in the initial process
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+	overseer.<span style="color:#900;font-weight:bold">Run</span>(overseer.Config{
+		Program: prog,
+		Address: <span style="color:#d14">&#34;:5001&#34;</span>,
+		Fetcher: <span style="color:#000;font-weight:bold">&amp;</span>fetcher.File{Path: <span style="color:#d14">&#34;my_app_next&#34;</span>},
+		Debug:   <span style="color:#000;font-weight:bold">false</span>, <span style="color:#998;font-style:italic">//display log of overseer actions
+</span><span style="color:#998;font-style:italic"></span>	})
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>编译命令：<code>go build -ldflags '-X main.BuildID=456' -o overseer</code></p>
 <p><strong>注意：</strong></p>
 <ul>
 <li>考虑到线上环境使用supervisor来守护golang进程，<strong>overseer</strong>可实现pid不变**，**更符合我们的需求</li>
@@ -263,8 +305,15 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 <ol>
 <li>
 <p>线上环境使用supervisor来守护进程，我们在reload或着发信号重启项目时，可采用通过supervisor去获取进程id:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>pid=<span style="color:#a61717;background-color:#e3d2d2">$</span>(sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE}|awk <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">4</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>|awk <span style="color:#000;font-weight:bold">-</span>F, <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">1</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>)
-</code></pre></div></li>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">pid=<span style="color:#a61717;background-color:#e3d2d2">$</span>(sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE}|awk <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">4</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>|awk <span style="color:#000;font-weight:bold">-</span>F, <span style="color:#a61717;background-color:#e3d2d2">&#39;</span>{print <span style="color:#a61717;background-color:#e3d2d2">$</span><span style="color:#099">1</span>}<span style="color:#a61717;background-color:#e3d2d2">&#39;</span>)
+</code></pre></td></tr></table>
+</div>
+</div></li>
 <li>
 <p>使用supervisor和overseer实现平滑重启后，项目在发版时候，会有两个状态：</p>
 <ul>
@@ -276,31 +325,61 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
 </li>
 </ul>
 <p>我们可以通过 supervisor去做判断，然后给不同的处理：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>function <span style="color:#900;font-weight:bold">startOrReload</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE} |grep RUNNING &gt; <span style="color:#000;font-weight:bold">/</span>dev<span style="color:#000;font-weight:bold">/</span>null
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#a61717;background-color:#e3d2d2">#</span>进程没有运行则start<span style="color:#a61717;background-color:#e3d2d2">，</span>运行则reload
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#000;font-weight:bold">if</span> [ <span style="color:#a61717;background-color:#e3d2d2">$?</span> <span style="color:#000;font-weight:bold">-</span>ne <span style="color:#099">0</span> ]; then
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>        start
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">else</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>        reload
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>    fi
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>}
-</code></pre></div></li>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">function <span style="color:#900;font-weight:bold">startOrReload</span>() {
+    sudo supervisorctl status <span style="color:#a61717;background-color:#e3d2d2">$</span>{BIN_FILE} |grep RUNNING &gt; <span style="color:#000;font-weight:bold">/</span>dev<span style="color:#000;font-weight:bold">/</span>null
+    <span style="color:#a61717;background-color:#e3d2d2">#</span>进程没有运行则start<span style="color:#a61717;background-color:#e3d2d2">，</span>运行则reload
+    <span style="color:#000;font-weight:bold">if</span> [ <span style="color:#a61717;background-color:#e3d2d2">$?</span> <span style="color:#000;font-weight:bold">-</span>ne <span style="color:#099">0</span> ]; then
+        start
+    <span style="color:#000;font-weight:bold">else</span>
+        reload
+    fi
+}
+</code></pre></td></tr></table>
+</div>
+</div></li>
 <li>
 <p>新版ops是使用软链来发布项目，overseer使用软链需要注意：</p>
 <ul>
 <li>线上环境通常有两个目录，一个为固定目录current (例如：<code>/data/web/$project/current</code>),一个为历史版本目录releases(例如：<code>/data/web/$project/releases/$tag</code>)。Fetcher检测的必须为current目录，而非软链的realpath即releases目录:</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>file, err <span style="color:#000;font-weight:bold">:=</span> exec.<span style="color:#900;font-weight:bold">LookPath</span>(os.Args[<span style="color:#099">0</span>])
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#0086b3">panic</span>(err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>binPath, err <span style="color:#000;font-weight:bold">:=</span> filepath.<span style="color:#900;font-weight:bold">Abs</span>(file)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>    <span style="color:#0086b3">panic</span>(err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#998;font-style:italic">//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
-</span></code></pre></div><ul>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">file, err <span style="color:#000;font-weight:bold">:=</span> exec.<span style="color:#900;font-weight:bold">LookPath</span>(os.Args[<span style="color:#099">0</span>])
+<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+    <span style="color:#0086b3">panic</span>(err)
+}
+binPath, err <span style="color:#000;font-weight:bold">:=</span> filepath.<span style="color:#900;font-weight:bold">Abs</span>(file)
+<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+    <span style="color:#0086b3">panic</span>(err)
+}
+<span style="color:#998;font-style:italic">//注意此时binPath为在执行文件使用pwd的path,即要求执行文件的执行目录必须为current的path.
+</span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>另外overseer第一次启动后其自身的realpath的path就不再改变了，程序中就不要再出现以当前执行文件的相对路径或者realpath取获取其它路径了，主要影响为配置文件。</li>
 </ul>
 </li>
@@ -309,6 +388,15 @@ Fetcher运行在一个goroutine中，预先会配置好检查的间隔时间。F
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2019/07/31/go-overseer-notes/">https://maratrix.cn/post/2019/07/31/go-overseer-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -209,23 +213,49 @@
 <p>上一篇文章我们介绍了服务保护熔断器 <a href="/post/2021/01/20/sentinel-circuit-breaker-notes/">sentinel-go</a> 如何使用，今天介绍另外一款优秀的集限流、熔断、降级于一身的组件 <a href="https://github.com/afex/hystrix-go">hystrix-go</a>。hystrix-go 是著名开源库 hystrix 的 Go 语言简化版本，实现了核心功能，源码实现也比较简单，很适合阅读学习。</p>
 <h3 id="如何使用">如何使用</h3>
 <h4 id="下载-hystrix-go">下载 hystrix-go</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>go get -v github.com/afex/hystrix-go/hystrix
-</code></pre></div><h4 id="同步执行">同步执行</h4>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">go get -v github.com/afex/hystrix-go/hystrix
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="同步执行">同步执行</h4>
 <p>看个示例：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>hystrix.<span style="color:#900;font-weight:bold">ConfigureCommand</span>(<span style="color:#d14">&#34;my_command&#34;</span>, hystrix.CommandConfig{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	Timeout:               <span style="color:#099">1000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	MaxConcurrentRequests: <span style="color:#099">100</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	ErrorPercentThreshold: <span style="color:#099">25</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>err <span style="color:#000;font-weight:bold">:=</span> hystrix.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#d14">&#34;my_command&#34;</span>, <span style="color:#000;font-weight:bold">func</span>() <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#998;font-style:italic">// 业务逻辑
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}, <span style="color:#000;font-weight:bold">func</span>(err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#998;font-style:italic">// 降级逻辑
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>})
-</code></pre></div><p>首先使用 hystrix.ConfigureCommand 配置熔断策略，然后调用 hystrix.Do 方法即可。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">hystrix.<span style="color:#900;font-weight:bold">ConfigureCommand</span>(<span style="color:#d14">&#34;my_command&#34;</span>, hystrix.CommandConfig{
+	Timeout:               <span style="color:#099">1000</span>,
+	MaxConcurrentRequests: <span style="color:#099">100</span>,
+	ErrorPercentThreshold: <span style="color:#099">25</span>,
+})
+
+err <span style="color:#000;font-weight:bold">:=</span> hystrix.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#d14">&#34;my_command&#34;</span>, <span style="color:#000;font-weight:bold">func</span>() <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 业务逻辑
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}, <span style="color:#000;font-weight:bold">func</span>(err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 降级逻辑
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+})
+</code></pre></td></tr></table>
+</div>
+</div><p>首先使用 hystrix.ConfigureCommand 配置熔断策略，然后调用 hystrix.Do 方法即可。</p>
 <p>hystrix.Do 方法有三个参数：</p>
 <ul>
 <li>第一个是我们配置的命令，即调用 hystrix.ConfigureCommand 时指定的命令，不能为空；</li>
@@ -234,31 +264,65 @@
 </ul>
 <h4 id="异步执行">异步执行</h4>
 <p>除了支持同步调用外，还支持异步调用，看个例子：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>hystrix.<span style="color:#900;font-weight:bold">ConfigureCommand</span>(<span style="color:#d14">&#34;my_command&#34;</span>, hystrix.CommandConfig{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	Timeout:               <span style="color:#099">1000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	MaxConcurrentRequests: <span style="color:#099">100</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	ErrorPercentThreshold: <span style="color:#099">25</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>output <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#099">1</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>errors <span style="color:#000;font-weight:bold">:=</span> hystrix.<span style="color:#900;font-weight:bold">Go</span>(<span style="color:#d14">&#34;my_command&#34;</span>, <span style="color:#000;font-weight:bold">func</span>() <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#998;font-style:italic">// 正常业务逻辑
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	output <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}, <span style="color:#000;font-weight:bold">nil</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#000;font-weight:bold">case</span> out <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>output:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#998;font-style:italic">// success
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">case</span> err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>errors:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#998;font-style:italic">// failure
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>调用 hystrix.Go 就像启动 goroutine，只是它会返回 error chan，以便于我们能接收错误信息。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">hystrix.<span style="color:#900;font-weight:bold">ConfigureCommand</span>(<span style="color:#d14">&#34;my_command&#34;</span>, hystrix.CommandConfig{
+	Timeout:               <span style="color:#099">1000</span>,
+	MaxConcurrentRequests: <span style="color:#099">100</span>,
+	ErrorPercentThreshold: <span style="color:#099">25</span>,
+})
+
+
+output <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#099">1</span>)
+errors <span style="color:#000;font-weight:bold">:=</span> hystrix.<span style="color:#900;font-weight:bold">Go</span>(<span style="color:#d14">&#34;my_command&#34;</span>, <span style="color:#000;font-weight:bold">func</span>() <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 正常业务逻辑
+</span><span style="color:#998;font-style:italic"></span>	output <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span>
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}, <span style="color:#000;font-weight:bold">nil</span>)
+
+<span style="color:#000;font-weight:bold">select</span> {
+<span style="color:#000;font-weight:bold">case</span> out <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>output:
+	<span style="color:#998;font-style:italic">// success
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">case</span> err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>errors:
+	<span style="color:#998;font-style:italic">// failure
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>调用 hystrix.Go 就像启动 goroutine，只是它会返回 error chan，以便于我们能接收错误信息。</p>
 <h4 id="其他方法">其他方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">DoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#458;font-weight:bold">error</span> 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>
-</code></pre></div><p>这两个方法除了支持 context.Context 参数外，和上面的 Do 和 Go 方法没啥区别。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">DoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#458;font-weight:bold">error</span> 
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这两个方法除了支持 context.Context 参数外，和上面的 Do 和 Go 方法没啥区别。</p>
 <p>其实方法 Do 、DoC、 Go 方法内部都是调用了 hystrix.GoC 方法，只是 Do 和 DoC 方法处理了异步的过程。</p>
 <h3 id="源码分析">源码分析</h3>
 <h4 id="流程图">流程图</h4>
@@ -269,404 +333,862 @@
     </p>
 <h4 id="配置熔断策略">配置熔断策略</h4>
 <p>使用 hystrix-go，我们需要先配置熔断策略，该库提供了两个配置方法：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Configure</span>(cmds <span style="color:#000;font-weight:bold">map</span>[<span style="color:#458;font-weight:bold">string</span>]CommandConfig)               <span style="color:#998;font-style:italic">// 添加批量配置
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ConfigureCommand</span>(name <span style="color:#458;font-weight:bold">string</span>, config CommandConfig)    <span style="color:#998;font-style:italic">// 添加单个配置
-</span></code></pre></div><p>我们看下 CommandConfig 结构体是如何定义的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> CommandConfig <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    Timeout                <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;timeout&#34;`</span>                  <span style="color:#998;font-style:italic">// 等待 command 完成的时间，默认 1000（ms）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>    MaxConcurrentRequests  <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;max_concurrent_requests&#34;`</span>  <span style="color:#998;font-style:italic">// 同一个 command 支持的并发量，默认 10
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>    RequestVolumeThreshold <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;request_volume_threshold&#34;`</span> <span style="color:#998;font-style:italic">// 触发开启熔断的最小请求量，相当于 sentinel 的静默请求数量，默认 20
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span>    SleepWindow            <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;sleep_window&#34;`</span>             <span style="color:#998;font-style:italic">// 熔断器打开后，控制过多久后去尝试服务是否回复，默认值是 5000（ms）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>    ErrorPercentThreshold  <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;error_percent_threshold&#34;`</span>  <span style="color:#998;font-style:italic">// 错误百分比，当错误比例达到此值后触发熔断，默认 50（%）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>当然如果不配置上面的字段，会使用默认值。当我们调用 Do 方法传入不存在的 command 时也使用基于默认配置值的 CommandConfig。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Configure</span>(cmds <span style="color:#000;font-weight:bold">map</span>[<span style="color:#458;font-weight:bold">string</span>]CommandConfig)               <span style="color:#998;font-style:italic">// 添加批量配置
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ConfigureCommand</span>(name <span style="color:#458;font-weight:bold">string</span>, config CommandConfig)    <span style="color:#998;font-style:italic">// 添加单个配置
+</span></code></pre></td></tr></table>
+</div>
+</div><p>我们看下 CommandConfig 结构体是如何定义的：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> CommandConfig <span style="color:#000;font-weight:bold">struct</span> {
+    Timeout                <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;timeout&#34;`</span>                  <span style="color:#998;font-style:italic">// 等待 command 完成的时间，默认 1000（ms）
+</span><span style="color:#998;font-style:italic"></span>    MaxConcurrentRequests  <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;max_concurrent_requests&#34;`</span>  <span style="color:#998;font-style:italic">// 同一个 command 支持的并发量，默认 10
+</span><span style="color:#998;font-style:italic"></span>    RequestVolumeThreshold <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;request_volume_threshold&#34;`</span> <span style="color:#998;font-style:italic">// 触发开启熔断的最小请求量，相当于 sentinel 的静默请求数量，默认 20
+</span><span style="color:#998;font-style:italic"></span>    SleepWindow            <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;sleep_window&#34;`</span>             <span style="color:#998;font-style:italic">// 熔断器打开后，控制过多久后去尝试服务是否回复，默认值是 5000（ms）
+</span><span style="color:#998;font-style:italic"></span>    ErrorPercentThreshold  <span style="color:#458;font-weight:bold">int</span> <span style="color:#d14">`json:&#34;error_percent_threshold&#34;`</span>  <span style="color:#998;font-style:italic">// 错误百分比，当错误比例达到此值后触发熔断，默认 50（%）
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>当然如果不配置上面的字段，会使用默认值。当我们调用 Do 方法传入不存在的 command 时也使用基于默认配置值的 CommandConfig。</p>
 <h4 id="hystrixdo-方法">hystrix.Do 方法</h4>
 <p>我们先看下 hystrix.Do 方法的源码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// Do 以同步阻塞方式调用 run 函数，直到返回成功或者失败，当然也包含触发熔断错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Do</span>(name <span style="color:#458;font-weight:bold">string</span>, run runFunc, fallback fallbackFunc) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#998;font-style:italic">// 包装正常函数的调用
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	runC <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">run</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#998;font-style:italic">// 当定义了 fallback 函数，进进行包装
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> fallbackC fallbackFuncC
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		fallbackC = <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>			<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">fallback</span>(err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#998;font-style:italic">// 调用 DoC
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">DoC</span>(context.<span style="color:#900;font-weight:bold">Background</span>(), name, runC, fallbackC)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>}
-</code></pre></div><p>代码比较简单，只是对 run 和 fallback 做了方法包装，以便于底层统一处理，Do 最后调的是 DoC 方法。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// Do 以同步阻塞方式调用 run 函数，直到返回成功或者失败，当然也包含触发熔断错误
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Do</span>(name <span style="color:#458;font-weight:bold">string</span>, run runFunc, fallback fallbackFunc) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 包装正常函数的调用
+</span><span style="color:#998;font-style:italic"></span>	runC <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">run</span>()
+	}
+
+	<span style="color:#998;font-style:italic">// 当定义了 fallback 函数，进进行包装
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> fallbackC fallbackFuncC
+	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+		fallbackC = <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
+			<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">fallback</span>(err)
+		}
+	}
+
+	<span style="color:#998;font-style:italic">// 调用 DoC
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">DoC</span>(context.<span style="color:#900;font-weight:bold">Background</span>(), name, runC, fallbackC)
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>代码比较简单，只是对 run 和 fallback 做了方法包装，以便于底层统一处理，Do 最后调的是 DoC 方法。</p>
 <h4 id="hystrixdoc-方法">hystrix.DoC 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// DoC 以同步阻塞方式调用 run 函数，直到返回成功或者失败，当然也包含触发熔断错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">DoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	<span style="color:#998;font-style:italic">// 初始化 done chan 用于接收完成信息，当失败时不会往 done chan 写入数据
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	done <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#000;font-weight:bold">struct</span>{}, <span style="color:#099">1</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	<span style="color:#998;font-style:italic">// 对正常的 run 函数进行二次包装，只有当内部执行成功时才调用 done &lt;- struct{}{}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	r <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>			<span style="color:#000;font-weight:bold">return</span> err
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		done <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">struct</span>{}{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#998;font-style:italic">// 对 fallback 函数进行二次包装，只有当内部 fallback 执行成功时才调用 done &lt;- struct{}{}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>	f <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, e <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>		err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">fallback</span>(ctx, e)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>			<span style="color:#000;font-weight:bold">return</span> err
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>		done <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">struct</span>{}{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>	<span style="color:#998;font-style:italic">// 最后都是统一调用 GoC 函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> errChan <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>		errChan = <span style="color:#900;font-weight:bold">GoC</span>(ctx, name, r, <span style="color:#000;font-weight:bold">nil</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>	} <span style="color:#000;font-weight:bold">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>		errChan = <span style="color:#900;font-weight:bold">GoC</span>(ctx, name, r, f)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span>	<span style="color:#998;font-style:italic">// select 阻塞等待接收 chan 信息，成功或失败哪个 chan 信息先到达就返回哪个
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>	<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>done:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>	<span style="color:#000;font-weight:bold">case</span> err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>errChan:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>		<span style="color:#000;font-weight:bold">return</span> err
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>}
-</code></pre></div><p>可以看到，DoC 跟我们上面的示例代码差不多，帮我们处理异步逻辑，里面调用了 GoC 方法，并最终使用 select 阻塞等待完成或者失败消息。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// DoC 以同步阻塞方式调用 run 函数，直到返回成功或者失败，当然也包含触发熔断错误
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">DoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 初始化 done chan 用于接收完成信息，当失败时不会往 done chan 写入数据
+</span><span style="color:#998;font-style:italic"></span>	done <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#000;font-weight:bold">struct</span>{}, <span style="color:#099">1</span>)
+
+	<span style="color:#998;font-style:italic">// 对正常的 run 函数进行二次包装，只有当内部执行成功时才调用 done &lt;- struct{}{}
+</span><span style="color:#998;font-style:italic"></span>	r <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
+		err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
+		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+			<span style="color:#000;font-weight:bold">return</span> err
+		}
+
+		done <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">struct</span>{}{}
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 对 fallback 函数进行二次包装，只有当内部 fallback 执行成功时才调用 done &lt;- struct{}{}
+</span><span style="color:#998;font-style:italic"></span>	f <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, e <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
+		err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">fallback</span>(ctx, e)
+		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+			<span style="color:#000;font-weight:bold">return</span> err
+		}
+
+		done <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">struct</span>{}{}
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 最后都是统一调用 GoC 函数
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> errChan <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>
+	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+		errChan = <span style="color:#900;font-weight:bold">GoC</span>(ctx, name, r, <span style="color:#000;font-weight:bold">nil</span>)
+	} <span style="color:#000;font-weight:bold">else</span> {
+		errChan = <span style="color:#900;font-weight:bold">GoC</span>(ctx, name, r, f)
+	}
+
+	<span style="color:#998;font-style:italic">// select 阻塞等待接收 chan 信息，成功或失败哪个 chan 信息先到达就返回哪个
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">select</span> {
+	<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>done:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	<span style="color:#000;font-weight:bold">case</span> err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&lt;-</span>errChan:
+		<span style="color:#000;font-weight:bold">return</span> err
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，DoC 跟我们上面的示例代码差不多，帮我们处理异步逻辑，里面调用了 GoC 方法，并最终使用 select 阻塞等待完成或者失败消息。</p>
 <h4 id="hystrixgo-方法">hystrix.Go 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Go</span>(name <span style="color:#458;font-weight:bold">string</span>, run runFunc, fallback fallbackFunc) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">// 包装正常的执行函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>	runC <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">run</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#998;font-style:italic">// 当存在降级函数时，包装该函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> fallbackC fallbackFuncC
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>		fallbackC = <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>			<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">fallback</span>(err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	<span style="color:#998;font-style:italic">// 本地统一调用 GoC
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">GoC</span>(context.<span style="color:#900;font-weight:bold">Background</span>(), name, runC, fallbackC)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>}
-</code></pre></div><p>Go 方法最终也是调用 GoC 方法，然后返回 chan error 类型让调用方也处理异步接收逻辑。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Go</span>(name <span style="color:#458;font-weight:bold">string</span>, run runFunc, fallback fallbackFunc) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 包装正常的执行函数
+</span><span style="color:#998;font-style:italic"></span>	runC <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#458;font-weight:bold">error</span> {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">run</span>()
+	}
+
+	<span style="color:#998;font-style:italic">// 当存在降级函数时，包装该函数
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">var</span> fallbackC fallbackFuncC
+	<span style="color:#000;font-weight:bold">if</span> fallback <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+		fallbackC = <span style="color:#000;font-weight:bold">func</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
+			<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">fallback</span>(err)
+		}
+	}
+
+	<span style="color:#998;font-style:italic">// 本地统一调用 GoC
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#900;font-weight:bold">GoC</span>(context.<span style="color:#900;font-weight:bold">Background</span>(), name, runC, fallbackC)
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>Go 方法最终也是调用 GoC 方法，然后返回 chan error 类型让调用方也处理异步接收逻辑。</p>
 <p>所以接下来，我们重点看 hystrix.GoC 方法的代码即可，这才是核心逻辑。</p>
 <h4 id="hystrixgoc-方法">hystrix.GoC 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  1</span><span style="color:#998;font-style:italic">// GoC 通过跟踪先前的调用健康状态来运行 run 函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  2</span><span style="color:#998;font-style:italic">// 如果你的函数开始变慢或反复的失败，我们将会阻塞对该函数新的调用，以便给依赖的服务时间进行修复
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  3</span><span style="color:#998;font-style:italic">// 如果想在熔断期间执行降级操作，需要定义一个 fallback 函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  4</span><span style="color:#998;font-style:italic">// 返回值为 chan error 类型，需要调用端自行接受
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  5</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  6</span>	<span style="color:#998;font-style:italic">// 对于每次调用新建 command 操作命令
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  7</span><span style="color:#998;font-style:italic"></span>	cmd <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>command{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  8</span>		run:      run,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  9</span>		fallback: fallback,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 10</span>		start:    time.<span style="color:#900;font-weight:bold">Now</span>(),
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 11</span>		errChan:  <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>, <span style="color:#099">1</span>),
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 12</span>		finished: <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#099">1</span>),
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 13</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 15</span>	<span style="color:#998;font-style:italic">// 根据 command name 参数获取熔断器，当获取失败时返回错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 16</span><span style="color:#998;font-style:italic"></span>	circuit, _, err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">GetCircuit</span>(name)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 17</span>	<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 18</span>		cmd.errChan <span style="color:#000;font-weight:bold">&lt;-</span> err
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 19</span>		<span style="color:#000;font-weight:bold">return</span> cmd.errChan
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 20</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 21</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 22</span>	<span style="color:#998;font-style:italic">// 断路器赋值
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 23</span><span style="color:#998;font-style:italic"></span>	cmd.circuit = circuit
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 24</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 25</span>	ticketCond <span style="color:#000;font-weight:bold">:=</span> sync.<span style="color:#900;font-weight:bold">NewCond</span>(cmd)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 27</span>	<span style="color:#998;font-style:italic">// 标示是否执行了获取令牌操作，不管获取失败与否
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 28</span><span style="color:#998;font-style:italic"></span>	ticketChecked <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">false</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 29</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 30</span>	<span style="color:#998;font-style:italic">// 当调用者从返回的 errChan 中获取到错误，那么假定 ticket 已返回给 executorPool。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 31</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 因此，在 cmd.errorWithFallback() 之后不能运行 returnTicket()。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 32</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 33</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// returnTicket 为归还令牌函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 34</span><span style="color:#998;font-style:italic"></span>	returnTicket <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 35</span>		cmd.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 36</span>		<span style="color:#998;font-style:italic">// 阻塞等待，避免在获取到令牌之前就执行归还操作
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 37</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">for</span> !ticketChecked {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 38</span>			ticketCond.<span style="color:#900;font-weight:bold">Wait</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 39</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 40</span>		<span style="color:#998;font-style:italic">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 41</span><span style="color:#998;font-style:italic"></span>		cmd.circuit.executorPool.<span style="color:#900;font-weight:bold">Return</span>(cmd.ticket)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 42</span>		cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 43</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 44</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 45</span>	<span style="color:#998;font-style:italic">// returnOnce 在下面的两个 goroutine 之间共享，用来确保只有执行的快的 goroutine 才能运行 errWithFallback() 和 reportAllEvent() 函数。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 46</span><span style="color:#998;font-style:italic"></span>	returnOnce <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>sync.Once{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 47</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 48</span>	<span style="color:#998;font-style:italic">// 打包上报当前 command 所有事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 49</span><span style="color:#998;font-style:italic"></span>	reportAllEvent <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 50</span>		err <span style="color:#000;font-weight:bold">:=</span> cmd.circuit.<span style="color:#900;font-weight:bold">ReportEvent</span>(cmd.events, cmd.start, cmd.runDuration)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 51</span>		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 52</span>			log.<span style="color:#900;font-weight:bold">Printf</span>(err.<span style="color:#900;font-weight:bold">Error</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 53</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 54</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 55</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 56</span>	<span style="color:#998;font-style:italic">// 创建协程用于检查断路器状态、获取令牌、上报事件、执行用户函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 57</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 58</span>		<span style="color:#998;font-style:italic">// 执行成功后，写入 finish channel
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 59</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">defer</span> <span style="color:#000;font-weight:bold">func</span>() { cmd.finished <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span> }()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 60</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 61</span>		<span style="color:#998;font-style:italic">// 当最近的执行出现很高的错误率时，断路器就会打开，拒绝新的执行来使后端得以恢复，并且断路器在感觉健康状态已恢复时将允许新的请求。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 62</span><span style="color:#998;font-style:italic"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 63</span>		<span style="color:#998;font-style:italic">// 当断路器不允许新的请求时（此时断路器已经打开）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 64</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> !cmd.circuit.<span style="color:#900;font-weight:bold">AllowRequest</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 65</span>			cmd.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 66</span>			<span style="color:#998;font-style:italic">// 当另一个 goroutine 提前执行释放令牌时依然安全
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 67</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 68</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 69</span>			<span style="color:#998;font-style:italic">// 唤醒一个正在等待的协程
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 70</span><span style="color:#998;font-style:italic"></span>			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 71</span>			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 72</span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 73</span>				<span style="color:#900;font-weight:bold">returnTicket</span>()                             <span style="color:#998;font-style:italic">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 74</span><span style="color:#998;font-style:italic"></span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrCircuitOpen) <span style="color:#998;font-style:italic">// 上报当前错误，并尝试执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 75</span><span style="color:#998;font-style:italic"></span>				<span style="color:#900;font-weight:bold">reportAllEvent</span>()                           <span style="color:#998;font-style:italic">// 上报事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 76</span><span style="color:#998;font-style:italic"></span>			})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 77</span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 78</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 79</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 80</span>		<span style="color:#998;font-style:italic">// 加锁获取令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 81</span><span style="color:#998;font-style:italic"></span>		cmd.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 82</span>		<span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 83</span>		<span style="color:#000;font-weight:bold">case</span> cmd.ticket = <span style="color:#000;font-weight:bold">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#998;font-style:italic">// 获取令牌成功
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 84</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 85</span>			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 86</span>			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 87</span>		<span style="color:#000;font-weight:bold">default</span>: <span style="color:#998;font-style:italic">// 获取令牌失败（当超过 command 允许的最大并发量时）
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 88</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 89</span>			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 90</span>			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 91</span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 92</span>				<span style="color:#900;font-weight:bold">returnTicket</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 93</span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrMaxConcurrency)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 94</span>				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 95</span>			})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 96</span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 97</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 98</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 99</span>		runStart <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">100</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">101</span>		<span style="color:#998;font-style:italic">// 真正执行用户正常的 run 函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">102</span><span style="color:#998;font-style:italic"></span>		runErr <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">103</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">104</span>		returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">105</span>			<span style="color:#000;font-weight:bold">defer</span> <span style="color:#900;font-weight:bold">reportAllEvent</span>()                 <span style="color:#998;font-style:italic">// 上报保存的所有事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">106</span><span style="color:#998;font-style:italic"></span>			cmd.runDuration = time.<span style="color:#900;font-weight:bold">Since</span>(runStart) <span style="color:#998;font-style:italic">// 计算耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">107</span><span style="color:#998;font-style:italic"></span>			<span style="color:#900;font-weight:bold">returnTicket</span>()                         <span style="color:#998;font-style:italic">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">108</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">if</span> runErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {                     <span style="color:#998;font-style:italic">// 检查是否错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">109</span><span style="color:#998;font-style:italic"></span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, runErr) <span style="color:#998;font-style:italic">// 保存错误事件，并尝试执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">110</span><span style="color:#998;font-style:italic"></span>				<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">111</span>			}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">112</span>			cmd.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;success&#34;</span>) <span style="color:#998;font-style:italic">// 保存执行成功事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">113</span><span style="color:#998;font-style:italic"></span>		})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">114</span>	}()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">115</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">116</span>	<span style="color:#998;font-style:italic">// 创建协程用于检查当前操作是否超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">117</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">118</span>		<span style="color:#998;font-style:italic">// 根据全局超时事件创建定时器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">119</span><span style="color:#998;font-style:italic"></span>		timer <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">NewTimer</span>(<span style="color:#900;font-weight:bold">getSettings</span>(name).Timeout)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">120</span>		<span style="color:#000;font-weight:bold">defer</span> timer.<span style="color:#900;font-weight:bold">Stop</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">121</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">122</span>		<span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">123</span>		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>cmd.finished: <span style="color:#998;font-style:italic">// 检查是否已经完成
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">124</span><span style="color:#998;font-style:italic"></span>			<span style="color:#998;font-style:italic">// returnOnce 已经在另外的协程运行，这里不再执行
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">125</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>ctx.<span style="color:#900;font-weight:bold">Done</span>(): <span style="color:#998;font-style:italic">// 检查 context 自定义超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">126</span><span style="color:#998;font-style:italic"></span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">127</span>				<span style="color:#900;font-weight:bold">returnTicket</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">128</span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ctx.<span style="color:#900;font-weight:bold">Err</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">129</span>				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">130</span>			})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">131</span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">132</span>		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>timer.C: <span style="color:#998;font-style:italic">// 检查 command 初始化定义超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">133</span><span style="color:#998;font-style:italic"></span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">134</span>				<span style="color:#900;font-weight:bold">returnTicket</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">135</span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrTimeout)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">136</span>				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">137</span>			})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">138</span>			<span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">139</span>		}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">140</span>	}()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">141</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">142</span>	<span style="color:#000;font-weight:bold">return</span> cmd.errChan
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">143</span>}
-</code></pre></div><p>GoC 方法代码还是比较长的，这里做了相应的注释，方便阅读。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">  9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 62
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 63
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 64
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 65
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 66
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 67
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 68
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 69
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 70
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 71
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 72
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 73
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 74
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 75
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 76
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 77
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 78
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 79
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 80
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 81
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 82
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 83
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 84
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 85
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 86
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 87
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 88
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 89
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 90
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 91
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 92
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 93
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 94
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 95
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 96
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 97
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 98
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 99
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">100
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">101
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">102
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">103
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">104
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">105
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">106
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">107
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">108
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">109
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">110
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">111
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">112
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">113
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">114
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">115
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">116
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">117
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">118
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">119
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">120
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">121
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">122
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">123
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">124
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">125
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">126
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">127
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">128
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">129
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">130
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">131
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">132
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">133
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">134
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">135
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">136
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">137
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">138
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">139
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">140
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">141
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">142
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">143
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// GoC 通过跟踪先前的调用健康状态来运行 run 函数
+</span><span style="color:#998;font-style:italic">// 如果你的函数开始变慢或反复的失败，我们将会阻塞对该函数新的调用，以便给依赖的服务时间进行修复
+</span><span style="color:#998;font-style:italic">// 如果想在熔断期间执行降级操作，需要定义一个 fallback 函数
+</span><span style="color:#998;font-style:italic">// 返回值为 chan error 类型，需要调用端自行接受
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">GoC</span>(ctx context.Context, name <span style="color:#458;font-weight:bold">string</span>, run runFuncC, fallback fallbackFuncC) <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 对于每次调用新建 command 操作命令
+</span><span style="color:#998;font-style:italic"></span>	cmd <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>command{
+		run:      run,
+		fallback: fallback,
+		start:    time.<span style="color:#900;font-weight:bold">Now</span>(),
+		errChan:  <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>, <span style="color:#099">1</span>),
+		finished: <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>, <span style="color:#099">1</span>),
+    }
+
+	<span style="color:#998;font-style:italic">// 根据 command name 参数获取熔断器，当获取失败时返回错误
+</span><span style="color:#998;font-style:italic"></span>	circuit, _, err <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">GetCircuit</span>(name)
+	<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+		cmd.errChan <span style="color:#000;font-weight:bold">&lt;-</span> err
+		<span style="color:#000;font-weight:bold">return</span> cmd.errChan
+	}
+
+	<span style="color:#998;font-style:italic">// 断路器赋值
+</span><span style="color:#998;font-style:italic"></span>	cmd.circuit = circuit
+
+	ticketCond <span style="color:#000;font-weight:bold">:=</span> sync.<span style="color:#900;font-weight:bold">NewCond</span>(cmd)
+
+	<span style="color:#998;font-style:italic">// 标示是否执行了获取令牌操作，不管获取失败与否
+</span><span style="color:#998;font-style:italic"></span>	ticketChecked <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">false</span>
+
+	<span style="color:#998;font-style:italic">// 当调用者从返回的 errChan 中获取到错误，那么假定 ticket 已返回给 executorPool。
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// 因此，在 cmd.errorWithFallback() 之后不能运行 returnTicket()。
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// returnTicket 为归还令牌函数
+</span><span style="color:#998;font-style:italic"></span>	returnTicket <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
+		cmd.<span style="color:#900;font-weight:bold">Lock</span>()
+		<span style="color:#998;font-style:italic">// 阻塞等待，避免在获取到令牌之前就执行归还操作
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">for</span> !ticketChecked {
+			ticketCond.<span style="color:#900;font-weight:bold">Wait</span>()
+		}
+		<span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="color:#998;font-style:italic"></span>		cmd.circuit.executorPool.<span style="color:#900;font-weight:bold">Return</span>(cmd.ticket)
+		cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+	}
+
+	<span style="color:#998;font-style:italic">// returnOnce 在下面的两个 goroutine 之间共享，用来确保只有执行的快的 goroutine 才能运行 errWithFallback() 和 reportAllEvent() 函数。
+</span><span style="color:#998;font-style:italic"></span>	returnOnce <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>sync.Once{}
+
+	<span style="color:#998;font-style:italic">// 打包上报当前 command 所有事件
+</span><span style="color:#998;font-style:italic"></span>	reportAllEvent <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
+		err <span style="color:#000;font-weight:bold">:=</span> cmd.circuit.<span style="color:#900;font-weight:bold">ReportEvent</span>(cmd.events, cmd.start, cmd.runDuration)
+		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+			log.<span style="color:#900;font-weight:bold">Printf</span>(err.<span style="color:#900;font-weight:bold">Error</span>())
+		}
+	}
+
+	<span style="color:#998;font-style:italic">// 创建协程用于检查断路器状态、获取令牌、上报事件、执行用户函数
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
+		<span style="color:#998;font-style:italic">// 执行成功后，写入 finish channel
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">defer</span> <span style="color:#000;font-weight:bold">func</span>() { cmd.finished <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span> }()
+
+		<span style="color:#998;font-style:italic">// 当最近的执行出现很高的错误率时，断路器就会打开，拒绝新的执行来使后端得以恢复，并且断路器在感觉健康状态已恢复时将允许新的请求。
+</span><span style="color:#998;font-style:italic"></span>
+		<span style="color:#998;font-style:italic">// 当断路器不允许新的请求时（此时断路器已经打开）
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> !cmd.circuit.<span style="color:#900;font-weight:bold">AllowRequest</span>() {
+			cmd.<span style="color:#900;font-weight:bold">Lock</span>()
+			<span style="color:#998;font-style:italic">// 当另一个 goroutine 提前执行释放令牌时依然安全
+</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
+
+			<span style="color:#998;font-style:italic">// 唤醒一个正在等待的协程
+</span><span style="color:#998;font-style:italic"></span>			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
+			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+				<span style="color:#900;font-weight:bold">returnTicket</span>()                             <span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="color:#998;font-style:italic"></span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrCircuitOpen) <span style="color:#998;font-style:italic">// 上报当前错误，并尝试执行 fallback
+</span><span style="color:#998;font-style:italic"></span>				<span style="color:#900;font-weight:bold">reportAllEvent</span>()                           <span style="color:#998;font-style:italic">// 上报事件
+</span><span style="color:#998;font-style:italic"></span>			})
+			<span style="color:#000;font-weight:bold">return</span>
+		}
+
+		<span style="color:#998;font-style:italic">// 加锁获取令牌
+</span><span style="color:#998;font-style:italic"></span>		cmd.<span style="color:#900;font-weight:bold">Lock</span>()
+		<span style="color:#000;font-weight:bold">select</span> {
+		<span style="color:#000;font-weight:bold">case</span> cmd.ticket = <span style="color:#000;font-weight:bold">&lt;-</span>circuit.executorPool.Tickets: <span style="color:#998;font-style:italic">// 获取令牌成功
+</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
+			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
+			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+		<span style="color:#000;font-weight:bold">default</span>: <span style="color:#998;font-style:italic">// 获取令牌失败（当超过 command 允许的最大并发量时）
+</span><span style="color:#998;font-style:italic"></span>			ticketChecked = <span style="color:#000;font-weight:bold">true</span>
+			ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
+			cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+				<span style="color:#900;font-weight:bold">returnTicket</span>()
+				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrMaxConcurrency)
+				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
+			})
+			<span style="color:#000;font-weight:bold">return</span>
+		}
+
+		runStart <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">Now</span>()
+
+		<span style="color:#998;font-style:italic">// 真正执行用户正常的 run 函数
+</span><span style="color:#998;font-style:italic"></span>		runErr <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
+
+		returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+			<span style="color:#000;font-weight:bold">defer</span> <span style="color:#900;font-weight:bold">reportAllEvent</span>()                 <span style="color:#998;font-style:italic">// 上报保存的所有事件
+</span><span style="color:#998;font-style:italic"></span>			cmd.runDuration = time.<span style="color:#900;font-weight:bold">Since</span>(runStart) <span style="color:#998;font-style:italic">// 计算耗时
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#900;font-weight:bold">returnTicket</span>()                         <span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">if</span> runErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {                     <span style="color:#998;font-style:italic">// 检查是否错误
+</span><span style="color:#998;font-style:italic"></span>				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, runErr) <span style="color:#998;font-style:italic">// 保存错误事件，并尝试执行 fallback
+</span><span style="color:#998;font-style:italic"></span>				<span style="color:#000;font-weight:bold">return</span>
+			}
+			cmd.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;success&#34;</span>) <span style="color:#998;font-style:italic">// 保存执行成功事件
+</span><span style="color:#998;font-style:italic"></span>		})
+	}()
+
+	<span style="color:#998;font-style:italic">// 创建协程用于检查当前操作是否超时
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
+		<span style="color:#998;font-style:italic">// 根据全局超时事件创建定时器
+</span><span style="color:#998;font-style:italic"></span>		timer <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">NewTimer</span>(<span style="color:#900;font-weight:bold">getSettings</span>(name).Timeout)
+		<span style="color:#000;font-weight:bold">defer</span> timer.<span style="color:#900;font-weight:bold">Stop</span>()
+
+		<span style="color:#000;font-weight:bold">select</span> {
+		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>cmd.finished: <span style="color:#998;font-style:italic">// 检查是否已经完成
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#998;font-style:italic">// returnOnce 已经在另外的协程运行，这里不再执行
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>ctx.<span style="color:#900;font-weight:bold">Done</span>(): <span style="color:#998;font-style:italic">// 检查 context 自定义超时
+</span><span style="color:#998;font-style:italic"></span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+				<span style="color:#900;font-weight:bold">returnTicket</span>()
+				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ctx.<span style="color:#900;font-weight:bold">Err</span>())
+				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
+			})
+			<span style="color:#000;font-weight:bold">return</span>
+		<span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>timer.C: <span style="color:#998;font-style:italic">// 检查 command 初始化定义超时
+</span><span style="color:#998;font-style:italic"></span>			returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+				<span style="color:#900;font-weight:bold">returnTicket</span>()
+				cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrTimeout)
+				<span style="color:#900;font-weight:bold">reportAllEvent</span>()
+			})
+			<span style="color:#000;font-weight:bold">return</span>
+		}
+	}()
+
+	<span style="color:#000;font-weight:bold">return</span> cmd.errChan
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>GoC 方法代码还是比较长的，这里做了相应的注释，方便阅读。</p>
 <p>GoC 对于每次调用都会创建一个 command 对象，用于保存当前调用的相关信息，看下该结构体：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> command <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	sync.Mutex
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	ticket      <span style="color:#000;font-weight:bold">*</span><span style="color:#000;font-weight:bold">struct</span>{}       <span style="color:#998;font-style:italic">// 保存获取到的令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	start       time.Time       <span style="color:#998;font-style:italic">// 调用开始时间
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	errChan     <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>      <span style="color:#998;font-style:italic">// 错误信息 channel
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	finished    <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>       <span style="color:#998;font-style:italic">// 完成信息 channel
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	circuit     <span style="color:#000;font-weight:bold">*</span>CircuitBreaker <span style="color:#998;font-style:italic">// 断路器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	run         runFuncC        <span style="color:#998;font-style:italic">// 封装正常运行的方法
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	fallback    fallbackFuncC   <span style="color:#998;font-style:italic">// 封装降级运行的方法
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	runDuration time.Duration   <span style="color:#998;font-style:italic">// 调用耗时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	events      []<span style="color:#458;font-weight:bold">string</span>        <span style="color:#998;font-style:italic">// 保存当前调用的所有事件，方便最终统一上报
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>command 对象提供了一些方法，这里先看下定义，具体源码实现我们放到文章底部，这里不影响主流程阅读：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// reportEvent 对于产生的事件先临时放入 event 字段，后面会统一调用 reportAllEvent 上报所有事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">reportEvent</span>(eventType <span style="color:#458;font-weight:bold">string</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic">// errorWithFallback 保存相关事件和执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic">// tryFallback 尝试执行 fallback，并保存执行结果事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">tryFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span>
-</code></pre></div><p>回到 GoC 执行流程，接下来就是通过 <code> GetCircuit(name)</code> 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。当获取断路器失败时会直接将错误信息写入 cmd.errChan 并直接停止执行后续逻辑。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> command <span style="color:#000;font-weight:bold">struct</span> {
+	sync.Mutex
+
+	ticket      <span style="color:#000;font-weight:bold">*</span><span style="color:#000;font-weight:bold">struct</span>{}       <span style="color:#998;font-style:italic">// 保存获取到的令牌
+</span><span style="color:#998;font-style:italic"></span>	start       time.Time       <span style="color:#998;font-style:italic">// 调用开始时间
+</span><span style="color:#998;font-style:italic"></span>	errChan     <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">error</span>      <span style="color:#998;font-style:italic">// 错误信息 channel
+</span><span style="color:#998;font-style:italic"></span>	finished    <span style="color:#000;font-weight:bold">chan</span> <span style="color:#458;font-weight:bold">bool</span>       <span style="color:#998;font-style:italic">// 完成信息 channel
+</span><span style="color:#998;font-style:italic"></span>	circuit     <span style="color:#000;font-weight:bold">*</span>CircuitBreaker <span style="color:#998;font-style:italic">// 断路器
+</span><span style="color:#998;font-style:italic"></span>	run         runFuncC        <span style="color:#998;font-style:italic">// 封装正常运行的方法
+</span><span style="color:#998;font-style:italic"></span>	fallback    fallbackFuncC   <span style="color:#998;font-style:italic">// 封装降级运行的方法
+</span><span style="color:#998;font-style:italic"></span>	runDuration time.Duration   <span style="color:#998;font-style:italic">// 调用耗时
+</span><span style="color:#998;font-style:italic"></span>	events      []<span style="color:#458;font-weight:bold">string</span>        <span style="color:#998;font-style:italic">// 保存当前调用的所有事件，方便最终统一上报
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>command 对象提供了一些方法，这里先看下定义，具体源码实现我们放到文章底部，这里不影响主流程阅读：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// reportEvent 对于产生的事件先临时放入 event 字段，后面会统一调用 reportAllEvent 上报所有事件
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">reportEvent</span>(eventType <span style="color:#458;font-weight:bold">string</span>)
+<span style="color:#998;font-style:italic">// errorWithFallback 保存相关事件和执行 fallback
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) 
+<span style="color:#998;font-style:italic">// tryFallback 尝试执行 fallback，并保存执行结果事件
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">tryFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>回到 GoC 执行流程，接下来就是通过 <code> GetCircuit(name)</code> 获取断路器对象，该方法会在断路器不存在时新建一个，并赋值给 cmd.circuit。当获取断路器失败时会直接将错误信息写入 cmd.errChan 并直接停止执行后续逻辑。</p>
 <p>接下来定义 returnTicket 闭包函数用于归还令牌：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// returnTicket 为归还令牌函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span>returnTicket <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    cmd.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#998;font-style:italic">// 阻塞等待，避免在获取到令牌之前就执行归还操作
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">for</span> !ticketChecked {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>        ticketCond.<span style="color:#900;font-weight:bold">Wait</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#998;font-style:italic">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>    cmd.circuit.executorPool.<span style="color:#900;font-weight:bold">Return</span>(cmd.ticket)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-</code></pre></div><p>真正执行归还令牌的地方是 <code>cmd.circuit.executorPool.Return(cmd.ticket)</code>，该方法定义在 CircuitBreaker 结构体里面，我们以后文章再分析，这里只聚焦主流程。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// returnTicket 为归还令牌函数
+</span><span style="color:#998;font-style:italic"></span>returnTicket <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
+    cmd.<span style="color:#900;font-weight:bold">Lock</span>()
+    <span style="color:#998;font-style:italic">// 阻塞等待，避免在获取到令牌之前就执行归还操作
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">for</span> !ticketChecked {
+        ticketCond.<span style="color:#900;font-weight:bold">Wait</span>()
+    }
+    <span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="color:#998;font-style:italic"></span>    cmd.circuit.executorPool.<span style="color:#900;font-weight:bold">Return</span>(cmd.ticket)
+    cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>真正执行归还令牌的地方是 <code>cmd.circuit.executorPool.Return(cmd.ticket)</code>，该方法定义在 CircuitBreaker 结构体里面，我们以后文章再分析，这里只聚焦主流程。</p>
 <p>接下来是定义 reportAllEvent 真正上报所有事件的闭包函数：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// 统一上报当前 command 所有事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>reportAllEvent <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    err <span style="color:#000;font-weight:bold">:=</span> cmd.circuit.<span style="color:#900;font-weight:bold">ReportEvent</span>(cmd.events, cmd.start, cmd.runDuration)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>    <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>        log.<span style="color:#900;font-weight:bold">Printf</span>(err.<span style="color:#900;font-weight:bold">Error</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-</code></pre></div><p>reportAllEvent 内部也是调用了 CircuitBreaker 的 ReportEvent 方法，这里依然不去看其实现细节，不影响主流程源码阅读。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 统一上报当前 command 所有事件
+</span><span style="color:#998;font-style:italic"></span>reportAllEvent <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>() {
+    err <span style="color:#000;font-weight:bold">:=</span> cmd.circuit.<span style="color:#900;font-weight:bold">ReportEvent</span>(cmd.events, cmd.start, cmd.runDuration)
+    <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+        log.<span style="color:#900;font-weight:bold">Printf</span>(err.<span style="color:#900;font-weight:bold">Error</span>())
+    }
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>reportAllEvent 内部也是调用了 CircuitBreaker 的 ReportEvent 方法，这里依然不去看其实现细节，不影响主流程源码阅读。</p>
 <p>接下来定义了两个异步协程，我们分别来看下。</p>
 <h5 id="协程-1用于检查断路器状态获取令牌执行用户正常逻辑上报事件等操作">协程 1：用于检查断路器状态、获取令牌、执行用户正常逻辑、上报事件等操作</h5>
 <p>首先，通过 <code>cmd.circuit.AllowRequest()</code> 方法通过计算当前的错误率来判断是否允许调用执行，如果不允许（即发生熔断）则会执行归还令牌、执行 fallback 降级操作、上报所有事件，然后直接返回。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">if</span> !cmd.circuit.<span style="color:#900;font-weight:bold">AllowRequest</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>    cmd.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">// 当另一个 goroutine 提前执行释放令牌时依然安全
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>    ticketChecked = <span style="color:#000;font-weight:bold">true</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#998;font-style:italic">// 唤醒一个正在等待的协程
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>    ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>        <span style="color:#900;font-weight:bold">returnTicket</span>()                             <span style="color:#998;font-style:italic">// 归还令牌
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>        cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrCircuitOpen) <span style="color:#998;font-style:italic">// 上报当前错误，并尝试执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>        <span style="color:#900;font-weight:bold">reportAllEvent</span>()                           <span style="color:#998;font-style:italic">// 上报事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>    })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    <span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-</code></pre></div><p>然后，加锁获取令牌，一旦获取失败说明达到了支持的最大并发量，会触发限流，则会执行归还令牌、执行 fallback 降级操作、上报所有事件，然后直接返回。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">if</span> !cmd.circuit.<span style="color:#900;font-weight:bold">AllowRequest</span>() {
+    cmd.<span style="color:#900;font-weight:bold">Lock</span>()
+    <span style="color:#998;font-style:italic">// 当另一个 goroutine 提前执行释放令牌时依然安全
+</span><span style="color:#998;font-style:italic"></span>    ticketChecked = <span style="color:#000;font-weight:bold">true</span>
+
+    <span style="color:#998;font-style:italic">// 唤醒一个正在等待的协程
+</span><span style="color:#998;font-style:italic"></span>    ticketCond.<span style="color:#900;font-weight:bold">Signal</span>()
+    cmd.<span style="color:#900;font-weight:bold">Unlock</span>()
+    returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+        <span style="color:#900;font-weight:bold">returnTicket</span>()                             <span style="color:#998;font-style:italic">// 归还令牌
+</span><span style="color:#998;font-style:italic"></span>        cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrCircuitOpen) <span style="color:#998;font-style:italic">// 上报当前错误，并尝试执行 fallback
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#900;font-weight:bold">reportAllEvent</span>()                           <span style="color:#998;font-style:italic">// 上报事件
+</span><span style="color:#998;font-style:italic"></span>    })
+    <span style="color:#000;font-weight:bold">return</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>然后，加锁获取令牌，一旦获取失败说明达到了支持的最大并发量，会触发限流，则会执行归还令牌、执行 fallback 降级操作、上报所有事件，然后直接返回。</p>
 <p>只有成功获取令牌后，才能继续往下执行真正的用户代码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// 真正执行用户正常的 run 函数
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>runErr <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
-</code></pre></div><p>如果 <code>run(ctx)</code> 执行失败，依然会执行归还令牌、执行 fallback 降级操作、上报所有事件，然后直接返回流程。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 真正执行用户正常的 run 函数
+</span><span style="color:#998;font-style:italic"></span>runErr <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">run</span>(ctx)
+</code></pre></td></tr></table>
+</div>
+</div><p>如果 <code>run(ctx)</code> 执行失败，依然会执行归还令牌、执行 fallback 降级操作、上报所有事件，然后直接返回流程。</p>
 <p>只有 <code>run(ctx)</code> 运行成功，才会触发上报 <code>success</code> 事件和写入 <code>cmd.finished &lt;- true</code>：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>cmd.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;success&#34;</span>) <span style="color:#998;font-style:italic">// 保存执行成功事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic">// 执行成功后，写入 finish channel
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">defer</span> <span style="color:#000;font-weight:bold">func</span>() { cmd.finished <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span> }()
-</code></pre></div><h5 id="协程-2用于检查当前调用是否超时">协程 2：用于检查当前调用是否超时</h5>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 创建协程用于检查当前操作是否超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">// 根据全局超时事件创建定时器
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>    timer <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">NewTimer</span>(<span style="color:#900;font-weight:bold">getSettings</span>(name).Timeout)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    <span style="color:#000;font-weight:bold">defer</span> timer.<span style="color:#900;font-weight:bold">Stop</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">select</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>cmd.finished: <span style="color:#998;font-style:italic">// 检查是否已经完成
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// returnOnce 已经在另外的协程运行，这里不再执行
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>ctx.<span style="color:#900;font-weight:bold">Done</span>(): <span style="color:#998;font-style:italic">// 检查 context 自定义超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>        returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>            <span style="color:#900;font-weight:bold">returnTicket</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>            cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ctx.<span style="color:#900;font-weight:bold">Err</span>())
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>            <span style="color:#900;font-weight:bold">reportAllEvent</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>        })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        <span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>timer.C: <span style="color:#998;font-style:italic">// 检查 command 初始化定义超时
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>        returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>            <span style="color:#900;font-weight:bold">returnTicket</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>            cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrTimeout)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>            <span style="color:#900;font-weight:bold">reportAllEvent</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>        })
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>        <span style="color:#000;font-weight:bold">return</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>}()
-</code></pre></div><p>该协程源码比较简单，主要用于判断当前调用是否发生全局 hystrix 超时和用户自定义 context 超时。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">cmd.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;success&#34;</span>) <span style="color:#998;font-style:italic">// 保存执行成功事件
+</span><span style="color:#998;font-style:italic">// 执行成功后，写入 finish channel
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">defer</span> <span style="color:#000;font-weight:bold">func</span>() { cmd.finished <span style="color:#000;font-weight:bold">&lt;-</span> <span style="color:#000;font-weight:bold">true</span> }()
+</code></pre></td></tr></table>
+</div>
+</div><h5 id="协程-2用于检查当前调用是否超时">协程 2：用于检查当前调用是否超时</h5>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 创建协程用于检查当前操作是否超时
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">go</span> <span style="color:#000;font-weight:bold">func</span>() {
+    <span style="color:#998;font-style:italic">// 根据全局超时事件创建定时器
+</span><span style="color:#998;font-style:italic"></span>    timer <span style="color:#000;font-weight:bold">:=</span> time.<span style="color:#900;font-weight:bold">NewTimer</span>(<span style="color:#900;font-weight:bold">getSettings</span>(name).Timeout)
+    <span style="color:#000;font-weight:bold">defer</span> timer.<span style="color:#900;font-weight:bold">Stop</span>()
+
+    <span style="color:#000;font-weight:bold">select</span> {
+    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>cmd.finished: <span style="color:#998;font-style:italic">// 检查是否已经完成
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// returnOnce 已经在另外的协程运行，这里不再执行
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>ctx.<span style="color:#900;font-weight:bold">Done</span>(): <span style="color:#998;font-style:italic">// 检查 context 自定义超时
+</span><span style="color:#998;font-style:italic"></span>        returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+            <span style="color:#900;font-weight:bold">returnTicket</span>()
+            cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ctx.<span style="color:#900;font-weight:bold">Err</span>())
+            <span style="color:#900;font-weight:bold">reportAllEvent</span>()
+        })
+        <span style="color:#000;font-weight:bold">return</span>
+    <span style="color:#000;font-weight:bold">case</span> <span style="color:#000;font-weight:bold">&lt;-</span>timer.C: <span style="color:#998;font-style:italic">// 检查 command 初始化定义超时
+</span><span style="color:#998;font-style:italic"></span>        returnOnce.<span style="color:#900;font-weight:bold">Do</span>(<span style="color:#000;font-weight:bold">func</span>() {
+            <span style="color:#900;font-weight:bold">returnTicket</span>()
+            cmd.<span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx, ErrTimeout)
+            <span style="color:#900;font-weight:bold">reportAllEvent</span>()
+        })
+        <span style="color:#000;font-weight:bold">return</span>
+    }
+}()
+</code></pre></td></tr></table>
+</div>
+</div><p>该协程源码比较简单，主要用于判断当前调用是否发生全局 hystrix 超时和用户自定义 context 超时。</p>
 <h4 id="command-方法">command 方法</h4>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// reportEvent 对于产生的事件先临时放入 event 字段，后面会统一调用 reportAllEvent 上报所有事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">reportEvent</span>(eventType <span style="color:#458;font-weight:bold">string</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	c.<span style="color:#900;font-weight:bold">Lock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#000;font-weight:bold">defer</span> c.<span style="color:#900;font-weight:bold">Unlock</span>()
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	c.events = <span style="color:#0086b3">append</span>(c.events, eventType)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic">// errorWithFallback 保存相关事件和执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	eventType <span style="color:#000;font-weight:bold">:=</span> <span style="color:#d14">&#34;failure&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrCircuitOpen {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>		eventType = <span style="color:#d14">&#34;short-circuit&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrMaxConcurrency {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>		eventType = <span style="color:#d14">&#34;rejected&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrTimeout {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		eventType = <span style="color:#d14">&#34;timeout&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> context.Canceled {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>		eventType = <span style="color:#d14">&#34;context_canceled&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> context.DeadlineExceeded {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>		eventType = <span style="color:#d14">&#34;context_deadline_exceeded&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>	<span style="color:#998;font-style:italic">// 保存事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>	c.<span style="color:#900;font-weight:bold">reportEvent</span>(eventType)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>	<span style="color:#998;font-style:italic">// 尝试执行 fallback，并上报 fallback 执行结果事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span><span style="color:#998;font-style:italic"></span>	fallbackErr <span style="color:#000;font-weight:bold">:=</span> c.<span style="color:#900;font-weight:bold">tryFallback</span>(ctx, err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>	<span style="color:#998;font-style:italic">// fallback 执行失败时，将错误信息写入 error channel
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> fallbackErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>		c.errChan <span style="color:#000;font-weight:bold">&lt;-</span> fallbackErr
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36</span><span style="color:#998;font-style:italic">// tryFallback 尝试执行 fallback，并保存执行结果事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">tryFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38</span>	<span style="color:#998;font-style:italic">// 如果未定义 fallback 直接返回原始的错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> c.fallback <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40</span>		<span style="color:#000;font-weight:bold">return</span> err
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43</span>	<span style="color:#998;font-style:italic">// 执行 fallback
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44</span><span style="color:#998;font-style:italic"></span>	fallbackErr <span style="color:#000;font-weight:bold">:=</span> c.<span style="color:#900;font-weight:bold">fallback</span>(ctx, err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45</span>	<span style="color:#998;font-style:italic">// fallback 执行失败时保存错误事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> fallbackErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47</span>		c.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;fallback-failure&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48</span>		<span style="color:#000;font-weight:bold">return</span> fmt.<span style="color:#900;font-weight:bold">Errorf</span>(<span style="color:#d14">&#34;fallback failed with &#39;%v&#39;. run error was &#39;%v&#39;&#34;</span>, fallbackErr, err)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51</span>	<span style="color:#998;font-style:italic">// 保存 fallback 执行成功事件
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52</span><span style="color:#998;font-style:italic"></span>	c.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;fallback-success&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56</span>
-</code></pre></div><h3 id="存在问题">存在问题</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// reportEvent 对于产生的事件先临时放入 event 字段，后面会统一调用 reportAllEvent 上报所有事件
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">reportEvent</span>(eventType <span style="color:#458;font-weight:bold">string</span>) {
+	c.<span style="color:#900;font-weight:bold">Lock</span>()
+	<span style="color:#000;font-weight:bold">defer</span> c.<span style="color:#900;font-weight:bold">Unlock</span>()
+
+	c.events = <span style="color:#0086b3">append</span>(c.events, eventType)
+}
+
+<span style="color:#998;font-style:italic">// errorWithFallback 保存相关事件和执行 fallback
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">errorWithFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) {
+	eventType <span style="color:#000;font-weight:bold">:=</span> <span style="color:#d14">&#34;failure&#34;</span>
+	<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrCircuitOpen {
+		eventType = <span style="color:#d14">&#34;short-circuit&#34;</span>
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrMaxConcurrency {
+		eventType = <span style="color:#d14">&#34;rejected&#34;</span>
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> ErrTimeout {
+		eventType = <span style="color:#d14">&#34;timeout&#34;</span>
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> context.Canceled {
+		eventType = <span style="color:#d14">&#34;context_canceled&#34;</span>
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">==</span> context.DeadlineExceeded {
+		eventType = <span style="color:#d14">&#34;context_deadline_exceeded&#34;</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 保存事件
+</span><span style="color:#998;font-style:italic"></span>	c.<span style="color:#900;font-weight:bold">reportEvent</span>(eventType)
+
+	<span style="color:#998;font-style:italic">// 尝试执行 fallback，并上报 fallback 执行结果事件
+</span><span style="color:#998;font-style:italic"></span>	fallbackErr <span style="color:#000;font-weight:bold">:=</span> c.<span style="color:#900;font-weight:bold">tryFallback</span>(ctx, err)
+
+	<span style="color:#998;font-style:italic">// fallback 执行失败时，将错误信息写入 error channel
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> fallbackErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+		c.errChan <span style="color:#000;font-weight:bold">&lt;-</span> fallbackErr
+	}
+}
+
+<span style="color:#998;font-style:italic">// tryFallback 尝试执行 fallback，并保存执行结果事件
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>command) <span style="color:#900;font-weight:bold">tryFallback</span>(ctx context.Context, err <span style="color:#458;font-weight:bold">error</span>) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 如果未定义 fallback 直接返回原始的错误
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> c.fallback <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {
+		<span style="color:#000;font-weight:bold">return</span> err
+	}
+
+	<span style="color:#998;font-style:italic">// 执行 fallback
+</span><span style="color:#998;font-style:italic"></span>	fallbackErr <span style="color:#000;font-weight:bold">:=</span> c.<span style="color:#900;font-weight:bold">fallback</span>(ctx, err)
+	<span style="color:#998;font-style:italic">// fallback 执行失败时保存错误事件
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> fallbackErr <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+		c.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;fallback-failure&#34;</span>)
+		<span style="color:#000;font-weight:bold">return</span> fmt.<span style="color:#900;font-weight:bold">Errorf</span>(<span style="color:#d14">&#34;fallback failed with &#39;%v&#39;. run error was &#39;%v&#39;&#34;</span>, fallbackErr, err)
+	}
+
+	<span style="color:#998;font-style:italic">// 保存 fallback 执行成功事件
+</span><span style="color:#998;font-style:italic"></span>	c.<span style="color:#900;font-weight:bold">reportEvent</span>(<span style="color:#d14">&#34;fallback-success&#34;</span>)
+
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="存在问题">存在问题</h3>
 <p>阅读 hystrix-go 源码过程中，也发现了一些设计不合理的地方：</p>
 <ul>
 <li>没有对 go 协程进行 panic recover 捕获，一旦发生 panic 服务就会挂掉</li>
@@ -683,6 +1205,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/">https://maratrix.cn/post/2021/01/24/hystrix-go-source-read/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

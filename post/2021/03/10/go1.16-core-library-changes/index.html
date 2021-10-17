@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -211,36 +215,71 @@
 <h3 id="新增-iofs-的支持">新增 io/fs 的支持</h3>
 <p>Go 1.16 标准库新增 io/fs 包，并定义了一个 fs.File 接口用于表示一个只读文件树 (tree of file) 的抽象。</p>
 <p>io/fs 包的两个最重要的接口如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// $GOROOT/src/io/fs/fs.go
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic">// An FS provides access to a hierarchical file system.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic">// The FS interface is the minimum implementation required of the file system.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic">// A file system may implement additional interfaces,
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic">// such as ReadFileFS, to provide additional or optimized functionality.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> FS <span style="color:#000;font-weight:bold">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#998;font-style:italic">// Open opens the named file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// When Open returns an error, it should be of type *PathError
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// with the Op field set to &#34;open&#34;, the Path field set to name,
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// and the Err field describing the problem.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// Open should reject attempts to open names that do not satisfy
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ValidPath(name), returning a *PathError with Err set to
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ErrInvalid or ErrNotExist.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span>        <span style="color:#900;font-weight:bold">Open</span>(name <span style="color:#458;font-weight:bold">string</span>) (File, <span style="color:#458;font-weight:bold">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic">// A File provides access to a single file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic">// The File interface is the minimum implementation required of the file.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic">// A file may implement additional interfaces, such as
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#998;font-style:italic">// ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> File <span style="color:#000;font-weight:bold">interface</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>        <span style="color:#900;font-weight:bold">Stat</span>() (FileInfo, <span style="color:#458;font-weight:bold">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>        <span style="color:#900;font-weight:bold">Read</span>([]<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>        <span style="color:#900;font-weight:bold">Close</span>() <span style="color:#458;font-weight:bold">error</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>}
-</code></pre></div><p>FS 接口代表虚拟文件系统的最小抽象，File 接口则是虚拟文件的最小抽象，我们可以基于这两个接口进行扩展以及对接现有的一些实现。io/fs 包也给出了一些扩展 FS 的 “样例”：
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// $GOROOT/src/io/fs/fs.go
+</span><span style="color:#998;font-style:italic"></span>
+<span style="color:#998;font-style:italic">// An FS provides access to a hierarchical file system.
+</span><span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic">// The FS interface is the minimum implementation required of the file system.
+</span><span style="color:#998;font-style:italic">// A file system may implement additional interfaces,
+</span><span style="color:#998;font-style:italic">// such as ReadFileFS, to provide additional or optimized functionality.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> FS <span style="color:#000;font-weight:bold">interface</span> {
+        <span style="color:#998;font-style:italic">// Open opens the named file.
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// When Open returns an error, it should be of type *PathError
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// with the Op field set to &#34;open&#34;, the Path field set to name,
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// and the Err field describing the problem.
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// Open should reject attempts to open names that do not satisfy
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ValidPath(name), returning a *PathError with Err set to
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#998;font-style:italic">// ErrInvalid or ErrNotExist.
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#900;font-weight:bold">Open</span>(name <span style="color:#458;font-weight:bold">string</span>) (File, <span style="color:#458;font-weight:bold">error</span>)
+}
+
+<span style="color:#998;font-style:italic">// A File provides access to a single file.
+</span><span style="color:#998;font-style:italic">// The File interface is the minimum implementation required of the file.
+</span><span style="color:#998;font-style:italic">// A file may implement additional interfaces, such as
+</span><span style="color:#998;font-style:italic">// ReadDirFile, ReaderAt, or Seeker, to provide additional or optimized functionality.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> File <span style="color:#000;font-weight:bold">interface</span> {
+        <span style="color:#900;font-weight:bold">Stat</span>() (FileInfo, <span style="color:#458;font-weight:bold">error</span>)
+        <span style="color:#900;font-weight:bold">Read</span>([]<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)
+        <span style="color:#900;font-weight:bold">Close</span>() <span style="color:#458;font-weight:bold">error</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>FS 接口代表虚拟文件系统的最小抽象，File 接口则是虚拟文件的最小抽象，我们可以基于这两个接口进行扩展以及对接现有的一些实现。io/fs 包也给出了一些扩展 FS 的 “样例”：
 
         <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210310090447.png">
             <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/imttx/images/blog/20210310090447.png" />
@@ -249,56 +288,129 @@
 <h3 id="废弃-ioioutil">废弃 io/ioutil</h3>
 <p>Go 官方认为 io/ioutil 这个包的定义不明确且难以理解。所以 Russ Cox 在 2020.10.17 提出了废弃 io/ioutil 的提案。</p>
 <p>大致变更如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Discard =&gt; io.Discard
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>NopCloser =&gt; io.NopCloser
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>ReadAll =&gt; io.ReadAll
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>ReadDir =&gt; os.ReadDir
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>ReadFile =&gt; os.ReadFile
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>TempDir =&gt; os.MkdirTemp
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>TempFile =&gt; os.CreateTemp
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>WriteFile =&gt; os.WriteFile
-</code></pre></div><p>与此同时大家也不需要担心存在破坏性变更，因为有 Go1 兼容性的保证，在 Go1 中 io/ioutil 还会存在，只变更内部的方法调用：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadAll</span>(r io.Reader) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    <span style="color:#000;font-weight:bold">return</span> io.<span style="color:#900;font-weight:bold">ReadAll</span>(r)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadFile</span>(filename <span style="color:#458;font-weight:bold">string</span>) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">return</span> os.<span style="color:#900;font-weight:bold">ReadFile</span>(filename)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-</code></pre></div><p>大家在后续也可以改改调用习惯。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-fallback" data-lang="fallback">Discard =&gt; io.Discard
+NopCloser =&gt; io.NopCloser
+ReadAll =&gt; io.ReadAll
+ReadDir =&gt; os.ReadDir
+ReadFile =&gt; os.ReadFile
+TempDir =&gt; os.MkdirTemp
+TempFile =&gt; os.CreateTemp
+WriteFile =&gt; os.WriteFile
+</code></pre></td></tr></table>
+</div>
+</div><p>与此同时大家也不需要担心存在破坏性变更，因为有 Go1 兼容性的保证，在 Go1 中 io/ioutil 还会存在，只变更内部的方法调用：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadAll</span>(r io.Reader) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
+    <span style="color:#000;font-weight:bold">return</span> io.<span style="color:#900;font-weight:bold">ReadAll</span>(r)
+}
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">ReadFile</span>(filename <span style="color:#458;font-weight:bold">string</span>) ([]<span style="color:#458;font-weight:bold">byte</span>, <span style="color:#458;font-weight:bold">error</span>) {
+    <span style="color:#000;font-weight:bold">return</span> os.<span style="color:#900;font-weight:bold">ReadFile</span>(filename)
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>大家在后续也可以改改调用习惯。</p>
 <h3 id="net-包的变化">net 包的变化</h3>
 <p>在 Go 1.16 之前，我们检测在一个已关闭的网络上进行 I/O 操作或在 I/O 完成前网络被关闭的情况，只能通过匹配字符串”use of closed network connection” 的方式来进行。之前的版本没有针对这个错误定义 “哨兵错误变量”(更多关于哨兵错误变量的内容，可以参考我的专栏文章《别笑！这就是 Go 的错误处理哲学》)，Go 1.16 增加了 ErrClosed 这个 “哨兵错误变量”，我们可以通过 <code>errors.Is (err, net.ErrClosed)</code> 来检测是否是上述错误情况。</p>
 <h3 id="调整切片扩容策略">调整切片扩容策略</h3>
 <p>Go1.16 以前的 slice 的扩容条件是 len，在最新的代码中，已经改为了以 cap 属性作为基准：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>  <span style="color:#998;font-style:italic">// src/runtime/slice.go
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> cap &gt; doublecap {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		newcap = cap
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	} <span style="color:#000;font-weight:bold">else</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>		<span style="color:#998;font-style:italic">// 这是以前的代码：if old.len &lt; 1024 {
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#998;font-style:italic"></span>		<span style="color:#998;font-style:italic">// 下面是 Go1.16rc1 的代码
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> old.cap &lt; <span style="color:#099">1024</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>			newcap = doublecap
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span>		}
-</code></pre></div><p>以官方的 test case 为例：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	<span style="color:#000;font-weight:bold">const</span> N = <span style="color:#099">1024</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>	<span style="color:#000;font-weight:bold">var</span> a [N]<span style="color:#458;font-weight:bold">int</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	x <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>:N], <span style="color:#099">9</span>, <span style="color:#099">9</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	y <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N:N], <span style="color:#099">9</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>	<span style="color:#0086b3">println</span>(<span style="color:#0086b3">cap</span>(x), <span style="color:#0086b3">cap</span>(y))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-</code></pre></div><p>在 Go1.16 以前输出 2048, 1280。在 Go1.16 及以后输出 1280, 1280，保证了两种的一致。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">  <span style="color:#998;font-style:italic">// src/runtime/slice.go
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> cap &gt; doublecap {
+		newcap = cap
+	} <span style="color:#000;font-weight:bold">else</span> {
+		<span style="color:#998;font-style:italic">// 这是以前的代码：if old.len &lt; 1024 {
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#998;font-style:italic">// 下面是 Go1.16rc1 的代码
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#000;font-weight:bold">if</span> old.cap &lt; <span style="color:#099">1024</span> {
+			newcap = doublecap
+		}
+</code></pre></td></tr></table>
+</div>
+</div><p>以官方的 test case 为例：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+	<span style="color:#000;font-weight:bold">const</span> N = <span style="color:#099">1024</span>
+	<span style="color:#000;font-weight:bold">var</span> a [N]<span style="color:#458;font-weight:bold">int</span>
+	x <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N<span style="color:#000;font-weight:bold">-</span><span style="color:#099">1</span>:N], <span style="color:#099">9</span>, <span style="color:#099">9</span>))
+	y <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">cap</span>(<span style="color:#0086b3">append</span>(a[:N:N], <span style="color:#099">9</span>))
+	<span style="color:#0086b3">println</span>(<span style="color:#0086b3">cap</span>(x), <span style="color:#0086b3">cap</span>(y))
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>在 Go1.16 以前输出 2048, 1280。在 Go1.16 及以后输出 1280, 1280，保证了两种的一致。</p>
 <h3 id="简化结构体标签">简化结构体标签</h3>
 <p>在 Go 语言的结构体中，我们常常会因为各种库的诉求，需要对结构体的 tag 设置标识。</p>
 <p>如果像是以前，量比较多就会变成：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json:&#34;field_1,omitempty&#34; bson:&#34;field_1,omitempty&#34; xml:&#34;field_1,omitempty&#34; form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
-</code></pre></div><p>但在 Go1.16 及以后，就可以通过合并的方式：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json,bson,xml,form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>}
-</code></pre></div><p>方便和简洁了不少。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
+  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json:&#34;field_1,omitempty&#34; bson:&#34;field_1,omitempty&#34; xml:&#34;field_1,omitempty&#34; form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>但在 Go1.16 及以后，就可以通过合并的方式：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> MyStruct <span style="color:#000;font-weight:bold">struct</span> {
+  Field1 <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json,bson,xml,form:&#34;field_1,omitempty&#34; other:&#34;value&#34;`</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>方便和简洁了不少。</p>
 <h3 id="参考">参考</h3>
 <p><a href="https://golang.org/doc/go1.16">Go 1.16 Release Notes</a></p>
 <p><a href="https://tonybai.com/2021/02/25/some-changes-in-go-1-16/">Go 1.16 中值得关注的几个变化</a></p>
@@ -307,6 +419,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/">https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

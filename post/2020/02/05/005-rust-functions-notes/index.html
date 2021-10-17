@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -205,10 +209,19 @@
 <li>函数名使用<code>snake_case</code>规范命名；</li>
 <li>函数可以定义在<code>main</code>函数之前或之后，Rust 不关心函数定义于何处；</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">test_function</span>(a: <span style="color:#458;font-weight:bold">i32</span>,<span style="color:#bbb"> </span>b: <span style="color:#458;font-weight:bold">bool</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#458;font-weight:bold">u32</span> {<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span></code></pre></div><h2 id="函数参数">函数参数</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">test_function</span>(a: <span style="color:#458;font-weight:bold">i32</span>,<span style="color:#bbb"> </span>b: <span style="color:#458;font-weight:bold">bool</span>)<span style="color:#bbb"> </span>-&gt; <span style="color:#458;font-weight:bold">u32</span> {<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//...
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><h2 id="函数参数">函数参数</h2>
 <ul>
 <li>函数可以定义多个参数，使用逗号<code>,</code>分隔；</li>
 <li>参数是函数签名的一部分；</li>
@@ -219,27 +232,60 @@
 <ul>
 <li>语句（Statements）是执行一些操作但不返回值的指令；</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">6</span>;<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">//是一条语句
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span></code></pre></div><ul>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">6</span>;<span style="color:#bbb"> </span><span style="color:#998;font-style:italic">//是一条语句
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><ul>
 <li>表达式（Expressions）计算并产生一个值；</li>
 </ul>
 <p>表达式会计算出一些值，并且你将编写的大部分 Rust 代码是由表达式组成的。考虑一个简单的数学运算，比如 5 + 6，这是一个表达式并计算出值 11。表达式可以是语句的一部分：在示例 3-1 中，语句 let y = 6; 中的 6 是一个表达式，它计算出的值是 6。函数调用是一个表达式。宏调用是一个表达式。我们用来创建新作用域的大括号（代码块），{}，也是一个表达式，例如：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb">        </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span><span style="color:#099">1</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;The value of y is: {}&#34;</span>,<span style="color:#bbb"> </span>y);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>这个表达式：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">    </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span><span style="color:#099">1</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>是一个代码块，它的值是 4。这个值作为 let 语句的一部分被绑定到 y 上。注意结尾没有分号的那一行 x+1，与你见过的大部分代码行不同。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">5</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>y<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">        </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">        </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span><span style="color:#099">1</span><span style="color:#bbb">
+</span><span style="color:#bbb">    </span>};<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;The value of y is: {}&#34;</span>,<span style="color:#bbb"> </span>y);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这个表达式：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust">{<span style="color:#bbb">
+</span><span style="color:#bbb">    </span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span><span style="color:#099">3</span>;<span style="color:#bbb">
+</span><span style="color:#bbb">    </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">+</span><span style="color:#bbb"> </span><span style="color:#099">1</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>是一个代码块，它的值是 4。这个值作为 let 语句的一部分被绑定到 y 上。注意结尾没有分号的那一行 x+1，与你见过的大部分代码行不同。</p>
 <p>在接下来探索具有返回值的函数和表达式时要谨记以下三点：</p>
 <ul>
 <li>表达式的结尾没有分号；</li>
@@ -254,15 +300,29 @@
 <li>大部分函数隐式的返回最后的表达式；</li>
 </ul>
 <p>这是一个有返回值的函数的例子：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#bbb">	</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>foo();<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#bbb">	</span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;x = {}&#34;</span>,<span style="color:#bbb"> </span>x);<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#bbb"></span>}<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">foo</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#458;font-weight:bold">i32</span> {<span style="color:#bbb">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#bbb">	</span><span style="color:#099">10</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//注意这里结尾没有分号，加上分号会报错
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
-</span></code></pre></div><p>函数返回值的两种方式：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">main</span>()<span style="color:#bbb"> </span>{<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#000;font-weight:bold">let</span><span style="color:#bbb"> </span>x<span style="color:#bbb"> </span><span style="color:#000;font-weight:bold">=</span><span style="color:#bbb"> </span>foo();<span style="color:#bbb">
+</span><span style="color:#bbb">	</span>println<span style="color:#000;font-weight:bold">!</span>(<span style="color:#d14">&#34;x = {}&#34;</span>,<span style="color:#bbb"> </span>x);<span style="color:#bbb">
+</span><span style="color:#bbb"></span>}<span style="color:#bbb">
+</span><span style="color:#bbb">
+</span><span style="color:#bbb"></span><span style="color:#000;font-weight:bold">fn</span> <span style="color:#900;font-weight:bold">foo</span>()<span style="color:#bbb"> </span>-&gt; <span style="color:#458;font-weight:bold">i32</span> {<span style="color:#bbb">
+</span><span style="color:#bbb">	</span><span style="color:#099">10</span><span style="color:#bbb">	</span><span style="color:#998;font-style:italic">//注意这里结尾没有分号，加上分号会报错
+</span><span style="color:#998;font-style:italic"></span>}<span style="color:#bbb">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>函数返回值的两种方式：</p>
 <ul>
 <li>使用<code>return</code>关键字+指定值；</li>
 <li>使用结尾表达式；</li>
@@ -271,6 +331,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

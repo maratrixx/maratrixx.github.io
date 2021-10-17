@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -99,7 +103,7 @@
         </div>
         
         <div class="post-content">
-            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析 hystrix-go……
+            在分析 hystrix-go 主流程中，我们知道只有当获取令牌成功后才能继续往下正常执行用户自定义的闭包函数，否则还是会进行降级处理。 1 cmd.ticket = &lt;-circuit.executorPool.Tickets: // 获取令牌成功 今天我们分析下，hystrix-go 是如何进行流量控制的。 源码分析……
             <p class="readmore"><a href="https://maratrix.cn/post/2021/01/28/hystrix-go-flow-contorl-read/">阅读全文</a></p>
         </div>
     </article>

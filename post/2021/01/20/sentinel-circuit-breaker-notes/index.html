@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -230,76 +234,157 @@
 <p>Sentinel 的熔断器不在静默期，并且在统计周期内资源请求访问异常数大于设定的阈值，则接下来的熔断周期内对资源的访问会自动地被熔断。</p>
 <p>注意：这里的错误比例熔断和错误计数熔断指的业务返回错误的比例或则计数。也就是说，如果规则指定熔断器策略采用错误比例或则错误计数，那么为了统计错误比例或错误计数，需要调用API： <code>api.TraceError(entry, err)</code> 埋点每个请求的业务异常。</p>
 <h3 id="规则定义">规则定义</h3>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> Rule <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">// 全局唯一 ID，可选项。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>	Id <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json:&#34;id,omitempty&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#998;font-style:italic">// 熔断器生效的资源名
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>    Resource <span style="color:#458;font-weight:bold">string</span>   <span style="color:#d14">`json:&#34;resource&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#998;font-style:italic">// 熔断策略，目前支持 SlowRequestRatio、ErrorRatio、ErrorCount 三种；
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以慢调用比例 (SlowRequestRatio) 作为阈值，需要设置允许的最大响应时间（MaxAllowedRtMs），请求的响应时间大于该值则统计为慢调用。通过 Threshold 字段设置触发熔断的慢调用比例，取值范围为 [0.0, 1.0]。规则配置后，在单位统计时长内请求数目大于设置的最小请求数目，并且慢调用的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态，若接下来的一个请求响应时间小于设置的最大 RT 则结束熔断，若大于设置的最大 RT 则会再次被熔断。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以错误比例 (ErrorRatio) 作为阈值，需要设置触发熔断的异常比例（Threshold），取值范围为 [0.0, 1.0]。规则配置后，在单位统计时长内请求数目大于设置的最小请求数目，并且异常的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态，若接下来的一个请求没有错误则结束熔断，否则会再次被熔断。代码中可以通过 api.TraceError(entry, err) 函数来记录 error。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以错误数（ErrorCount）作为阈值，需要设置触发熔断的异常比例（Threshold），表示错误计数的阈值。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	Strategy Strategy <span style="color:#d14">`json:&#34;strategy&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	<span style="color:#998;font-style:italic">// 熔断触发后持续的时间（单位为 ms）。资源进入熔断状态后，在配置的熔断时长内，请求都会快速失败。熔断结束后进入探测恢复模式（HALF-OPEN）。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	RetryTimeoutMs <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;retryTimeoutMs&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#998;font-style:italic">// 静默数量，如果当前统计周期内对资源的访问数量小于静默数量，那么熔断器就处于静默期。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 换言之，也就是触发熔断的最小请求数目，若当前统计周期内的请求数小于此值，即使达到熔断条件规则也不会触发。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>	MinRequestAmount <span style="color:#458;font-weight:bold">uint64</span> <span style="color:#d14">`json:&#34;minRequestAmount&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#998;font-style:italic">// 统计的时间窗口长度（单位为 ms）。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#998;font-style:italic"></span>	StatIntervalMs <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;statIntervalMs&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	<span style="color:#998;font-style:italic">// StatSlidingWindowBucketCount 表示统计滑动窗口的桶数，默认为 1。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 随着桶数的增加，统计数据会更精确，但内存消耗也会增加。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 以下必须为真- &#34; StatIntervalMs % StatSlidingWindowBucketCount == 0 &#34;，
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 否则 StatSlidingWindowBucketCount 将被替换为1。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 如果没有设置，则使用默认值1。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#998;font-style:italic"></span>	StatSlidingWindowBucketCount <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;statSlidingWindowBucketCount&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    <span style="color:#998;font-style:italic">// 仅对慢调用熔断策略生效，MaxAllowedRtMs 是判断请求是否是慢调用的临界值，也就是：
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 如果请求的response time小于或等于MaxAllowedRtMs，那么就不是慢调用；
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 如果response time大于MaxAllowedRtMs，那么当前请求就属于慢调用。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#998;font-style:italic"></span>	MaxAllowedRtMs <span style="color:#458;font-weight:bold">uint64</span> <span style="color:#d14">`json:&#34;maxAllowedRtMs&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>    <span style="color:#998;font-style:italic">// - 对于慢调用熔断策略, Threshold表示是慢调用比例的阈值(小数表示，比如0.1表示10%)，也就是如果当前资源的慢调用比例如果高于Threshold，那么熔断器就会断开；否则保持闭合状态。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 对于错误比例策略，Threshold表示的是错误比例的阈值(小数表示，比如0.1表示10%)。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 对于错误数策略，Threshold是错误计数的阈值。
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span><span style="color:#998;font-style:italic"></span>	Threshold <span style="color:#458;font-weight:bold">float64</span> <span style="color:#d14">`json:&#34;threshold&#34;`</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>}
-</code></pre></div><p><strong>补充：</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Rule <span style="color:#000;font-weight:bold">struct</span> {
+	<span style="color:#998;font-style:italic">// 全局唯一 ID，可选项。
+</span><span style="color:#998;font-style:italic"></span>	Id <span style="color:#458;font-weight:bold">string</span> <span style="color:#d14">`json:&#34;id,omitempty&#34;`</span>
+	<span style="color:#998;font-style:italic">// 熔断器生效的资源名
+</span><span style="color:#998;font-style:italic"></span>    Resource <span style="color:#458;font-weight:bold">string</span>   <span style="color:#d14">`json:&#34;resource&#34;`</span>
+    <span style="color:#998;font-style:italic">// 熔断策略，目前支持 SlowRequestRatio、ErrorRatio、ErrorCount 三种；
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以慢调用比例 (SlowRequestRatio) 作为阈值，需要设置允许的最大响应时间（MaxAllowedRtMs），请求的响应时间大于该值则统计为慢调用。通过 Threshold 字段设置触发熔断的慢调用比例，取值范围为 [0.0, 1.0]。规则配置后，在单位统计时长内请求数目大于设置的最小请求数目，并且慢调用的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态，若接下来的一个请求响应时间小于设置的最大 RT 则结束熔断，若大于设置的最大 RT 则会再次被熔断。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以错误比例 (ErrorRatio) 作为阈值，需要设置触发熔断的异常比例（Threshold），取值范围为 [0.0, 1.0]。规则配置后，在单位统计时长内请求数目大于设置的最小请求数目，并且异常的比例大于阈值，则接下来的熔断时长内请求会自动被熔断。经过熔断时长后熔断器会进入探测恢复状态，若接下来的一个请求没有错误则结束熔断，否则会再次被熔断。代码中可以通过 api.TraceError(entry, err) 函数来记录 error。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 选择以错误数（ErrorCount）作为阈值，需要设置触发熔断的异常比例（Threshold），表示错误计数的阈值。
+</span><span style="color:#998;font-style:italic"></span>	Strategy Strategy <span style="color:#d14">`json:&#34;strategy&#34;`</span>
+	<span style="color:#998;font-style:italic">// 熔断触发后持续的时间（单位为 ms）。资源进入熔断状态后，在配置的熔断时长内，请求都会快速失败。熔断结束后进入探测恢复模式（HALF-OPEN）。
+</span><span style="color:#998;font-style:italic"></span>	RetryTimeoutMs <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;retryTimeoutMs&#34;`</span>
+    <span style="color:#998;font-style:italic">// 静默数量，如果当前统计周期内对资源的访问数量小于静默数量，那么熔断器就处于静默期。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 换言之，也就是触发熔断的最小请求数目，若当前统计周期内的请求数小于此值，即使达到熔断条件规则也不会触发。
+</span><span style="color:#998;font-style:italic"></span>	MinRequestAmount <span style="color:#458;font-weight:bold">uint64</span> <span style="color:#d14">`json:&#34;minRequestAmount&#34;`</span>
+	<span style="color:#998;font-style:italic">// 统计的时间窗口长度（单位为 ms）。
+</span><span style="color:#998;font-style:italic"></span>	StatIntervalMs <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;statIntervalMs&#34;`</span>
+	<span style="color:#998;font-style:italic">// StatSlidingWindowBucketCount 表示统计滑动窗口的桶数，默认为 1。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 随着桶数的增加，统计数据会更精确，但内存消耗也会增加。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 以下必须为真- &#34; StatIntervalMs % StatSlidingWindowBucketCount == 0 &#34;，
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 否则 StatSlidingWindowBucketCount 将被替换为1。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// 如果没有设置，则使用默认值1。
+</span><span style="color:#998;font-style:italic"></span>	StatSlidingWindowBucketCount <span style="color:#458;font-weight:bold">uint32</span> <span style="color:#d14">`json:&#34;statSlidingWindowBucketCount&#34;`</span>
+    <span style="color:#998;font-style:italic">// 仅对慢调用熔断策略生效，MaxAllowedRtMs 是判断请求是否是慢调用的临界值，也就是：
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 如果请求的response time小于或等于MaxAllowedRtMs，那么就不是慢调用；
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 如果response time大于MaxAllowedRtMs，那么当前请求就属于慢调用。
+</span><span style="color:#998;font-style:italic"></span>	MaxAllowedRtMs <span style="color:#458;font-weight:bold">uint64</span> <span style="color:#d14">`json:&#34;maxAllowedRtMs&#34;`</span>
+    <span style="color:#998;font-style:italic">// - 对于慢调用熔断策略, Threshold表示是慢调用比例的阈值(小数表示，比如0.1表示10%)，也就是如果当前资源的慢调用比例如果高于Threshold，那么熔断器就会断开；否则保持闭合状态。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 对于错误比例策略，Threshold表示的是错误比例的阈值(小数表示，比如0.1表示10%)。
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#998;font-style:italic">// - 对于错误数策略，Threshold是错误计数的阈值。
+</span><span style="color:#998;font-style:italic"></span>	Threshold <span style="color:#458;font-weight:bold">float64</span> <span style="color:#d14">`json:&#34;threshold&#34;`</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>补充：</strong></p>
 <p>Resource、Strategy、RetryTimeoutMs、MinRequestAmount、StatIntervalMs、Threshold 每个规则都必设的字段，MaxAllowedRtMs 是慢调用比例熔断规则必设的字段。</p>
 <h3 id="场景示例">场景示例</h3>
 <p>这里分别给出三种熔断策略规则配置的一个Sample(不可作为线上配置参考):</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 慢调用比例规则
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    Strategy:         SlowRequestRatio,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    RetryTimeoutMs:   <span style="color:#099">5000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    MinRequestAmount: <span style="color:#099">10</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    StatIntervalMs:   <span style="color:#099">10000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    MaxAllowedRtMs:   <span style="color:#099">20</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    Threshold:        <span style="color:#099">0.1</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>},
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">// 错误比例规则
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    Strategy:         ErrorRatio,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    RetryTimeoutMs:   <span style="color:#099">5000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>    MinRequestAmount: <span style="color:#099">10</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    StatIntervalMs:   <span style="color:#099">10000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    Threshold:        <span style="color:#099">0.1</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>},
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic">// 错误计数规则
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>    Strategy:         ErrorCount,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    RetryTimeoutMs:   <span style="color:#099">5000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>    MinRequestAmount: <span style="color:#099">10</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>    StatIntervalMs:   <span style="color:#099">10000</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span>    Threshold:        <span style="color:#099">100</span>,
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>},
-</code></pre></div><h3 id="参考">参考</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 慢调用比例规则
+</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
+    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
+    Strategy:         SlowRequestRatio,
+    RetryTimeoutMs:   <span style="color:#099">5000</span>,
+    MinRequestAmount: <span style="color:#099">10</span>,
+    StatIntervalMs:   <span style="color:#099">10000</span>,
+    MaxAllowedRtMs:   <span style="color:#099">20</span>,
+    Threshold:        <span style="color:#099">0.1</span>,
+},
+<span style="color:#998;font-style:italic">// 错误比例规则
+</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
+    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
+    Strategy:         ErrorRatio,
+    RetryTimeoutMs:   <span style="color:#099">5000</span>,
+    MinRequestAmount: <span style="color:#099">10</span>,
+    StatIntervalMs:   <span style="color:#099">10000</span>,
+    Threshold:        <span style="color:#099">0.1</span>,
+},
+<span style="color:#998;font-style:italic">// 错误计数规则
+</span><span style="color:#998;font-style:italic"></span>rule1 <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">&amp;</span>Rule{
+    Resource:         <span style="color:#d14">&#34;abc&#34;</span>,
+    Strategy:         ErrorCount,
+    RetryTimeoutMs:   <span style="color:#099">5000</span>,
+    MinRequestAmount: <span style="color:#099">10</span>,
+    StatIntervalMs:   <span style="color:#099">10000</span>,
+    Threshold:        <span style="color:#099">100</span>,
+},
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="参考">参考</h3>
 <p><a href="https://sentinelguard.io/zh-cn/docs/golang/circuit-breaking.html">sentinel 官方文档</a></p>
 
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/">https://maratrix.cn/post/2021/01/20/sentinel-circuit-breaker-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

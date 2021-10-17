@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -195,91 +199,195 @@
             <p>自 PHP 5.3.0 起，PHP 增加了一个叫做后期静态绑定的功能，用于在继承范围内引用静态调用的类。准确说，后期静态绑定工作原理是存储了在上一个“非转发调用”的类名。当进行静态方法调用时，该类名即为明确指定的那个（通常在 :: 运算符左侧部分）；当进行非静态方法调用时，即为该对象所属的类。</p>
 <p>该功能从语言内部角度考虑被命名为“后期静态绑定”。“后期绑定”的意思是说，<code>static::</code> 不再被解析为定义当前方法所在的类，而是在实际运行时计算的。也可以称之为“静态绑定”，因为它可以用于（但不限于）静态方法的调用。</p>
 <p>使用 <code>self:: 或者 __CLASS__</code> 对当前类的静态引用，取决于定义当前方法所在的类：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">A</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">who</span> () {<span style="color:#000;font-weight:bold">echo</span>  <span style="color:#008080">__CLASS__</span> ;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">test</span> () {self <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">who</span> ();}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">B</span>  <span style="color:#000;font-weight:bold">extends</span>  A  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">who</span> () {<span style="color:#000;font-weight:bold">echo</span>  <span style="color:#008080">__CLASS__</span> ;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span> B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">test</span> ();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span> <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#a61717;background-color:#e3d2d2">以上例程会输出： A
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#a61717;background-color:#e3d2d2">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#a61717;background-color:#e3d2d2">后期静态绑定
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#a61717;background-color:#e3d2d2">
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#a61717;background-color:#e3d2d2">&lt;?php
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#a61717;background-color:#e3d2d2"> class  A  {
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  who () {echo  __CLASS__ ;}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  test () {
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#a61717;background-color:#e3d2d2">        static:: who ();  // 后期静态绑定从这里开始
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#a61717;background-color:#e3d2d2">     }
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#a61717;background-color:#e3d2d2">}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span><span style="color:#a61717;background-color:#e3d2d2">class  B  extends  A  {
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  who () {echo  __CLASS__ ;}
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span><span style="color:#a61717;background-color:#e3d2d2">｝
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span><span style="color:#a61717;background-color:#e3d2d2"> B :: test ();
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span><span style="color:#a61717;background-color:#e3d2d2"> ?&gt; 
-</span></code></pre></div><p>该例会输出： B</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php
+ <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">A</span>  {
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">who</span> () {<span style="color:#000;font-weight:bold">echo</span>  <span style="color:#008080">__CLASS__</span> ;}
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">test</span> () {self <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">who</span> ();}
+}
+<span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">B</span>  <span style="color:#000;font-weight:bold">extends</span>  A  {
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">static</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">who</span> () {<span style="color:#000;font-weight:bold">echo</span>  <span style="color:#008080">__CLASS__</span> ;}
+}
+ B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">test</span> ();
+ <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
+</span><span style="color:#a61717;background-color:#e3d2d2">以上例程会输出： A
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">后期静态绑定
+</span><span style="color:#a61717;background-color:#e3d2d2">
+</span><span style="color:#a61717;background-color:#e3d2d2">&lt;?php
+</span><span style="color:#a61717;background-color:#e3d2d2"> class  A  {
+</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  who () {echo  __CLASS__ ;}
+</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  test () {
+</span><span style="color:#a61717;background-color:#e3d2d2">        static:: who ();  // 后期静态绑定从这里开始
+</span><span style="color:#a61717;background-color:#e3d2d2">     }
+</span><span style="color:#a61717;background-color:#e3d2d2">}
+</span><span style="color:#a61717;background-color:#e3d2d2">class  B  extends  A  {
+</span><span style="color:#a61717;background-color:#e3d2d2">    public static function  who () {echo  __CLASS__ ;}
+</span><span style="color:#a61717;background-color:#e3d2d2">｝
+</span><span style="color:#a61717;background-color:#e3d2d2"> B :: test ();
+</span><span style="color:#a61717;background-color:#e3d2d2"> ?&gt; 
+</span></code></pre></td></tr></table>
+</div>
+</div><p>该例会输出： B</p>
 <p>我们都知道静态方法还可以用作工厂方法，下面给大家看一个代码实例：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">//父类的一些方法...  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>} 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>       <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> One();  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>   }  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>}  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>      <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> Two();  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    }  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">//......   
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>()); 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
-</span></code></pre></div><p>在上面的父类Parent当中包含了很多的功能可被扩展类所调用，但是，他的两个派生类在创建自己的对象时使用了大量的重复代码，这是我们所不能忍受的，因为大量的重复代码很烦人也说明了你不是一个合格的coder。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php  
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
+    <span style="color:#998;font-style:italic">//父类的一些方法...  
+</span><span style="color:#998;font-style:italic"></span>} 
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {  
+       <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
+        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> One();  
+   }  
+}  
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {  
+      <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
+        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> Two();  
+    }  
+}  
+<span style="color:#998;font-style:italic">//......   
+</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
+print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>()); 
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
+</span></code></pre></td></tr></table>
+</div>
+</div><p>在上面的父类Parent当中包含了很多的功能可被扩展类所调用，但是，他的两个派生类在创建自己的对象时使用了大量的重复代码，这是我们所不能忍受的，因为大量的重复代码很烦人也说明了你不是一个合格的coder。</p>
 <p>笔者一直都坚信：简单的就是最好的。那么我们能不能把_create（）方法放在父类当中被公共使用呢？
 来看下面的实例：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php   
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">//父类的一些方法...  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> self();  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    }  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}     
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic">//......  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>()); 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
-</span></code></pre></div><p>这样仿佛我们就解决问题了，但是，由结果我们可以看出，并不是我们想要的One和Two类的实例对象，而是父类的实例，怎么回事呢？</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php   
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
+    <span style="color:#998;font-style:italic">//父类的一些方法...  
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
+        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> self();  
+    }  
+}     
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
+<span style="color:#998;font-style:italic">//......  
+</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
+print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>()); 
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
+</span></code></pre></td></tr></table>
+</div>
+</div><p>这样仿佛我们就解决问题了，但是，由结果我们可以看出，并不是我们想要的One和Two类的实例对象，而是父类的实例，怎么回事呢？</p>
 <p>因为self指的不是调用上下文，而是解析上下文。因此，self被解析为定义_create()方法的Parent类。而不是解析为调用_create方法的One和Two类的实例对象。</p>
 <p>但是，在PHP中引入了延迟静态绑定机制，其实就是使用static关键字。而static类似于self和parent，但他指的是被调用的类不是包含类。</p>
 <p>下面，我们来使用static进行改进:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php    
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#998;font-style:italic">//父类的一些方法
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>         <span style="color:#998;font-style:italic">//这里使用static延迟静态绑定关键字static  
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> <span style="color:#000;font-weight:bold">static</span>();   
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    }  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>}      
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}   
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic">//......   
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
-</span></code></pre></div><p>由打印结果可以看出，确实生成了One和Two类的实例化对象，是不是省去了很多的重复代码，static确实很好用. :)</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php    
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Parent</span> {  
+    <span style="color:#998;font-style:italic">//父类的一些方法
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">_create</span> () {  
+         <span style="color:#998;font-style:italic">//这里使用static延迟静态绑定关键字static  
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">new</span> <span style="color:#000;font-weight:bold">static</span>();   
+    }  
+}      
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">One</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}  
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Two</span> <span style="color:#000;font-weight:bold">extends</span> <span style="color:#000;font-weight:bold">Parent</span> {}   
+<span style="color:#998;font-style:italic">//......   
+</span><span style="color:#998;font-style:italic"></span>print_r(One<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
+print_r(Two<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">_create</span>());  
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
+</span></code></pre></td></tr></table>
+</div>
+</div><p>由打印结果可以看出，确实生成了One和Two类的实例化对象，是不是省去了很多的重复代码，static确实很好用. :)</p>
 
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/05/11/php-static-bind/">https://maratrix.cn/post/2014/05/11/php-static-bind/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

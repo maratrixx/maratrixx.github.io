@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -168,7 +172,7 @@
         </div>
         
         <div class="post-content">
-            撤销修改 现在，我们查看下one.txt文件： 1$ cat one.txt 2git is the best 3I love git 4error content 假如，当我们没提交前，又想撤销这次的修改，那该怎么办呢？这时我们可以直接手动删除修改的内容，恢复到原来的版本。此时，我们可以使用gi……
+            撤销修改 现在，我们查看下one.txt文件： 1 2 3 4 $ cat one.txt git is the best I love git error content 假如，当我们没提交前，又想撤销这次的修改，那该怎么办呢？这时我们可以直接手动删除修改的内容，恢复到原来的版本。此时，我们可以……
             <p class="readmore"><a href="https://maratrix.cn/post/2014/06/24/git-version-manage/">阅读全文</a></p>
         </div>
     </article>
@@ -191,7 +195,7 @@
         </div>
         
         <div class="post-content">
-            首先，我们要知道在Git中任何的操作都是一个修改，那删除文件肯定也是一个修改操作了，在工作区删除一个文件可以使用rm -f file的命令来操作： 1$ rm -f one.txt 此时，Git已经知道你删除了文件，这时候的工作区和版……
+            首先，我们要知道在Git中任何的操作都是一个修改，那删除文件肯定也是一个修改操作了，在工作区删除一个文件可以使用rm -f file的命令来操作： 1 $ rm -f one.txt 此时，Git已经知道你删除了文件，这时候的工作区和……
             <p class="readmore"><a href="https://maratrix.cn/post/2014/06/23/git-del/">阅读全文</a></p>
         </div>
     </article>
@@ -237,7 +241,7 @@
         </div>
         
         <div class="post-content">
-            现在，我们重新修改下文件并添加和提交到版本库： 1$ echo &#39;再次添加新内容&#39; &gt;&gt; readme.md 2$ git add ./readme.md 3$ git commit -m &#39;更新内容&#39; 像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就像我们……
+            现在，我们重新修改下文件并添加和提交到版本库： 1 2 3 $ echo &#39;再次添加新内容&#39; &gt;&gt; readme.md $ git add ./readme.md $ git commit -m &#39;更新内容&#39; 像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就……
             <p class="readmore"><a href="https://maratrix.cn/post/2014/06/21/git-version-reset/">阅读全文</a></p>
         </div>
     </article>

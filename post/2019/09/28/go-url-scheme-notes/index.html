@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -202,65 +206,140 @@
             <h2 id="遇到的问题">遇到的问题</h2>
 <p>最近在阅读<code>echo</code>框架的源码，发现<code>context.go</code>文件在读取请求的<code>scheme</code>时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？</p>
 <p>于是写了段代码来验证：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>	http.<span style="color:#900;font-weight:bold">HandleFunc</span>(<span style="color:#d14">&#34;/foo&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>		fmt.<span style="color:#900;font-weight:bold">Fprintln</span>(w, <span style="color:#d14">&#34;Scheme:&#34;</span>, r.URL.Scheme)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>	})
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>	log.<span style="color:#900;font-weight:bold">Fatal</span>(http.<span style="color:#900;font-weight:bold">ListenAndServe</span>(<span style="color:#d14">&#34;:9000&#34;</span>, <span style="color:#000;font-weight:bold">nil</span>))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>}
-</code></pre></div><p>当我们请求<code>http://127.0.0.1:9000/foo</code>时期待的输出是：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Scheme: http
-</code></pre></div><p>然而，真实的输出却是这样的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>Scheme:
-</code></pre></div><p>有没有很意外？</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+	http.<span style="color:#900;font-weight:bold">HandleFunc</span>(<span style="color:#d14">&#34;/foo&#34;</span>, <span style="color:#000;font-weight:bold">func</span>(w http.ResponseWriter, r <span style="color:#000;font-weight:bold">*</span>http.Request) {
+		fmt.<span style="color:#900;font-weight:bold">Fprintln</span>(w, <span style="color:#d14">&#34;Scheme:&#34;</span>, r.URL.Scheme)
+	})
+	log.<span style="color:#900;font-weight:bold">Fatal</span>(http.<span style="color:#900;font-weight:bold">ListenAndServe</span>(<span style="color:#d14">&#34;:9000&#34;</span>, <span style="color:#000;font-weight:bold">nil</span>))
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>当我们请求<code>http://127.0.0.1:9000/foo</code>时期待的输出是：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">Scheme: http
+</code></pre></td></tr></table>
+</div>
+</div><p>然而，真实的输出却是这样的：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">Scheme:
+</code></pre></td></tr></table>
+</div>
+</div><p>有没有很意外？</p>
 <h2 id="什么原因">什么原因</h2>
 <p>那是什么原因导致的呢？</p>
 <p>其实标准库文档有提到，只是大家一般不会注意到（比如像我），只有踩到这个“坑”了才会去研究下。</p>
 <p>查看标准库<code>http.Request</code>注释：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> Request <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">//***
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>	<span style="color:#998;font-style:italic">// URL specifies either the URI being requested (for server
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// requests) or the URL to access (for client requests).
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// For server requests, the URL is parsed from the URI
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// supplied on the Request-Line as stored in RequestURI.  For
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// most requests, fields other than Path and RawQuery will be
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// empty. (See RFC 7230, Section 5.3)
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// For client requests, the URL&#39;s Host specifies the server to
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// connect to, while the Request&#39;s Host field optionally
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// specifies the Host header value to send in the HTTP
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// request.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span>	URL <span style="color:#000;font-weight:bold">*</span>url.URL
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>	<span style="color:#998;font-style:italic">//***
-</span></code></pre></div><p>注意看第二段注释，简单解释下就是，对于服务端收到的请求，<code>http.Request</code>只会解析请求行到<code>url.URL</code>，也就是说<code>url.Path</code>和<code>url.RawQuery</code>之外的字段都是空的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Request <span style="color:#000;font-weight:bold">struct</span> {
+	<span style="color:#998;font-style:italic">//***
+</span><span style="color:#998;font-style:italic"></span>
+	<span style="color:#998;font-style:italic">// URL specifies either the URI being requested (for server
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// requests) or the URL to access (for client requests).
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// For server requests, the URL is parsed from the URI
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// supplied on the Request-Line as stored in RequestURI.  For
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// most requests, fields other than Path and RawQuery will be
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// empty. (See RFC 7230, Section 5.3)
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// For client requests, the URL&#39;s Host specifies the server to
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// connect to, while the Request&#39;s Host field optionally
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// specifies the Host header value to send in the HTTP
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// request.
+</span><span style="color:#998;font-style:italic"></span>	URL <span style="color:#000;font-weight:bold">*</span>url.URL
+	<span style="color:#998;font-style:italic">//***
+</span></code></pre></td></tr></table>
+</div>
+</div><p>注意看第二段注释，简单解释下就是，对于服务端收到的请求，<code>http.Request</code>只会解析请求行到<code>url.URL</code>，也就是说<code>url.Path</code>和<code>url.RawQuery</code>之外的字段都是空的。</p>
 <p>另外，在google groups也有讨论：</p>
 <p><a href="https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0">http.req.URI.Scheme inside is empty?</a></p>
 <h2 id="如何解决">如何解决</h2>
 <p>比较推荐的做法是判断<code>request.TLS</code>是否为<code> nil</code>，不为空即为<code>https</code>，为空即为<code>http</code>。</p>
 <p>或者，可以参考<code>echo</code>框架的实现来处理：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>context) <span style="color:#900;font-weight:bold">Scheme</span>() <span style="color:#458;font-weight:bold">string</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>	<span style="color:#998;font-style:italic">// Can&#39;t use `r.Request.URL.Scheme`
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// See: https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> c.<span style="color:#900;font-weight:bold">IsTLS</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;https&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Proto&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>		<span style="color:#000;font-weight:bold">return</span> scheme
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Protocol&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>		<span style="color:#000;font-weight:bold">return</span> scheme
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>	<span style="color:#000;font-weight:bold">if</span> ssl <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Ssl&#34;</span>); ssl <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;on&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;https&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Url-Scheme&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>		<span style="color:#000;font-weight:bold">return</span> scheme
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;http&#34;</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>}
-</code></pre></div><p>在github issues上也有讨论，地址在这里：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>context) <span style="color:#900;font-weight:bold">Scheme</span>() <span style="color:#458;font-weight:bold">string</span> {
+	<span style="color:#998;font-style:italic">// Can&#39;t use `r.Request.URL.Scheme`
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#998;font-style:italic">// See: https://groups.google.com/forum/#!topic/golang-nuts/pMUkBlQBDF0
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> c.<span style="color:#900;font-weight:bold">IsTLS</span>() {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;https&#34;</span>
+	}
+	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Proto&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
+		<span style="color:#000;font-weight:bold">return</span> scheme
+	}
+	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Protocol&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
+		<span style="color:#000;font-weight:bold">return</span> scheme
+	}
+	<span style="color:#000;font-weight:bold">if</span> ssl <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Forwarded-Ssl&#34;</span>); ssl <span style="color:#000;font-weight:bold">==</span> <span style="color:#d14">&#34;on&#34;</span> {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;https&#34;</span>
+	}
+	<span style="color:#000;font-weight:bold">if</span> scheme <span style="color:#000;font-weight:bold">:=</span> c.request.Header.<span style="color:#900;font-weight:bold">Get</span>(<span style="color:#d14">&#34;X-Url-Scheme&#34;</span>); scheme <span style="color:#000;font-weight:bold">!=</span> <span style="color:#d14">&#34;&#34;</span> {
+		<span style="color:#000;font-weight:bold">return</span> scheme
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;http&#34;</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>在github issues上也有讨论，地址在这里：</p>
 <p><a href="https://github.com/golang/go/issues/28940">net/http: Request.URL.Scheme returns an empty string. No alternative way present to get request url scheme.</a></p>
 <h2 id="小结">小结</h2>
 <p>作为服务端接受的请求，获取<code>Scheme</code>需要特殊处理下；</p>
@@ -269,6 +348,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

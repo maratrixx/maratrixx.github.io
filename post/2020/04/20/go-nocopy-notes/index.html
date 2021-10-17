@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -209,67 +213,147 @@
 <p>主要有以下两种方式：</p>
 <h3 id="方式一手动检查">方式一：手动检查</h3>
 <p>这种需要我们在运行时通过 copyCheck 方法来检查是否发生了拷贝操作，我们看下 strings.Builder 的实现方式：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#998;font-style:italic">// 结构体
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Builder <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>	addr <span style="color:#000;font-weight:bold">*</span>Builder   <span style="color:#998;font-style:italic">// addr 保存了 Builder 对象的地址
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span><span style="color:#998;font-style:italic"></span>	buf  []<span style="color:#458;font-weight:bold">byte</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">copyCheck</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>	<span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {      <span style="color:#998;font-style:italic">// 首次调用 copyCheck 方法时保存自身地址
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>		b.addr = (<span style="color:#000;font-weight:bold">*</span>Builder)(<span style="color:#900;font-weight:bold">noescape</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(b)))
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">!=</span> b { <span style="color:#998;font-style:italic">// 非首次调用 copyCheck 方法时比较当前对象的地址是否与 addr 相等，不相等则发生 panic
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#998;font-style:italic"></span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;strings: illegal use of non-zero Builder copied by value&#34;</span>)
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#998;font-style:italic">//执行写方法时，调用 copyCheck 进行拷贝检查
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Write</span>(p []<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    b.<span style="color:#900;font-weight:bold">copyCheck</span>() 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>    <span style="color:#998;font-style:italic">// ...
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>需要注意的是，strings.Builder 只有在每次执行写方法时才会调用 copyCheck 进行拷贝检查，所以在调用任何写入方法之前是可以进行拷贝的，此时还未进行检查。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 结构体
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Builder <span style="color:#000;font-weight:bold">struct</span> {
+	addr <span style="color:#000;font-weight:bold">*</span>Builder   <span style="color:#998;font-style:italic">// addr 保存了 Builder 对象的地址
+</span><span style="color:#998;font-style:italic"></span>	buf  []<span style="color:#458;font-weight:bold">byte</span>
+}
+
+<span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">copyCheck</span>() {
+	<span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">==</span> <span style="color:#000;font-weight:bold">nil</span> {      <span style="color:#998;font-style:italic">// 首次调用 copyCheck 方法时保存自身地址
+</span><span style="color:#998;font-style:italic"></span>		b.addr = (<span style="color:#000;font-weight:bold">*</span>Builder)(<span style="color:#900;font-weight:bold">noescape</span>(unsafe.<span style="color:#900;font-weight:bold">Pointer</span>(b)))
+	} <span style="color:#000;font-weight:bold">else</span> <span style="color:#000;font-weight:bold">if</span> b.addr <span style="color:#000;font-weight:bold">!=</span> b { <span style="color:#998;font-style:italic">// 非首次调用 copyCheck 方法时比较当前对象的地址是否与 addr 相等，不相等则发生 panic
+</span><span style="color:#998;font-style:italic"></span>		<span style="color:#0086b3">panic</span>(<span style="color:#d14">&#34;strings: illegal use of non-zero Builder copied by value&#34;</span>)
+	}
+}
+
+<span style="color:#998;font-style:italic">//执行写方法时，调用 copyCheck 进行拷贝检查
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (b <span style="color:#000;font-weight:bold">*</span>Builder) <span style="color:#900;font-weight:bold">Write</span>(p []<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>) {
+    b.<span style="color:#900;font-weight:bold">copyCheck</span>() 
+    <span style="color:#998;font-style:italic">// ...
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>需要注意的是，strings.Builder 只有在每次执行写方法时才会调用 copyCheck 进行拷贝检查，所以在调用任何写入方法之前是可以进行拷贝的，此时还未进行检查。</p>
 <p>关于 <a href="http://maratrix.cn/post/2020/04/14/strings-builder-source-note/">strings.Builder的源码分析</a>，可以点击链接查看。</p>
 <h3 id="方式二nocopy">方式二：noCopy</h3>
 <p>noCopy 是 go1.7 开始引入的一个静态检查机制，它不仅仅工作在运行时或标准库，同时也对用户代码有效。</p>
 <p>我们看下标准库 sync.Pool 是如何使用 noCopy 实现禁止拷贝操作的：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">type</span> Pool <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>    noCopy noCopy
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#998;font-style:italic">//忽略其他字段
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic"></span>}
-</code></pre></div><p>因为 Pool 不希望被复制，所以结构体里有一个 noCopy 的字段，使用 go vet 工具可以检测到用户代码是否复制了 Pool。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Pool <span style="color:#000;font-weight:bold">struct</span> {
+    noCopy noCopy
+    <span style="color:#998;font-style:italic">//忽略其他字段
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>因为 Pool 不希望被复制，所以结构体里有一个 noCopy 的字段，使用 go vet 工具可以检测到用户代码是否复制了 Pool。</p>
 <p>noCopy 是如何实现的呢？</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#998;font-style:italic">// noCopy 用于嵌入一个结构体中来保证其第一次使用后不会被复制
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#998;font-style:italic">//
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span><span style="color:#998;font-style:italic">// See https://golang.org/issues/8005#issuecomment-190753527
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span><span style="color:#998;font-style:italic">// for details.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> noCopy <span style="color:#000;font-weight:bold">struct</span>{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span><span style="color:#998;font-style:italic">// Lock is a no-op used by -copylocks checker from `go vet`.
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Lock</span>()   {}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Unlock</span>() {}
-</code></pre></div><p>实现非常简单，用户只需实现这样的不消耗内存、仅用于静态分析的结构，来保证一个对象在第一次使用后不会发生复制。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// noCopy 用于嵌入一个结构体中来保证其第一次使用后不会被复制
+</span><span style="color:#998;font-style:italic">//
+</span><span style="color:#998;font-style:italic">// See https://golang.org/issues/8005#issuecomment-190753527
+</span><span style="color:#998;font-style:italic">// for details.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> noCopy <span style="color:#000;font-weight:bold">struct</span>{}
+
+<span style="color:#998;font-style:italic">// Lock is a no-op used by -copylocks checker from `go vet`.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Lock</span>()   {}
+<span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Unlock</span>() {}
+</code></pre></td></tr></table>
+</div>
+</div><p>实现非常简单，用户只需实现这样的不消耗内存、仅用于静态分析的结构，来保证一个对象在第一次使用后不会发生复制。</p>
 <p>我们做个测试看下效果：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">type</span> noCopy <span style="color:#000;font-weight:bold">struct</span>{}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Lock</span>()   {}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Unlock</span>() {}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#000;font-weight:bold">type</span> User <span style="color:#000;font-weight:bold">struct</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>	noCopy
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>	Name <span style="color:#458;font-weight:bold">string</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>	u <span style="color:#000;font-weight:bold">:=</span> User{Name: <span style="color:#d14">&#34;maratrix&#34;</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>	fmt.<span style="color:#900;font-weight:bold">Println</span>(u) <span style="color:#998;font-style:italic">//这里发生了拷贝
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span><span style="color:#a61717;background-color:#e3d2d2">$</span> <span style="color:#000;font-weight:bold">go</span> vet main.<span style="color:#000;font-weight:bold">go</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#a61717;background-color:#e3d2d2">$</span> .<span style="color:#000;font-weight:bold">/</span>main.<span style="color:#000;font-weight:bold">go</span>:<span style="color:#099">17</span>:<span style="color:#099">14</span>: call of fmt.Println copies lock value: command<span style="color:#000;font-weight:bold">-</span>line<span style="color:#000;font-weight:bold">-</span>arguments.User
-</code></pre></div><p>可以看出，使用 go vet 检查时会发生错误。 那能否可以正常编译运行呢？我们试一下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#a61717;background-color:#e3d2d2">$</span> <span style="color:#000;font-weight:bold">go</span> run main.<span style="color:#000;font-weight:bold">go</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#a61717;background-color:#e3d2d2">$</span> {{} maratrix}
-</code></pre></div><p>编译正常。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> noCopy <span style="color:#000;font-weight:bold">struct</span>{}
+<span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Lock</span>()   {}
+<span style="color:#000;font-weight:bold">func</span> (<span style="color:#000;font-weight:bold">*</span>noCopy) <span style="color:#900;font-weight:bold">Unlock</span>() {}
+
+<span style="color:#000;font-weight:bold">type</span> User <span style="color:#000;font-weight:bold">struct</span> {
+	noCopy
+	Name <span style="color:#458;font-weight:bold">string</span>
+}
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+	u <span style="color:#000;font-weight:bold">:=</span> User{Name: <span style="color:#d14">&#34;maratrix&#34;</span>}
+	fmt.<span style="color:#900;font-weight:bold">Println</span>(u) <span style="color:#998;font-style:italic">//这里发生了拷贝
+</span><span style="color:#998;font-style:italic"></span>}
+
+<span style="color:#a61717;background-color:#e3d2d2">$</span> <span style="color:#000;font-weight:bold">go</span> vet main.<span style="color:#000;font-weight:bold">go</span>
+<span style="color:#a61717;background-color:#e3d2d2">$</span> .<span style="color:#000;font-weight:bold">/</span>main.<span style="color:#000;font-weight:bold">go</span>:<span style="color:#099">17</span>:<span style="color:#099">14</span>: call of fmt.Println copies lock value: command<span style="color:#000;font-weight:bold">-</span>line<span style="color:#000;font-weight:bold">-</span>arguments.User
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看出，使用 go vet 检查时会发生错误。 那能否可以正常编译运行呢？我们试一下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#a61717;background-color:#e3d2d2">$</span> <span style="color:#000;font-weight:bold">go</span> run main.<span style="color:#000;font-weight:bold">go</span>
+<span style="color:#a61717;background-color:#e3d2d2">$</span> {{} maratrix}
+</code></pre></td></tr></table>
+</div>
+</div><p>编译正常。</p>
 <p>所以这里要注意：<strong>noCopy 只有在使用 go vet 检查才会报错，但仍可以正常编译运行。</strong></p>
 <h3 id="小结">小结</h3>
 <p>主要对笔者最近阅读 Go 源码时遇到的两种禁止对象拷贝的实现方式做个记录总结：</p>
@@ -286,6 +370,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">https://maratrix.cn/post/2020/04/20/go-nocopy-notes/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

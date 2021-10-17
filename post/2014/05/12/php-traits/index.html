@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -214,186 +218,405 @@
 <p>这是可以做到的，比如使用多重继承就可以实现。多重继承一个类会同时继承多个父类，组合两个父类的功能。但是多重继承过于灵活，可能会带来“菱形问题”,使模型变的复杂起来，因次大多数语言，都放弃了多重继承这一模型。</p>
 <p>PHP5.4.0引入了新的语法结构Traits，实现了代码复用的方法。Traits 是一种为类似 PHP 的单继承语言而准备的代码复用机制，为了减少单继承语言的限制，使开发人员能够自由地在不同层次结构内独立的类中复用方法集，是出extends、implements外的另外一种扩展对象的方式。</p>
 <p>下面总结下Traits的用法，先看下实例代码：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">trait</span> traitName {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">func_one</span> () {<span style="color:#998;font-style:italic">/*code*/</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">func_two</span> () {<span style="color:#998;font-style:italic">/*code*/</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">class_one</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">use</span> traitName;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#998;font-style:italic">/*code*/</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">class_two</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>    <span style="color:#000;font-weight:bold">use</span> traitName;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#998;font-style:italic">/*code*/</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
-</span></code></pre></div><h3 id="优先级">优先级</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> traitName {
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">func_one</span> () {<span style="color:#998;font-style:italic">/*code*/</span>}
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">func_two</span> () {<span style="color:#998;font-style:italic">/*code*/</span>}
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">class_one</span> {
+    <span style="color:#000;font-weight:bold">use</span> traitName;
+    <span style="color:#998;font-style:italic">/*code*/</span>
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">class_two</span> {
+    <span style="color:#000;font-weight:bold">use</span> traitName;
+    <span style="color:#998;font-style:italic">/*code*/</span>
+}
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="优先级">优先级</h3>
 <p>优先顺序是来自当前类的成员覆盖了trait的方法，而trait则覆盖了被继承的方法。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Base</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span><span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;Hello &#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#000;font-weight:bold">trait</span>  SayWorld  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#000;font-weight:bold">parent</span> <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">sayHello</span> ();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;World!&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyHelloWorld</span>  <span style="color:#000;font-weight:bold">extends</span>  Base  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    <span style="color:#000;font-weight:bold">use</span>  SayWorld ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span> <span style="color:#008080">$o</span>  <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span>  MyHelloWorld ();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span> <span style="color:#008080">$o</span> <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#008080">sayHello</span> ();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span> <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
-</span></code></pre></div><p>输出：Hello World！</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php
+ <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Base</span>  {
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
+    <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;Hello &#39;</span> ;
+}
+}
+<span style="color:#000;font-weight:bold">trait</span>  SayWorld  {
+<span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
+    <span style="color:#000;font-weight:bold">parent</span> <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">sayHello</span> ();
+    <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;World!&#39;</span> ;
+}
+}
+<span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyHelloWorld</span>  <span style="color:#000;font-weight:bold">extends</span>  Base  {
+    <span style="color:#000;font-weight:bold">use</span>  SayWorld ;
+}
+ <span style="color:#008080">$o</span>  <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span>  MyHelloWorld ();
+ <span style="color:#008080">$o</span> <span style="color:#000;font-weight:bold">-&gt;</span> <span style="color:#008080">sayHello</span> ();
+ <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">  
+</span></code></pre></td></tr></table>
+</div>
+</div><p>输出：Hello World！</p>
 <h3 id="多个trait">多个trait</h3>
 <p>通过逗号分隔，在 use 声明列出多个 trait，可以都插入到一个类中。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">trait</span> Hello {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayHello</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span><span style="color:#000;font-weight:bold">trait</span> World {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayWorld</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">use</span> Hello, World;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Say();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayWorld</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><p>输出：HelloWorld</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> Hello {
+    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayHello</span> () {
+        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;
+    }
+}
+<span style="color:#000;font-weight:bold">trait</span> World {
+    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayWorld</span> () {
+        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World&#39;</span>;
+    }
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
+    <span style="color:#000;font-weight:bold">use</span> Hello, World;
+
+}
+<span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Say();
+<span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();
+<span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayWorld</span>();
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><p>输出：HelloWorld</p>
 <h3 id="冲突的解决">冲突的解决</h3>
 <p>如果两个 trait 都插入了一个同名的方法，如果没有明确解决冲突将会产生一个致命错误。为了解决多个 trait 在同一个类中的命名冲突，需要使用 insteadof（而不是的意思，可以这么理解） 操作符来明确指定使用冲突方法中的哪一个。以上方式仅允许排除掉其它方法，as 操作符可以将其中一个冲突的方法以另一个名称来引入。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span> <span style="color:#000;font-weight:bold">trait</span>  A  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">smallTalk</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;a&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">bigTalk</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;A&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span><span style="color:#000;font-weight:bold">trait</span>  B  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">smallTalk</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;b&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">bigTalk</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;B&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Talker</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span>    <span style="color:#000;font-weight:bold">use</span>  A ,  B  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22</span>         B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">smallTalk</span>  insteadof  A ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23</span>         A <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  insteadof  B ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27</span><span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Aliased_Talker</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28</span>    <span style="color:#000;font-weight:bold">use</span>  A ,  B  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29</span>          B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">smallTalk</span>  insteadof  A ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30</span>          A <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  insteadof  B ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31</span>         B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  <span style="color:#000;font-weight:bold">as</span>  talk ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34</span> <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
-</span></code></pre></div><h3 id="修改方法的访问控制">修改方法的访问控制</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php
+ <span style="color:#000;font-weight:bold">trait</span>  A  {
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">smallTalk</span> () {
+        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;a&#39;</span> ;
+    }
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">bigTalk</span> () {
+        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;A&#39;</span> ;
+    }
+}
+
+<span style="color:#000;font-weight:bold">trait</span>  B  {
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">smallTalk</span> () {
+        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;b&#39;</span> ;
+    }
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">bigTalk</span> () {
+        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;B&#39;</span> ;
+    }
+}
+
+<span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Talker</span>  {
+    <span style="color:#000;font-weight:bold">use</span>  A ,  B  {
+         B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">smallTalk</span>  insteadof  A ;
+         A <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  insteadof  B ;
+    }
+}
+
+<span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">Aliased_Talker</span>  {
+    <span style="color:#000;font-weight:bold">use</span>  A ,  B  {
+          B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">smallTalk</span>  insteadof  A ;
+          A <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  insteadof  B ;
+         B <span style="color:#000;font-weight:bold">::</span> <span style="color:#008080">bigTalk</span>  <span style="color:#000;font-weight:bold">as</span>  talk ;
+    }
+}
+ <span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2"> 
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="修改方法的访问控制">修改方法的访问控制</h3>
 <p>使用 as 语法还可以用来调整方法的访问控制。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span> <span style="color:#000;font-weight:bold">trait</span>  HelloWorld  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;Hello World!&#39;</span> ;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span> <span style="color:#998;font-style:italic">// 修改 sayHello 的访问控制
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#998;font-style:italic"></span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyClass1</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#000;font-weight:bold">use</span>  HelloWorld  {  sayHello  <span style="color:#000;font-weight:bold">as</span> <span style="color:#000;font-weight:bold">protected</span>; }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span> <span style="color:#998;font-style:italic">// 给方法一个改变了访问控制的别名
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#998;font-style:italic">// 原版 sayHello 的访问控制则没有发生变化
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span><span style="color:#998;font-style:italic"></span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyClass2</span>  {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>    <span style="color:#000;font-weight:bold">use</span>  HelloWorld  {  sayHello  <span style="color:#000;font-weight:bold">as</span> <span style="color:#000;font-weight:bold">private</span>  myPrivateHello ; }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> MyClass1();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();        <span style="color:#998;font-style:italic">//输出错误
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#998;font-style:italic"></span><span style="color:#008080">$b</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> MyClass2();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();        <span style="color:#998;font-style:italic">//输出Hello World!
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span><span style="color:#998;font-style:italic"></span><span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">myPrivateHello</span>();        <span style="color:#998;font-style:italic">//输出出错
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><h3 id="从-trait-来组成-trait">从 trait 来组成 trait</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+ <span style="color:#000;font-weight:bold">trait</span>  HelloWorld  {
+    <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span>  <span style="color:#900;font-weight:bold">sayHello</span> () {
+        <span style="color:#000;font-weight:bold">echo</span>  <span style="color:#d14">&#39;Hello World!&#39;</span> ;
+    }
+}
+ <span style="color:#998;font-style:italic">// 修改 sayHello 的访问控制
+</span><span style="color:#998;font-style:italic"></span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyClass1</span>  {
+    <span style="color:#000;font-weight:bold">use</span>  HelloWorld  {  sayHello  <span style="color:#000;font-weight:bold">as</span> <span style="color:#000;font-weight:bold">protected</span>; }
+}
+ <span style="color:#998;font-style:italic">// 给方法一个改变了访问控制的别名
+</span><span style="color:#998;font-style:italic">// 原版 sayHello 的访问控制则没有发生变化
+</span><span style="color:#998;font-style:italic"></span> <span style="color:#000;font-weight:bold">class</span>  <span style="color:#458;font-weight:bold">MyClass2</span>  {
+    <span style="color:#000;font-weight:bold">use</span>  HelloWorld  {  sayHello  <span style="color:#000;font-weight:bold">as</span> <span style="color:#000;font-weight:bold">private</span>  myPrivateHello ; }
+}
+<span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> MyClass1();
+<span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();        <span style="color:#998;font-style:italic">//输出错误
+</span><span style="color:#998;font-style:italic"></span><span style="color:#008080">$b</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> MyClass2();
+<span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();        <span style="color:#998;font-style:italic">//输出Hello World!
+</span><span style="color:#998;font-style:italic"></span><span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">myPrivateHello</span>();        <span style="color:#998;font-style:italic">//输出出错
+</span><span style="color:#998;font-style:italic"></span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="从-trait-来组成-trait">从 trait 来组成 trait</h3>
 <p>正如类能够使用 trait 一样，其它 trait 也能够使用 trait。在 trait 定义时通过使用一个或多个 trait，它能够组合其它 trait 中的部分或全部成员。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">trait</span> Hello {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayHello</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#000;font-weight:bold">trait</span> World {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayWorld</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World&#39;</span>;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#000;font-weight:bold">trait</span> HelloWorld {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>    <span style="color:#000;font-weight:bold">use</span> Hello, World;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span><span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Say();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span><span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span><span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayWorld</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><h3 id="trait-的抽象成员">Trait 的抽象成员</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> Hello {
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayHello</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;}
+}
+<span style="color:#000;font-weight:bold">trait</span> World {
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">sayWorld</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World&#39;</span>;}
+}
+<span style="color:#000;font-weight:bold">trait</span> HelloWorld {
+    <span style="color:#000;font-weight:bold">use</span> Hello, World;
+}
+
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
+    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
+}
+
+<span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> Say();
+<span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayHello</span>();
+<span style="color:#008080">$a</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">sayWorld</span>();
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="trait-的抽象成员">Trait 的抽象成员</h3>
 <p>为了对使用的类施加强制要求，trait 支持抽象方法的使用。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">trait</span> HelloWorld {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">hello</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>    <span style="color:#000;font-weight:bold">abstract</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">world</span> ();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">world</span> () {        <span style="color:#998;font-style:italic">//实现抽象方法
-</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World!&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>    }
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><h3 id="trait-的静态成员">Trait 的静态成员</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> HelloWorld {
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">hello</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello&#39;</span>;}
+    <span style="color:#000;font-weight:bold">abstract</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">world</span> ();
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
+    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
+    <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">world</span> () {        <span style="color:#998;font-style:italic">//实现抽象方法
+</span><span style="color:#998;font-style:italic"></span>        <span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;World!&#39;</span>;
+    }
+}
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="trait-的静态成员">Trait 的静态成员</h3>
 <p>Trait可以被静态成员静态方法定义。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">trait</span> HelloWorld {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">say</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello,World&#39;</span>;}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8</span>Say<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">say</span>();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><h3 id="属性">属性</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> HelloWorld {
+    <span style="color:#000;font-weight:bold">Static</span> <span style="color:#000;font-weight:bold">public</span> <span style="color:#000;font-weight:bold">function</span> <span style="color:#900;font-weight:bold">say</span> () {<span style="color:#000;font-weight:bold">echo</span> <span style="color:#d14">&#39;Hello,World&#39;</span>;}
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">Say</span> {
+    <span style="color:#000;font-weight:bold">use</span> HelloWorld;
+}
+Say<span style="color:#000;font-weight:bold">::</span><span style="color:#008080">say</span>();
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="属性">属性</h3>
 <p>Trait 同样可以定义属性,如果 trait 定义了一个属性，那类将不能定义同样名称的属性，否则会产生一个错误。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span><span style="color:#000;font-weight:bold">&lt;?</span>php 
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span><span style="color:#000;font-weight:bold">trait</span> A {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;Hello World&#39;</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span><span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">B</span> {
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>    <span style="color:#000;font-weight:bold">use</span> A;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>}
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span><span style="color:#008080">$b</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> B();
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span><span style="color:#000;font-weight:bold">echo</span> <span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">a</span>;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span><span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
-</span></code></pre></div><h3 id="总结">总结：</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-php" data-lang="php"><span style="color:#000;font-weight:bold">&lt;?</span>php 
+<span style="color:#000;font-weight:bold">trait</span> A {
+    <span style="color:#000;font-weight:bold">Public</span> <span style="color:#008080">$a</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#d14">&#39;Hello World&#39;</span>;
+}
+<span style="color:#000;font-weight:bold">Class</span> <span style="color:#458;font-weight:bold">B</span> {
+    <span style="color:#000;font-weight:bold">use</span> A;
+}
+<span style="color:#008080">$b</span> <span style="color:#000;font-weight:bold">=</span> <span style="color:#000;font-weight:bold">new</span> B();
+<span style="color:#000;font-weight:bold">echo</span> <span style="color:#008080">$b</span><span style="color:#000;font-weight:bold">-&gt;</span><span style="color:#008080">a</span>;
+<span style="color:#999;font-weight:bold;font-style:italic">?&gt;</span><span style="color:#a61717;background-color:#e3d2d2">
+</span></code></pre></td></tr></table>
+</div>
+</div><h3 id="总结">总结：</h3>
 <p>在笔者看来，Traits的用法在某些方面是跟类的继承很相似的，学习的时候可以对比着来使用，只是Traits使用起来更加的灵活方便，减少了语言单继承的限制，使得应用类的成员不需要继承。：)</p>
 
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/05/12/php-traits/">https://maratrix.cn/post/2014/05/12/php-traits/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

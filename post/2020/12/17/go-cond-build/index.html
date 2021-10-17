@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -213,13 +217,29 @@
 <p>讨论条件编译之前，我们需要简单讨论下<code>go list</code>命令。<code>go list</code>允许你访问包内部的数据结构从而驱动编译过程（build process）。</p>
 <p>go list的大部分参数和go build、go test、go install相同，但是它不会执行编译。使用-f格式化参数，我们可以填入一段text/template的模板代码，它会在一个包含go/build.Package结构的上下文环境被执行。
 如下例子，可以得到所有将被编译的源码文件名。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>% go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">[</span>exec.go lp_unix.go<span style="color:#000;font-weight:bold">]</span>
-</code></pre></div><p>这个例子查询了在我当前执行环境linux/arm下os/exec包中将会被编译的文件。结果文件有两个：exec.go包含了在所有平台共享的通用代码，lp_unix.go包含了一份在unix-like系统独有的exec.LookPath实现。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">% go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
+<span style="color:#000;font-weight:bold">[</span>exec.go lp_unix.go<span style="color:#000;font-weight:bold">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个例子查询了在我当前执行环境linux/arm下os/exec包中将会被编译的文件。结果文件有两个：exec.go包含了在所有平台共享的通用代码，lp_unix.go包含了一份在unix-like系统独有的exec.LookPath实现。</p>
 <p>如果我在Windows系统执行上面那个命令，结果如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>C:<span style="color:#d14">\g</span>o&gt; go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span><span style="color:#000;font-weight:bold">[</span>exec.go lp_windows.go<span style="color:#000;font-weight:bold">]</span>
-</code></pre></div><p>这个简短的例子演示了Go条件编译系统，被称为构建规则（Build Constraints），接下来将更详细的讨论它。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">C:<span style="color:#d14">\g</span>o&gt; go list -f <span style="color:#d14">&#39;{{.GoFiles}}&#39;</span> os/exec
+<span style="color:#000;font-weight:bold">[</span>exec.go lp_windows.go<span style="color:#000;font-weight:bold">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这个简短的例子演示了Go条件编译系统，被称为构建规则（Build Constraints），接下来将更详细的讨论它。</p>
 <h3 id="构建标签build-tags">构建标签（Build tags）</h3>
 <p>第一种实现条件编译的方法是在源码中插入注释，被称之为构建标签。</p>
 <p>构建标签的注释应该尽可能的接近源码文件的顶部位置。</p>
@@ -230,19 +250,50 @@
 <li>逗号隔开的选项是与（AND）的关系</li>
 <li>每个选项由字母和数字组成。如果前面加上!，则表示反义</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build darwin freebsd netbsd openbsd
-</code></pre></div><p>上面的例子，构建标签出现在某个源码文件的顶部，表示这个源码文件只会在支持kqueue的BSD系统中被编译。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">// +build darwin freebsd netbsd openbsd
+</code></pre></td></tr></table>
+</div>
+</div><p>上面的例子，构建标签出现在某个源码文件的顶部，表示这个源码文件只会在支持kqueue的BSD系统中被编译。</p>
 <p>一个源码文件可以包含多个构建标签。构建规则是每个独立规则的逻辑与关系。如下例子表示该文件将在linux/386或darwin/386平台才会被编译。</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build linux darwin
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>// +build <span style="color:#099">386</span>
-</code></pre></div><h3 id="关于注释的补充说明">关于注释的补充说明</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">// +build linux darwin
+// +build <span style="color:#099">386</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="关于注释的补充说明">关于注释的补充说明</h3>
 <p>第一次使用构建标签时常见的一个错误如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>package mypkg // 错误
-</code></pre></div><p>这个例子中，构建标签和包声明间没有空行。这使得构建标签被当成包声明的描述信息而被忽略。正确的格式如下：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// +build !linux
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>package mypkg // 正确
-</code></pre></div><blockquote>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">// +build !linux
+package mypkg // 错误
+</code></pre></td></tr></table>
+</div>
+</div><p>这个例子中，构建标签和包声明间没有空行。这使得构建标签被当成包声明的描述信息而被忽略。正确的格式如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">// +build !linux
+package mypkg // 正确
+</code></pre></td></tr></table>
+</div>
+</div><blockquote>
 <p>译者yoko注，原文中，这里有段描述说正确的格式执行go vet时，会报如下错误
 +build comment appears too late in file
 我做了简单测试，正确的格式执行go vet并不会报错，相反，错误的格式反而会报如下错误
@@ -250,40 +301,93 @@
 我猜应该是新版本的Go对go vet做了改进，我测试时的环境为go version go1.12.5 darwin/amd64</p>
 </blockquote>
 <p>以下是一个包含了许可证，构建标签，包声明的例子：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>% head headspin.go
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>// Copyright <span style="color:#099">2013</span> Way out enterprises. All rights reserved.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>// Use of this <span style="color:#0086b3">source</span> code is governed by a BSD-style
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>// license that can be found in the LICENSE file.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>// +build someos someotheros thirdos,!amd64
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>// Package headspin implements calculates numbers so large
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>// they will make your head spin.
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>package headspin
-</code></pre></div><h3 id="文件名后缀file-suffixes">文件名后缀（File suffixes）</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">% head headspin.go
+// Copyright <span style="color:#099">2013</span> Way out enterprises. All rights reserved.
+// Use of this <span style="color:#0086b3">source</span> code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+// +build someos someotheros thirdos,!amd64
+
+// Package headspin implements calculates numbers so large
+// they will make your head spin.
+package headspin
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="文件名后缀file-suffixes">文件名后缀（File suffixes）</h3>
 <p>第二种条件编译的方法是通过源码文件的文件名实现的。这种方案比构造标签方案更简单。</p>
 <p>go/build包的文档有关于命名约定的描述。简单来说，如果文件名包含<code>_$GOOS.go</code>后缀，那么这个源码文件只会在对应的平台被编译。其他平台会忽略这个文件。另一种约定是<code>_$GOARCH.go</code>。这两种后缀可以组合起来，但要保证顺序，正确的格式是<code>_$GOOS_$GOARCH.go</code>，错误的格式是<code>_$GOARCH_$GOOS.go</code>。</p>
 <p>以下是文件名后缀的一些例子：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_freebsd_arm.go // 只在 freebsd/arm 系统编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>mypkg_plan9.go       // 只在 plan9 编译
-</code></pre></div><p>源码文件光有后缀是不够的，比如如下文件名：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>_linux.go
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>_freebsd_386.go
-</code></pre></div><p>即使是在linux或freebsd系统，这两个文件也会被忽略，原因是go/build包会忽略所有文件名以.和_开始的文件。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mypkg_freebsd_arm.go // 只在 freebsd/arm 系统编译
+mypkg_plan9.go       // 只在 plan9 编译
+</code></pre></td></tr></table>
+</div>
+</div><p>源码文件光有后缀是不够的，比如如下文件名：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">_linux.go
+_freebsd_386.go
+</code></pre></td></tr></table>
+</div>
+</div><p>即使是在linux或freebsd系统，这两个文件也会被忽略，原因是go/build包会忽略所有文件名以.和_开始的文件。</p>
 <h3 id="使用构建标签还是文件名后缀">使用构建标签还是文件名后缀</h3>
 <p>构建标签和文件名后缀在功能上是重叠的。比如，一个名为mypkg_linux.go的文件，再包含构建标签// +build linux会显得多余。</p>
 <p>通常来说，当只有一个特定平台或体系需要指定时，我们选择文件名后缀的方式。比如：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>mypkg_linux.go         // 只在 linux 系统编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>mypkg_windows_amd64.go // 只在 windows amd 64位 平台编译
-</code></pre></div><p>相反，如果你的文件需要指定给多个平台或体系使用，或者你需要排除某个特定平台时，我们选择构建标签的方式。比如：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>// 在所有类unix平台编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/exec/lp_unix.go
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>// +build darwin dragonfly freebsd linux netbsd openbsd
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>// 在非Windows平台编译
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/types_notwin.go
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>// +build !windows
-</code></pre></div><h3 id="总结">总结</h3>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">mypkg_linux.go         // 只在 linux 系统编译
+mypkg_windows_amd64.go // 只在 windows amd 64位 平台编译
+</code></pre></td></tr></table>
+</div>
+</div><p>相反，如果你的文件需要指定给多个平台或体系使用，或者你需要排除某个特定平台时，我们选择构建标签的方式。比如：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">// 在所有类unix平台编译
+% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/exec/lp_unix.go
+// +build darwin dragonfly freebsd linux netbsd openbsd
+
+// 在非Windows平台编译
+% grep <span style="color:#d14">&#39;+build&#39;</span> <span style="color:#008080">$HOME</span>/go/src/pkg/os/types_notwin.go
+// +build !windows
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="总结">总结</h3>
 <p>本篇文章只关注了Go源码文件，事实上，构建标签和文件名后缀可作用于任何go tool可以编译的源码文件，包括.c和.s文件。Go标准库中，尤其是runtime，syscall，os，net包中包含了大量这种例子。</p>
 <p>测试文件也支持构建标签和文件名后缀，它们的表现和Go源码文件表现一致。从而允许我们为特定平台指定特定测试用例。</p>
 <p>最后，本篇文章讨论的是go tool，事实上，条件编译特性并不局限于这个工具。你可以通过go/build包构建你自己的工具来分析文件名后缀以及构建标签的语法。</p>
@@ -294,6 +398,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2020/12/17/go-cond-build/">https://maratrix.cn/post/2020/12/17/go-cond-build/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

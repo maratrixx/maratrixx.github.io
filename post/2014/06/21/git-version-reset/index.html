@@ -56,6 +56,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="current" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -193,63 +197,141 @@
         
         <div class="post-content">
             <p>现在，我们重新修改下文件并添加和提交到版本库：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ <span style="color:#0086b3">echo</span> <span style="color:#d14">&#39;再次添加新内容&#39;</span> &gt;&gt; readme.md
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>$ git add ./readme.md
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>$ git commit -m <span style="color:#d14">&#39;更新内容&#39;</span>
-</code></pre></div><p>像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就像我们在玩游戏时，每过一关我们都会保存当前的状态，以防备哪次被打败了，我们就可以选择重新读取保存的状态，然后可以从最近的地方重新开始玩。Git也是一样的道理，每当你觉得文件修改到一定程度的时候，就可以保存一个快照，这个快照在Git中被称为commit。一旦你把文件改乱了，或者误删了文件，还可以从最近的一个commit恢复，然后继续工作，而不是把几个月的工作成果全部丢失。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ <span style="color:#0086b3">echo</span> <span style="color:#d14">&#39;再次添加新内容&#39;</span> &gt;&gt; readme.md
+$ git add ./readme.md
+$ git commit -m <span style="color:#d14">&#39;更新内容&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就像我们在玩游戏时，每过一关我们都会保存当前的状态，以防备哪次被打败了，我们就可以选择重新读取保存的状态，然后可以从最近的地方重新开始玩。Git也是一样的道理，每当你觉得文件修改到一定程度的时候，就可以保存一个快照，这个快照在Git中被称为commit。一旦你把文件改乱了，或者误删了文件，还可以从最近的一个commit恢复，然后继续工作，而不是把几个月的工作成果全部丢失。</p>
 <p>那么，我们人的脑子怎么可能记住一个有几千行的代码文件都修改过什么啊，所以Git自由其智能之处，我们可以使用git log来查看</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ git log
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>commit 45c00ae6775bce4833f8541cf978781966f78565
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>Author: Hanson &lt;yafengdoudou@gmail.com&gt;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>Date:   Fri Jun <span style="color:#099">20</span> 20:08:58 <span style="color:#099">2014</span> +0800
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>更新内容
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>commit 3de50f6d891bf7c7432edc2a959fd2fbfa9286b0
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>Author: Hanson &lt;yafengdoudou@gmail.com&gt;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>Date:   Fri Jun <span style="color:#099">20</span> 19:51:30 <span style="color:#099">2014</span> +0800
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>添加hello git
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>**此处省略**
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16</span>commit 6e5f32ab6d7319274800f1d751e63fdc67008562
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17</span>Author: Hanson &lt;yafengdoudou@gmail.com&gt;
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18</span>Date:   Thu Jun <span style="color:#099">19</span> 15:00:45 <span style="color:#099">2014</span> +0800
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20</span>new file
-</code></pre></div><p>如果嫌输出的信息太多，我们可以使用git log &ndash;pretty=oneline来查看啦</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>45c00ae6775bce4833f8541cf978781966f78565 更新内容
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>3de50f6d891bf7c7432edc2a959fd2fbfa9286b0 添加hello
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>8edeaca3329ec0b38a1a66b948dabd8cb6e7dfa8 update fil
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5</span>d7d25794ef327789dae190d4ea9f65775d54d741 提交测试文
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6</span>67a36db3844043c7f97910cb177c6631d2f1cd2b add php
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7</span>6e5f32ab6d7319274800f1d751e63fdc67008562 new file
-</code></pre></div><p>需要友情提示的是，你看到的一大串类似“ 45c00ae…6f78565”的是commit id（版本号），和SVN不一样，Git的commit id不是1，2，3……递增的数字，而是一个SHA1计算出来的一个非常大的数字(40位)，用十六进制表示，而且你看到的commit id和我的肯定不一样，以你自己的为准。为什么commit id需要用这么一大串数字表示呢？因为Git是分布式的版本控制系统，后面我们还要研究多人在同一个版本库里工作，如果大家都用1，2，3……作为版本号，那肯定就冲突了。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git log
+commit 45c00ae6775bce4833f8541cf978781966f78565
+Author: Hanson &lt;yafengdoudou@gmail.com&gt;
+Date:   Fri Jun <span style="color:#099">20</span> 20:08:58 <span style="color:#099">2014</span> +0800
+
+更新内容
+
+commit 3de50f6d891bf7c7432edc2a959fd2fbfa9286b0
+Author: Hanson &lt;yafengdoudou@gmail.com&gt;
+Date:   Fri Jun <span style="color:#099">20</span> 19:51:30 <span style="color:#099">2014</span> +0800
+
+添加hello git
+
+**此处省略**
+
+commit 6e5f32ab6d7319274800f1d751e63fdc67008562
+Author: Hanson &lt;yafengdoudou@gmail.com&gt;
+Date:   Thu Jun <span style="color:#099">19</span> 15:00:45 <span style="color:#099">2014</span> +0800
+
+new file
+</code></pre></td></tr></table>
+</div>
+</div><p>如果嫌输出的信息太多，我们可以使用git log &ndash;pretty=oneline来查看啦</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline
+45c00ae6775bce4833f8541cf978781966f78565 更新内容
+3de50f6d891bf7c7432edc2a959fd2fbfa9286b0 添加hello
+8edeaca3329ec0b38a1a66b948dabd8cb6e7dfa8 update fil
+d7d25794ef327789dae190d4ea9f65775d54d741 提交测试文
+67a36db3844043c7f97910cb177c6631d2f1cd2b add php
+6e5f32ab6d7319274800f1d751e63fdc67008562 new file
+</code></pre></td></tr></table>
+</div>
+</div><p>需要友情提示的是，你看到的一大串类似“ 45c00ae…6f78565”的是commit id（版本号），和SVN不一样，Git的commit id不是1，2，3……递增的数字，而是一个SHA1计算出来的一个非常大的数字(40位)，用十六进制表示，而且你看到的commit id和我的肯定不一样，以你自己的为准。为什么commit id需要用这么一大串数字表示呢？因为Git是分布式的版本控制系统，后面我们还要研究多人在同一个版本库里工作，如果大家都用1，2，3……作为版本号，那肯定就冲突了。</p>
 <p>现在，我们开始回退到上一个版本，首先，Git必须知道当前版本是哪个版本，在Git中，用HEAD表示当前版本，也就是最新的提交“ 45c00ae…6f78565”（注意我的提交ID和你的肯定不一样），上一个版本就是HEAD^，上上一个版本就是HEAD^^，当然往上100个版本写100个^比较容易数不过来，所以写成HEAD~100。</p>
 <p>我们可以使用git reset回退到某个版本：</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1</span>$ git reset --hard HEAD^
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2</span>HEAD is now at 3de50f6 添加hello git
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3</span>再次git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline下：
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5</span>$ git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6</span>3de50f6d891bf7c7432edc2a959fd2fbfa9286b0 添加hello git
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7</span>8edeaca3329ec0b38a1a66b948dabd8cb6e7dfa8 update file
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8</span>d7d25794ef327789dae190d4ea9f65775d54d741 提交测试文件
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9</span>67a36db3844043c7f97910cb177c6631d2f1cd2b add php
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10</span>6e5f32ab6d7319274800f1d751e63fdc67008562 new file
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11</span>我们可以直观的看到“更新内容”不见了，那要是我们后悔回退了，想再次返到最新的版本，该怎么办呢？我们只需要在窗口没关掉之前找到最新版本的commit id45c00ae...即可:
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12</span>
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13</span>$ git reset --hard 45c00ae
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14</span>HEAD is now at 45c00ae 更新内容
-</code></pre></div><p>现在，就可以回到最新的版本了。注意：这里只需输入commit id的前几位就ok。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git reset --hard HEAD^
+HEAD is now at 3de50f6 添加hello git
+再次git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline下：
+
+$ git log --pretty<span style="color:#000;font-weight:bold">=</span>oneline
+3de50f6d891bf7c7432edc2a959fd2fbfa9286b0 添加hello git
+8edeaca3329ec0b38a1a66b948dabd8cb6e7dfa8 update file
+d7d25794ef327789dae190d4ea9f65775d54d741 提交测试文件
+67a36db3844043c7f97910cb177c6631d2f1cd2b add php
+6e5f32ab6d7319274800f1d751e63fdc67008562 new file
+我们可以直观的看到“更新内容”不见了，那要是我们后悔回退了，想再次返到最新的版本，该怎么办呢？我们只需要在窗口没关掉之前找到最新版本的commit id45c00ae...即可:
+
+$ git reset --hard 45c00ae
+HEAD is now at 45c00ae 更新内容
+</code></pre></td></tr></table>
+</div>
+</div><p>现在，就可以回到最新的版本了。注意：这里只需输入commit id的前几位就ok。</p>
 <p>假如，我们已经关掉了窗口，又想到回到某个版本该怎么办呢？不用担心，Git是有后悔药给我们吃的啦。Git提供了一个命令git reflog用来记录你的每一次命令:</p>
-<div class="highlight"><pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1</span>$ git reflog
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2</span>45c00ae HEAD@<span style="color:#000;font-weight:bold">{</span>0<span style="color:#000;font-weight:bold">}</span>: reset: moving to 45c00a
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3</span>3de50f6 HEAD@<span style="color:#000;font-weight:bold">{</span>1<span style="color:#000;font-weight:bold">}</span>: reset: moving to HEAD^
-<span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4</span>45c00ae HEAD@<span style="color:#000;font-weight:bold">{</span>2<span style="color:#000;font-weight:bold">}</span>: commit: 更新内容
-</code></pre></div><p>此时，我们可以根据前面的commit id返回到想要的版本库，仿佛穿梭于历史之间，很酷吧。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">$ git reflog
+45c00ae HEAD@<span style="color:#000;font-weight:bold">{</span>0<span style="color:#000;font-weight:bold">}</span>: reset: moving to 45c00a
+3de50f6 HEAD@<span style="color:#000;font-weight:bold">{</span>1<span style="color:#000;font-weight:bold">}</span>: reset: moving to HEAD^
+45c00ae HEAD@<span style="color:#000;font-weight:bold">{</span>2<span style="color:#000;font-weight:bold">}</span>: commit: 更新内容
+</code></pre></td></tr></table>
+</div>
+</div><p>此时，我们可以根据前面的commit id返回到想要的版本库，仿佛穿梭于历史之间，很酷吧。</p>
 <p>Git的版本回退速度非常快，因为Git在内部有个指向当前版本的HEAD指针，当你回退版本的时候，Git仅仅是把HEAD从指向“添加hello git”：</p>
 <p>小结：</p>
 <p>HEAD指向的版本就是当前版本，因此，Git允许我们在版本的历史之间穿梭，使用命令git reset &ndash;hard commit_id。</p>
@@ -259,6 +341,15 @@
         </div>
 
         
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/06/21/git-version-reset/">https://maratrix.cn/post/2014/06/21/git-version-reset/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
 
 
         

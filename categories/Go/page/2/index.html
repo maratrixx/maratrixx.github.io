@@ -53,6 +53,10 @@
                 <nav id="nav-menu" class="clearfix">
                     <a class="" href="https://maratrix.cn/">首页</a>
                     
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
                     <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
                     
                     <a  href="https://maratrix.cn/about/" title="关于">关于</a>
@@ -99,7 +103,7 @@
         </div>
         
         <div class="post-content">
-            前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1//go:linkname localname importpath.name 该指令指示编译器……
+            前言 如果你平时有翻看源码的习惯，你肯定会发现。咦，怎么有的方法上面总是写着 //go: 这类指令呢。他们到底是干嘛用的？ 今天我们一同揭开他们的面纱，我将简单给你介绍一下，它们都负责些什么。 go:linkname 1 //go:linkname localname importpath.name 该指令指示编译……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/06/13/go-directive-syntax/">阅读全文</a></p>
         </div>
     </article>
@@ -145,7 +149,7 @@
         </div>
         
         <div class="post-content">
-            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1var once sync.Once 2onceBody := func() { 3 fmt.Println(&#34;Only once&#34;) 4} 5done := make(chan bool) 6for i := 0; i &lt; 10; i++ {……
+            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 var once sync.Once onceBody := func() { fmt.Println(&#34;Only once&#34;) }……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
         </div>
     </article>
@@ -191,7 +195,7 @@
         </div>
         
         <div class="post-content">
-            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} 2ss := &#34;&#34; 3for _, s := range str { 4 ss += s 5} 6fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行拼接，但要……
+            背景之字符串拼接 在 Go 语言中，对于字符串的拼接处理有很多种方法，那么那种方法才是效率最高的呢？ 1 2 3 4 5 6 str := []string{&#34;aa&#34;, &#34;bb&#34;, &#34;cc&#34;} ss := &#34;&#34; for _, s := range str { ss += s } fmt.Println(ss) 相信大部分人都会使用+操作符或者fmt.Sprinf进行……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/">阅读全文</a></p>
         </div>
     </article>
@@ -214,7 +218,7 @@
         </div>
         
         <div class="post-content">
-            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1// ServeHTTP implements an http.Handler that answers RPC requests. 2func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { 3 if req.Method != &#34;CONNECT&#34; { 4 w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) 5 w.WriteHeader(http.StatusMethodNotAllowed) 6 io.WriteString(w, &#34;405 must CONNECT\n&#34;) 7 return 8 } 9 conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 10 if err != nil { 11 log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error()) 12 return 13 } 14 io.WriteString(conn, &#34;HTTP/1.0……
+            最近在看Go标准库里面的rpc源码，发现了下面一段代码： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 // ServeHTTP implements an http.Handler that answers RPC requests. func (server *Server) ServeHTTP(w http.ResponseWriter, req *http.Request) { if req.Method != &#34;CONNECT&#34; { w.Header().Set(&#34;Content-Type&#34;, &#34;text/plain; charset=utf-8&#34;) w.WriteHeader(http.StatusMethodNotAllowed) io.WriteString(w, &#34;405 must CONNECT\n&#34;) return } conn, _, err := w.(http.Hijacker).Hijack() //注意看这里 if err != nil { log.Print(&#34;rpc hijacking &#34;, req.RemoteAddr, &#34;: &#34;, err.Error())……
             <p class="readmore"><a href="https://maratrix.cn/post/2020/04/14/go-hijack-note/">阅读全文</a></p>
         </div>
     </article>
@@ -262,7 +266,7 @@
         </div>
         
         <div class="post-content">
-            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1func main() { 2 http.HandleFunc(&#34;/foo&#34;, func(w……
+            遇到的问题 最近在阅读echo框架的源码，发现context.go文件在读取请求的scheme时是单独封装了个方法。就很奇怪，go语言标准库不是自带了方法吗，干嘛不用？ 于是写了段代码来验证： 1 2 3 4 5 6……
             <p class="readmore"><a href="https://maratrix.cn/post/2019/09/28/go-url-scheme-notes/">阅读全文</a></p>
         </div>
     </article>
