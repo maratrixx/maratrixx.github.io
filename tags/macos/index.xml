@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>macos on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/macos/</link>
+    <description>Recent content in macos on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 26 Dec 2021 09:10:04 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/macos/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>我的 MacOS 软件工具清单</title>
+      <link>https://maratrix.cn/post/2021/12/26/macos-application-list/</link>
+      <pubDate>Sun, 26 Dec 2021 09:10:04 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/12/26/macos-application-list/</guid>
+      <description>日常使用 开发环境 名称 说明 如何下载 vscode 轻量级开发编辑器，支持多语言，开源免费，插件丰富，启动速度比 JetBrains 全家桶快的多 官网下载 goland 重量级开发 IDE，JetBrains 出品，生态完善，付费使用，启动速度慢改为 vscode 官网</description>
+    </item>
+    
+  </channel>
+</rss>

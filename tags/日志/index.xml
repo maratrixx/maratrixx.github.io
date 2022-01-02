@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>日志 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/%E6%97%A5%E5%BF%97/</link>
+    <description>Recent content in 日志 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 17 Oct 2021 10:37:42 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E6%97%A5%E5%BF%97/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kratos 源码阅读（一）｜日志组件实现</title>
+      <link>https://maratrix.cn/post/2021/10/17/kratos-logger/</link>
+      <pubDate>Sun, 17 Oct 2021 10:37:42 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/10/17/kratos-logger/</guid>
+      <description>hello kratos logger.</description>
+    </item>
+    
+  </channel>
+</rss>

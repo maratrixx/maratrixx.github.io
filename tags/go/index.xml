@@ -6,7 +6,25 @@
     <description>Recent content in go on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 28 Apr 2021 18:38:26 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 20 Oct 2021 09:13:21 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/go/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kratos 源码分析（一）|日志组件实现原理</title>
+      <link>https://maratrix.cn/post/2021/10/20/kratos-logger/</link>
+      <pubDate>Wed, 20 Oct 2021 09:13:21 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/10/20/kratos-logger/</guid>
+      <description>设计理念 目前优秀的 Go 开源日志库非常多且很好用，在 kratos 的日志组件实现中，主要考虑以下几个问题： 统一日志接口设计 组织结构化日志 友好的日志级别使用 支持多输出源对接需求 日志接口 kratos 的日志库，不强制具体实现方式，只</description>
+    </item>
+    
+    <item>
+      <title>Kratos 源码分析（零）|开篇介绍</title>
+      <link>https://maratrix.cn/post/2021/10/20/kratos-introduction/</link>
+      <pubDate>Wed, 20 Oct 2021 09:04:05 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/10/20/kratos-introduction/</guid>
+      <description>TODO</description>
+    </item>
+    
     <item>
       <title>如何获取Go服务依赖包</title>
       <link>https://maratrix.cn/post/2021/04/28/go-deps/</link>
