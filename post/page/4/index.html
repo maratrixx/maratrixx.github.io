@@ -81,81 +81,6 @@
     <article class="post">
         <header>
             <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/" title="Go源码阅读 | sync.WaitGroup设计与实现">Go源码阅读 | sync.WaitGroup设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月25日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            前言 当我们的程序在运行过程中需要执行多个子任务时，我们可以利用 Go 协程并发地执行这些子任务，然后等待它们执行结束，从而缩短程序串行执行的耗费时间。Go 语言标准库自带了该组件：sync.WaitGroup……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/25/go-sync-waitgroup-notes/">阅读全文</a></p>
-    </article>
-    
-    
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/" title="Go源码阅读 | sync.Once设计与实现">Go源码阅读 | sync.Once设计与实现</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月21日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            介绍 sync.Once 是 Go 官方自带的标准库，实现了 exactly once 的功能。通过使用 sync.Once 我们可以很方便地实现单例模式，确保对象只被初始化一次。 首先看一个 sync.Once 的 Go 官方例子，源码链接在这里： 1 2 3 4 5 6 7 8 9 10 11 12 13 14 var once sync.Once onceBody := func() { fmt.Println(&#34;Only once&#34;) }……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/21/go-sync-once-source-notes/">阅读全文</a></p>
-    </article>
-    
-    
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/" title="Go中如何实现禁止拷贝">Go中如何实现禁止拷贝</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2020年4月20日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            背景 最近看 Go 标准库源码时经常遇到禁止拷贝对象的使用场景，比如当我们使用 strings.Builder 或者 sync.Pool 对象的时候会被禁止拷贝，这是如何实现的呢？ 主要有以下两种方式： 方式一：手动检查 这种需要我们在运行时通过 copyCheck 方法来检查是否发生……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2020/04/20/go-nocopy-notes/">阅读全文</a></p>
-    </article>
-    
-    
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/04/14/strings-builder-source-note/" title="Go源码阅读 | strings.Builder设计与实现">Go源码阅读 | strings.Builder设计与实现</a>
             </h1>
         </header>
@@ -330,6 +255,81 @@
     
     
     
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            变量声明 语法格式： 1 2 let变量名: 变量类型=变量值;letvar: i32 =123; 有几点要注意： 以关键字let开头，类型一定跟在冒号:后面； 变量必须先声明，初始化后才能使用； 初始化 Rust中，每个变量必须被合理……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/02/04/002-rust-notes/" title="Rust学习笔记002-编程概念">Rust学习笔记002-编程概念</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            标识符 Rust 中的名称被称为 “标识符”（“identifier”），它们可以是任意非空的 ASCII 字符串，不过有如下限制： 要么是： 第一个字符是字母。 其它字符是字母数字或者 _。 或者是： 第一个字符是 _。 标识符需多于一个……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/002-rust-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/" title="Rust学习笔记001-初相识">Rust学习笔记001-初相识</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月4日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            Rust is a systems programming language that runs blazingly fast, prevents segfaults, and guarantees thread safety. Rust是一门系统级编程语言，具有三个特点： 运行快 防止段错误 保证线程安全 C和C++是业界最流行的系统编程语言，Rust的定位与之类似，但是增加了安全性。 版本和发布策略 语……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/04/001-rust-hello-world-notes/">阅读全文</a></p>
+    </article>
+    
+    
+    
 
 
 
@@ -363,10 +363,6 @@
     
     <li >
         <a href="https://maratrix.cn/post/page/6/">6</a>
-    </li>
-    
-    <li >
-        <a href="https://maratrix.cn/post/page/7/">7</a>
     </li>
     
 
@@ -444,18 +440,6 @@ if (!doNotTrack) {
     </li>
     
     <li>
-        <a href="https://maratrix.cn/post/2021/12/26/macos-application-list/" title="我的 MacOS 软件工具清单">我的 MacOS 软件工具清单</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/10/20/kratos-logger/" title="Kratos 源码分析（一）|日志组件实现原理">Kratos 源码分析（一）|日志组件实现原理</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/10/20/kratos-introduction/" title="Kratos 源码分析（零）|开篇介绍">Kratos 源码分析（零）|开篇介绍</a>
-    </li>
-    
-    <li>
         <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
     </li>
     
@@ -479,6 +463,18 @@ if (!doNotTrack) {
         <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
     </li>
     
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/11/grafana-quick-start/" title="Prometheus学习笔记|02.监控数据可视化">Prometheus学习笔记|02.监控数据可视化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/10/prometheus-expoter-install/" title="Prometheus学习笔记|01.安装与快速入门">Prometheus学习笔记|01.安装与快速入门</a>
+    </li>
+    
 </ul>
     </section>
 
@@ -494,11 +490,7 @@ if (!doNotTrack) {
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Kratos/">Kratos (2)</a></li>
-    
     <li><a href="https://maratrix.cn/categories/Linux/">Linux (2)</a></li>
-    
-    <li><a href="https://maratrix.cn/categories/MacOS/">MacOS (1)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
     
@@ -555,15 +547,9 @@ if (!doNotTrack) {
     
     <a href="https://maratrix.cn/tags/hystrix-go/">hystrix-go</a>
     
-    <a href="https://maratrix.cn/tags/kratos/">kratos</a>
-    
     <a href="https://maratrix.cn/tags/linux/">linux</a>
     
     <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
-    
-    <a href="https://maratrix.cn/tags/logger/">logger</a>
-    
-    <a href="https://maratrix.cn/tags/macos/">macos</a>
     
     <a href="https://maratrix.cn/tags/makefile/">makefile</a>
     
@@ -583,8 +569,6 @@ if (!doNotTrack) {
     
     <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
     
-    <a href="https://maratrix.cn/tags/%E5%B7%A5%E5%85%B7/">工具</a>
-    
     <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
     
     <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
@@ -602,8 +586,6 @@ if (!doNotTrack) {
     <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
     
     <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
-    
-    <a href="https://maratrix.cn/tags/%E8%BD%AF%E4%BB%B6/">软件</a>
     
     <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
     
