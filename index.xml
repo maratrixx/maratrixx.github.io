@@ -6,7 +6,16 @@
     <description>Recent content on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 30 Dec 2021 21:03:58 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 10 Jan 2022 09:13:21 +0800</lastBuildDate><atom:link href="https://maratrix.cn/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kratos 源码分析（一）|日志组件设计与实现</title>
+      <link>https://maratrix.cn/post/2022/01/10/kratos-logger-design/</link>
+      <pubDate>Mon, 10 Jan 2022 09:13:21 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2022/01/10/kratos-logger-design/</guid>
+      <description>本文基于 kratos v2.1.3 设计理念 为了方便使用，Kratos 定义了两个层面的抽象，Logger 统一了日志的接入方式，Helper 接口统一的日志库的调用方式。 在不同的公司、使用不同的基础架构，可能对日志的打印方式、格</description>
+    </item>
+    
     <item>
       <title>再见 2021</title>
       <link>https://maratrix.cn/post/2021/12/30/2021-summary/</link>

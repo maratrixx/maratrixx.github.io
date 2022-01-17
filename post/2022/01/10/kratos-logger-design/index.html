@@ -1,0 +1,1322 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Kratos 源码分析（一）|日志组件设计与实现 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Kratos 源码分析（一）|日志组件设计与实现 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2022-01-10T09:13:21&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2022-01-10T09:13:21&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Kratos 源码分析（一）|日志组件设计与实现">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2022/01/10/kratos-logger-design/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#设计理念">设计理念</a></li>
+    <li><a href="#日志接口">日志接口</a></li>
+    <li><a href="#快速接入">快速接入</a></li>
+    <li><a href="#源码分析">源码分析</a>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+    <li><a href="#使用方式">使用方式</a></li>
+    <li><a href="#小结">小结</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Kratos 源码分析（一）|日志组件设计与实现</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2022年1月10日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Kratos'>Kratos</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <blockquote>
+<p><strong>本文基于 kratos v2.1.3</strong></p>
+</blockquote>
+<h2 id="设计理念">设计理念</h2>
+<p>为了方便使用，Kratos 定义了两个层面的抽象，Logger 统一了日志的接入方式，Helper 接口统一的日志库的调用方式。</p>
+<p>在不同的公司、使用不同的基础架构，可能对日志的打印方式、格式、输出的位置等要求各有不同。Kratos 为了更加灵活地适配和迁移到各种环境，把日志组件也进行了抽象，这样就可以把业务代码里日志的使用，和日志底层具体的实现隔离开来，提高整体的可维护性。</p>
+<p>Kratos 的日志库主要有如下特性：</p>
+<ul>
+<li>Logger 用于对接各种日志库或日志平台，可以用现成的或者自己实现</li>
+<li>Helper 是在您的项目代码中实际需要调用的，用于在业务代码里打日志</li>
+<li>Filter 用于对输出日志进行过滤或魔改（通常用于日志脱敏等）</li>
+<li>Valuer 用于绑定一些全局的固定值或动态值（比如时间戳、traceID 或者实例 id 之类的东西）到输出日志中</li>
+</ul>
+<p>整体调用关系如图所示：
+
+        <a data-fancybox="gallery" href="https://cdn.jsdelivr.net/gh/maratrixx/images/blog/202201151640327.png">
+            <img class="mx-auto" alt="" src="https://cdn.jsdelivr.net/gh/maratrixx/images/blog/202201151640327.png" />
+        </a>
+    </p>
+<h2 id="日志接口">日志接口</h2>
+<p>kratos 的日志库，不强制具体实现方式，只提供适配器，用户可以自行实现日志功能，只需要实现 Logger 接口即可接入自己的日志系统。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Logger <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#900;font-weight:bold">Log</span>(level Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">error</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，接口定义很简单，只有一个 Log 方法，方法的的第一个参数 level 为日志级别，后面的 keyvals 参数即为我们的日志参数，它的长度需要是偶数，奇数位上的是 key，偶数位上的是 value。</p>
+<h2 id="快速接入">快速接入</h2>
+<p>下面看下官方提供的 zap 库接入实例，只需要实现 Logger 接口即可：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// https://github.com/go-kratos/kratos/blob/main/contrib/log/zap/zap.go
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">package</span> zap
+
+<span style="color:#000;font-weight:bold">import</span> (
+	<span style="color:#d14">&#34;fmt&#34;</span>
+
+	<span style="color:#d14">&#34;github.com/go-kratos/kratos/v2/log&#34;</span>
+	<span style="color:#d14">&#34;go.uber.org/zap&#34;</span>
+)
+
+<span style="color:#000;font-weight:bold">var</span> _ log.Logger = (<span style="color:#000;font-weight:bold">*</span>Logger)(<span style="color:#000;font-weight:bold">nil</span>)
+
+<span style="color:#000;font-weight:bold">type</span> Logger <span style="color:#000;font-weight:bold">struct</span> {
+	log <span style="color:#000;font-weight:bold">*</span>zap.Logger
+}
+
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">NewLogger</span>(zlog <span style="color:#000;font-weight:bold">*</span>zap.Logger) <span style="color:#000;font-weight:bold">*</span>Logger {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>Logger{zlog}
+}
+
+<span style="color:#000;font-weight:bold">func</span> (l <span style="color:#000;font-weight:bold">*</span>Logger) <span style="color:#900;font-weight:bold">Log</span>(level log.Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">len</span>(keyvals) <span style="color:#000;font-weight:bold">==</span> <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">||</span> <span style="color:#0086b3">len</span>(keyvals)<span style="color:#000;font-weight:bold">%</span><span style="color:#099">2</span> <span style="color:#000;font-weight:bold">!=</span> <span style="color:#099">0</span> {
+		l.log.<span style="color:#900;font-weight:bold">Warn</span>(fmt.<span style="color:#900;font-weight:bold">Sprint</span>(<span style="color:#d14">&#34;Keyvalues must appear in pairs: &#34;</span>, keyvals))
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	}
+
+	<span style="color:#000;font-weight:bold">var</span> data []zap.Field
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; <span style="color:#0086b3">len</span>(keyvals); i <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">2</span> {
+		data = <span style="color:#0086b3">append</span>(data, zap.<span style="color:#900;font-weight:bold">Any</span>(fmt.<span style="color:#900;font-weight:bold">Sprint</span>(keyvals[i]), keyvals[i<span style="color:#000;font-weight:bold">+</span><span style="color:#099">1</span>]))
+	}
+
+	<span style="color:#000;font-weight:bold">switch</span> level {
+	<span style="color:#000;font-weight:bold">case</span> log.LevelDebug:
+		l.log.<span style="color:#900;font-weight:bold">Debug</span>(<span style="color:#d14">&#34;&#34;</span>, data<span style="color:#000;font-weight:bold">...</span>)
+	<span style="color:#000;font-weight:bold">case</span> log.LevelInfo:
+		l.log.<span style="color:#900;font-weight:bold">Info</span>(<span style="color:#d14">&#34;&#34;</span>, data<span style="color:#000;font-weight:bold">...</span>)
+	<span style="color:#000;font-weight:bold">case</span> log.LevelWarn:
+		l.log.<span style="color:#900;font-weight:bold">Warn</span>(<span style="color:#d14">&#34;&#34;</span>, data<span style="color:#000;font-weight:bold">...</span>)
+	<span style="color:#000;font-weight:bold">case</span> log.LevelError:
+		l.log.<span style="color:#900;font-weight:bold">Error</span>(<span style="color:#d14">&#34;&#34;</span>, data<span style="color:#000;font-weight:bold">...</span>)
+	<span style="color:#000;font-weight:bold">case</span> log.LevelFatal:
+		l.log.<span style="color:#900;font-weight:bold">Fatal</span>(<span style="color:#d14">&#34;&#34;</span>, data<span style="color:#000;font-weight:bold">...</span>)
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}
+
+<span style="color:#000;font-weight:bold">func</span> (l <span style="color:#000;font-weight:bold">*</span>Logger) <span style="color:#900;font-weight:bold">Sync</span>() <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#000;font-weight:bold">return</span> l.log.<span style="color:#900;font-weight:bold">Sync</span>()
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="源码分析">源码分析</h2>
+<h4 id="level-日志等级">Level 日志等级</h4>
+<p>定义了五种日志等级，默认为 info 级别：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 日志级别类型
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Level <span style="color:#458;font-weight:bold">int8</span>
+
+<span style="color:#998;font-style:italic">// 定义五种日志级别，默认是 info 级别
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">const</span> (
+	LevelDebug Level = <span style="color:#000;font-weight:bold">iota</span> <span style="color:#000;font-weight:bold">-</span> <span style="color:#099">1</span> <span style="color:#998;font-style:italic">// debug 级别
+</span><span style="color:#998;font-style:italic"></span>	LevelInfo                   <span style="color:#998;font-style:italic">// info 级别
+</span><span style="color:#998;font-style:italic"></span>	LevelWarn                   <span style="color:#998;font-style:italic">// warn 级别
+</span><span style="color:#998;font-style:italic"></span>	LevelError                  <span style="color:#998;font-style:italic">// error 级别
+</span><span style="color:#998;font-style:italic"></span>	LevelFatal                  <span style="color:#998;font-style:italic">// fatal 级别
+</span><span style="color:#998;font-style:italic"></span>)
+
+<span style="color:#000;font-weight:bold">func</span> (l Level) <span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span> {
+	<span style="color:#000;font-weight:bold">switch</span> l {
+	<span style="color:#000;font-weight:bold">case</span> LevelDebug:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;DEBUG&#34;</span>
+	<span style="color:#000;font-weight:bold">case</span> LevelInfo:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;INFO&#34;</span>
+	<span style="color:#000;font-weight:bold">case</span> LevelWarn:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;WARN&#34;</span>
+	<span style="color:#000;font-weight:bold">case</span> LevelError:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;ERROR&#34;</span>
+	<span style="color:#000;font-weight:bold">case</span> LevelFatal:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;FATAL&#34;</span>
+	<span style="color:#000;font-weight:bold">default</span>:
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;&#34;</span>
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><h4 id="logger">Logger</h4>
+<p>在开头我们已经介绍了 Logger 接口的设计，接下来我们看下比较重要的结构体 logger：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 实现了 Logger 接口，所有的其他扩展功能都是基于此对象
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> logger <span style="color:#000;font-weight:bold">struct</span> {
+	logs      []Logger        <span style="color:#998;font-style:italic">// 保存多个日志实例
+</span><span style="color:#998;font-style:italic"></span>	prefix    []<span style="color:#000;font-weight:bold">interface</span>{}   <span style="color:#998;font-style:italic">// 保存公共 kv 参数
+</span><span style="color:#998;font-style:italic"></span>	hasValuer <span style="color:#458;font-weight:bold">bool</span>            <span style="color:#998;font-style:italic">// 标识是否包含动态参数值
+</span><span style="color:#998;font-style:italic"></span>	ctx       context.Context <span style="color:#998;font-style:italic">// 上下文
+</span><span style="color:#998;font-style:italic"></span>}
+
+<span style="color:#998;font-style:italic">// 实现了 Logger 接口
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (c <span style="color:#000;font-weight:bold">*</span>logger) <span style="color:#900;font-weight:bold">Log</span>(level Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">error</span> {
+    <span style="color:#998;font-style:italic">// 注意：这里一定要 copy 一份新的 prefix 公共参数，防止在 bindValues 函数里面 prefix 参数被覆盖，造成对后续调用的值污染 ！！！
+</span><span style="color:#998;font-style:italic"></span>	kvs <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]<span style="color:#000;font-weight:bold">interface</span>{}, <span style="color:#099">0</span>, <span style="color:#0086b3">len</span>(c.prefix)<span style="color:#000;font-weight:bold">+</span><span style="color:#0086b3">len</span>(keyvals))
+	kvs = <span style="color:#0086b3">append</span>(kvs, c.prefix<span style="color:#000;font-weight:bold">...</span>)
+    
+	<span style="color:#000;font-weight:bold">if</span> c.hasValuer {
+		<span style="color:#900;font-weight:bold">bindValues</span>(c.ctx, kvs) <span style="color:#998;font-style:italic">// 对于包含有动态值的情况，需要实时计算动态值
+</span><span style="color:#998;font-style:italic"></span>	}
+	kvs = <span style="color:#0086b3">append</span>(kvs, keyvals<span style="color:#000;font-weight:bold">...</span>)
+
+	<span style="color:#998;font-style:italic">// 写入多个日志实例
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">for</span> _, l <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> c.logs {
+		<span style="color:#000;font-weight:bold">if</span> err <span style="color:#000;font-weight:bold">:=</span> l.<span style="color:#900;font-weight:bold">Log</span>(level, kvs<span style="color:#000;font-weight:bold">...</span>); err <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> {
+			<span style="color:#000;font-weight:bold">return</span> err
+		}
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>这里要注意：一定要 copy 一份新的 prefix 公共参数，防止在 bindValues 函数里面 prefix 参数被覆盖，造成对后续调用的值污染 ！！！</strong></p>
+<p>logger 结构体照样实现了 Logger 接口，但提供了更丰富的扩展功能：</p>
+<ul>
+<li>logs：支持多日志输出实例，比如可以同时输出到终端和日志文件。</li>
+<li>prefix：切片类型，保存了公共的 kv 参数，对于后续每次调用日志接口都会记录。</li>
+<li>hasValuer：标识是否包含动态值参数，如果是 true 标识 prefix 里面包含动态值参数。</li>
+<li>ctx：绑定了上下文，方便获取 traceId、requestId 等请求信息。</li>
+</ul>
+<p>Logger 的接口实现也比较简单，主要包含三个核心功能：</p>
+<ul>
+<li>首先，合并公共参数和当前日志参数。</li>
+<li>其次，判断是否有动态值，有的话需要实时计算出来该动态值。</li>
+<li>最后，循环依次调用多个日志实例来写入。</li>
+</ul>
+<p>下面我们依次来介绍。</p>
+<p><strong>1.多日志实例：</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">MultiLogger</span>(logs <span style="color:#000;font-weight:bold">...</span>Logger) Logger {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>logger{logs: logs}
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><p>实现比较简单，直接把 logs 放入 logger 结构体返回即可，值得注意的是返回值依然是 Logger 接口，完全面向接口设计。</p>
+<p><strong>2.注入 kv 参数：</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">With</span>(l Logger, kv <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) Logger {
+	<span style="color:#998;font-style:italic">// 如果是 *logger 对象的话，只需要添加 kv 参数和检查下是否包含动态值即可
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> c, ok <span style="color:#000;font-weight:bold">:=</span> l.(<span style="color:#000;font-weight:bold">*</span>logger); ok {
+		kvs <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]<span style="color:#000;font-weight:bold">interface</span>{}, <span style="color:#099">0</span>, <span style="color:#0086b3">len</span>(c.prefix)<span style="color:#000;font-weight:bold">+</span><span style="color:#0086b3">len</span>(kv))
+		kvs = <span style="color:#0086b3">append</span>(kvs, kv<span style="color:#000;font-weight:bold">...</span>)
+		kvs = <span style="color:#0086b3">append</span>(kvs, c.prefix<span style="color:#000;font-weight:bold">...</span>)
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>logger{
+			logs:      c.logs,
+			prefix:    kvs,
+			hasValuer: <span style="color:#900;font-weight:bold">containsValuer</span>(kvs),
+			ctx:       c.ctx,
+		}
+	}
+
+	<span style="color:#998;font-style:italic">// 包装成 *logger 对象，并检查是否包含动态值
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>logger{logs: []Logger{l}, prefix: kv, hasValuer: <span style="color:#900;font-weight:bold">containsValuer</span>(kv)}
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><p>With 方法第一个参数为 Logger 接口类型，第二个参数为 kv 切片类型，需要成对出现，奇数为 key，偶数为 value。</p>
+<p>首先判断 l 是否为 *logger 类型：</p>
+<ul>
+<li>如果是的话，会继承当前对象里面的参数，然后追加新增的公共 kv 参数，并检查下是否包含动态值即可。</li>
+<li>如果不是的话，直接返回一个新的对象。</li>
+</ul>
+<p>关于 containsValuer 函数的定义在下面会介绍👇🏻。</p>
+<p><strong>3.绑定 ctx 上下文：</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 绑定 ctx 上下文，ctx 不能为 nil
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">WithContext</span>(ctx context.Context, l Logger) Logger {
+	<span style="color:#000;font-weight:bold">if</span> c, ok <span style="color:#000;font-weight:bold">:=</span> l.(<span style="color:#000;font-weight:bold">*</span>logger); ok {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>logger{
+			logs:      c.logs,
+			prefix:    c.prefix,
+			hasValuer: c.hasValuer,
+			ctx:       ctx,
+		}
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>logger{logs: []Logger{l}, ctx: ctx}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>WithContext 方法第一个参数为需要绑定的 ctx 上下文对象，第二个参数为日志接口对象，</p>
+<p>和上面 With 方法类似，首先判断 l 是否为 *logger 类型:</p>
+<ul>
+<li>如果是的话，会继承当前对象里面的参数，只需覆盖里面的 ctx 值即可。</li>
+<li>如果不是的话，直接返回一个新的对象。</li>
+</ul>
+<h4 id="valuer">Valuer</h4>
+<p>在业务日志中，通常我们会在每条日志中输出一些全局的字段，比如时间戳，实例 id，追踪 id 等，每次在日志输出中手动添加这些全局的参数比较麻烦，这时可以定义一个动态值，在每次日志输出时计算当前值。</p>
+<p>Kratos 里面定义了 Valuer 动态值类型：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 定义动态值回调方法类型，方便设置全局字段
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Valuer <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#000;font-weight:bold">interface</span>{}
+</code></pre></td></tr></table>
+</div>
+</div><p>本质是一个 function 类型，输入 ctx 参数，染回返回 interface{} 接口类型，下面看下具体是怎么用的。</p>
+<p><strong>1.获取时间戳</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Timestamp</span>(layout <span style="color:#458;font-weight:bold">string</span>) Valuer {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">func</span>(context.Context) <span style="color:#000;font-weight:bold">interface</span>{} {
+		<span style="color:#000;font-weight:bold">return</span> time.<span style="color:#900;font-weight:bold">Now</span>().<span style="color:#900;font-weight:bold">Format</span>(layout)
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>2.获取 Trace 信息</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// TraceID returns a traceid valuer.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">TraceID</span>() log.Valuer {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#000;font-weight:bold">interface</span>{} {
+		<span style="color:#000;font-weight:bold">if</span> span <span style="color:#000;font-weight:bold">:=</span> trace.<span style="color:#900;font-weight:bold">SpanContextFromContext</span>(ctx); span.<span style="color:#900;font-weight:bold">HasTraceID</span>() {
+			<span style="color:#000;font-weight:bold">return</span> span.<span style="color:#900;font-weight:bold">TraceID</span>().<span style="color:#900;font-weight:bold">String</span>()
+		}
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;&#34;</span>
+	}
+}
+
+<span style="color:#998;font-style:italic">// SpanID returns a spanid valuer.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">SpanID</span>() log.Valuer {
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">func</span>(ctx context.Context) <span style="color:#000;font-weight:bold">interface</span>{} {
+		<span style="color:#000;font-weight:bold">if</span> span <span style="color:#000;font-weight:bold">:=</span> trace.<span style="color:#900;font-weight:bold">SpanContextFromContext</span>(ctx); span.<span style="color:#900;font-weight:bold">HasSpanID</span>() {
+			<span style="color:#000;font-weight:bold">return</span> span.<span style="color:#900;font-weight:bold">SpanID</span>().<span style="color:#900;font-weight:bold">String</span>()
+		}
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#d14">&#34;&#34;</span>
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>以上是官方库自带的方法，我们也可以根据业务场景自定义一些适合自己业务的全局方法。</p>
+<p>介绍完了如何定义动态值方法，接下来看下是如何被调用的。</p>
+<p><strong>1.containsValuer 判断是否有动态值</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 通过断言为 Valuer 类型来确定是否包含动态值
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">containsValuer</span>(keyvals []<span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">bool</span> {
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">1</span>; i &lt; <span style="color:#0086b3">len</span>(keyvals); i <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">2</span> {
+		<span style="color:#000;font-weight:bold">if</span> _, ok <span style="color:#000;font-weight:bold">:=</span> keyvals[i].(Valuer); ok {
+			<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">true</span>
+		}
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">false</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>实现比较简单，根据传进来的 kervals 参数来依次遍历 value 判断是否为 Valuer 类型即可。</p>
+<p><strong>2.bindValues 计算动态值</strong></p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#998;font-style:italic">// 实时计算 kvs 参数里面对应的动态值
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">bindValues</span>(ctx context.Context, keyvals []<span style="color:#000;font-weight:bold">interface</span>{}) {
+	<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">1</span>; i &lt; <span style="color:#0086b3">len</span>(keyvals); i <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">2</span> {
+		<span style="color:#000;font-weight:bold">if</span> v, ok <span style="color:#000;font-weight:bold">:=</span> keyvals[i].(Valuer); ok {
+			keyvals[i] = <span style="color:#900;font-weight:bold">v</span>(ctx)
+		}
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>也是遍历 keyvals 参数依次来判断 value 是否为 Valuer 类型：</p>
+<ul>
+<li>是的话，调用 Valuer 方法来计算动态值，并覆盖当前的 value 值；</li>
+<li>不是的话，什么也不处理，保持 value 当前值即可。</li>
+</ul>
+<p><strong>注意：这里不用担心覆盖 keyvals 里面的 value 造成的污染问题，因为 keyvals 参数是一个副本，不会对全局公共参数 prefix 造成污染。</strong></p>
+<h4 id="filter">Filter</h4>
+<p>有时日志中可能会有敏感信息，需要进行脱敏，或者只打印级别高的日志，这时候就可以使用 Filter 来对日志的输出进行一些过滤操作，通常用法是使用 Filter 来包装原始的 Logger，用来创建 Helper 使用。</p>
+<p>看下 Filter 结构体定义，已对各个参数做了注释：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">40
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">41
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">42
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">43
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">44
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">45
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">46
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">47
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">48
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">49
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">50
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">51
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">52
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">53
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">54
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">55
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">56
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">57
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">58
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">59
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">60
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">61
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">62
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 日志过滤组件，实现了 Logger 接口
+</span><span style="color:#998;font-style:italic">// 有时日志中可能会有敏感信息，需要进行脱敏，或者只打印级别高的日志
+</span><span style="color:#998;font-style:italic">// 这时候就可以使用 Filter 来对日志的输出进行一些过滤操作，通常用法是：
+</span><span style="color:#998;font-style:italic">// - 使用 Filter 来包装原始的 Logger
+</span><span style="color:#998;font-style:italic">// - 基于 Filter 实例用来创建 Helper
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Filter <span style="color:#000;font-weight:bold">struct</span> {
+	logger Logger                                         <span style="color:#998;font-style:italic">// 保存需要实施过滤规则的日志组件
+</span><span style="color:#998;font-style:italic"></span>	level  Level                                          <span style="color:#998;font-style:italic">// 需要保留的最低日志级别
+</span><span style="color:#998;font-style:italic"></span>	key    <span style="color:#000;font-weight:bold">map</span>[<span style="color:#000;font-weight:bold">interface</span>{}]<span style="color:#000;font-weight:bold">struct</span>{}                       <span style="color:#998;font-style:italic">// 需要遮掩的 key 列表
+</span><span style="color:#998;font-style:italic"></span>	value  <span style="color:#000;font-weight:bold">map</span>[<span style="color:#000;font-weight:bold">interface</span>{}]<span style="color:#000;font-weight:bold">struct</span>{}                       <span style="color:#998;font-style:italic">// 需要遮掩的 val 列表
+</span><span style="color:#998;font-style:italic"></span>	filter <span style="color:#000;font-weight:bold">func</span>(level Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">bool</span> <span style="color:#998;font-style:italic">// 自定义过滤器
+</span><span style="color:#998;font-style:italic"></span>}
+
+<span style="color:#998;font-style:italic">// 实例化对象
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">NewFilter</span>(logger Logger, opts <span style="color:#000;font-weight:bold">...</span>FilterOption) <span style="color:#000;font-weight:bold">*</span>Filter {
+	options <span style="color:#000;font-weight:bold">:=</span> Filter{
+		logger: logger,
+		key:    <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">map</span>[<span style="color:#000;font-weight:bold">interface</span>{}]<span style="color:#000;font-weight:bold">struct</span>{}),
+		value:  <span style="color:#0086b3">make</span>(<span style="color:#000;font-weight:bold">map</span>[<span style="color:#000;font-weight:bold">interface</span>{}]<span style="color:#000;font-weight:bold">struct</span>{}),
+	}
+	<span style="color:#000;font-weight:bold">for</span> _, o <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> opts {
+		<span style="color:#900;font-weight:bold">o</span>(<span style="color:#000;font-weight:bold">&amp;</span>options)
+	}
+	<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>options
+}
+
+<span style="color:#998;font-style:italic">// 实现了 Logger 接口
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> (f <span style="color:#000;font-weight:bold">*</span>Filter) <span style="color:#900;font-weight:bold">Log</span>(level Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">error</span> {
+	<span style="color:#998;font-style:italic">// 检查是否需要过滤该日志级别
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> level &lt; f.level {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 通过自定义过滤方法来检查是否需要过滤该日志
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> f.filter <span style="color:#000;font-weight:bold">!=</span> <span style="color:#000;font-weight:bold">nil</span> <span style="color:#000;font-weight:bold">&amp;&amp;</span> f.<span style="color:#900;font-weight:bold">filter</span>(level, keyvals<span style="color:#000;font-weight:bold">...</span>) {
+		<span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">nil</span>
+	}
+
+	<span style="color:#998;font-style:italic">// 检查是否需要对 key 或者 val 进行遮掩
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">if</span> <span style="color:#0086b3">len</span>(f.key) &gt; <span style="color:#099">0</span> <span style="color:#000;font-weight:bold">||</span> <span style="color:#0086b3">len</span>(f.value) &gt; <span style="color:#099">0</span> {
+		<span style="color:#000;font-weight:bold">for</span> i <span style="color:#000;font-weight:bold">:=</span> <span style="color:#099">0</span>; i &lt; <span style="color:#0086b3">len</span>(keyvals); i <span style="color:#000;font-weight:bold">+=</span> <span style="color:#099">2</span> {
+			v <span style="color:#000;font-weight:bold">:=</span> i <span style="color:#000;font-weight:bold">+</span> <span style="color:#099">1</span>
+			<span style="color:#000;font-weight:bold">if</span> v <span style="color:#000;font-weight:bold">&gt;=</span> <span style="color:#0086b3">len</span>(keyvals) {
+				<span style="color:#000;font-weight:bold">continue</span>
+			}
+
+			<span style="color:#998;font-style:italic">// 检查 key
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">if</span> _, ok <span style="color:#000;font-weight:bold">:=</span> f.key[keyvals[i]]; ok {
+				keyvals[v] = fuzzyStr
+			}
+
+			<span style="color:#998;font-style:italic">// 检查 val
+</span><span style="color:#998;font-style:italic"></span>			<span style="color:#000;font-weight:bold">if</span> _, ok <span style="color:#000;font-weight:bold">:=</span> f.value[keyvals[v]]; ok {
+				keyvals[v] = fuzzyStr
+			}
+		}
+	}
+
+	<span style="color:#998;font-style:italic">// 至此才开始保存日志
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">return</span> f.logger.<span style="color:#900;font-weight:bold">Log</span>(level, keyvals<span style="color:#000;font-weight:bold">...</span>)
+}
+
+</code></pre></td></tr></table>
+</div>
+</div><p>首先，通过 NewFilter 函数来创建实例，第一个参数为日志实例，第二个为 FilterOption 类型动态参数：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#900;font-weight:bold">FilterLevel</span>(level Level) FilterOption: 指定日志级别<span style="color:#a61717;background-color:#e3d2d2">，</span>低于该等级的日志将不会被输出
+<span style="color:#900;font-weight:bold">FilterKey</span>(key <span style="color:#000;font-weight:bold">...</span><span style="color:#458;font-weight:bold">string</span>) FilterOption: 需要脱敏的日志 key 列表<span style="color:#a61717;background-color:#e3d2d2">，</span>这些 key 的值会被 <span style="color:#000;font-weight:bold">***</span> 遮蔽
+<span style="color:#900;font-weight:bold">FilterValue</span>(value <span style="color:#000;font-weight:bold">...</span><span style="color:#458;font-weight:bold">string</span>) FilterOption: 需要脱敏的日志 val 列表<span style="color:#a61717;background-color:#e3d2d2">，</span>匹配的值会被 <span style="color:#000;font-weight:bold">***</span> 遮蔽
+<span style="color:#900;font-weight:bold">FilterFunc</span>(f <span style="color:#000;font-weight:bold">func</span>(level Level, keyvals <span style="color:#000;font-weight:bold">...</span><span style="color:#000;font-weight:bold">interface</span>{}) <span style="color:#458;font-weight:bold">bool</span>) FilterOption: 使用自定义的函数来对日志进行处理<span style="color:#a61717;background-color:#e3d2d2">，</span>keyvals 里为 key 和对应的 value<span style="color:#a61717;background-color:#e3d2d2">，</span>按照奇偶进行读取即可
+</code></pre></td></tr></table>
+</div>
+</div><p>其次，我们看下 Filter 是如何实现 Logger 接口的：</p>
+<ul>
+<li>检查是否需要根据日志级别来进行过滤</li>
+<li>检查是否有自定义过滤方法，有的话调用该方法，根据返回支持来判断是否需要过滤</li>
+<li>检查 key 和 value 列表是否为空，不为空的话需要遍历 keyvals 来依次检查是否需要进行脱敏</li>
+<li>最后调用 logger 进行日志的记录打印</li>
+</ul>
+<h4 id="helper">Helper</h4>
+<p>Helper 为高级日志接口，提供了一系列带有日志等级和格式化方法的帮助函数，通常业务逻辑中建议使用这个，能够简化日志代码。</p>
+<p>日常使用中，推荐通过 Logger 接口实例来进行参数传递，并在内部实例化为 Helper 对象来统一打印的行为。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">logger <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">With</span>(DefaultLogger, <span style="color:#d14">&#34;ts&#34;</span>, DefaultTimestamp, <span style="color:#d14">&#34;caller&#34;</span>, DefaultCaller)
+log <span style="color:#000;font-weight:bold">:=</span> <span style="color:#900;font-weight:bold">NewHelper</span>(<span style="color:#900;font-weight:bold">NewFilter</span>(logger, <span style="color:#900;font-weight:bold">FilterLevel</span>(LevelDebug)))
+
+<span style="color:#998;font-style:italic">// debug 日志会被过滤
+</span><span style="color:#998;font-style:italic"></span>log.<span style="color:#900;font-weight:bold">Debug</span>(<span style="color:#d14">&#34;test debug&#34;</span>)
+log.<span style="color:#900;font-weight:bold">Debugf</span>(<span style="color:#d14">&#34;test %s&#34;</span>, <span style="color:#d14">&#34;debug&#34;</span>)
+log.<span style="color:#900;font-weight:bold">Debugw</span>(<span style="color:#d14">&#34;log&#34;</span>, <span style="color:#d14">&#34;test debug&#34;</span>)
+
+<span style="color:#998;font-style:italic">// warn 日志会被打印
+</span><span style="color:#998;font-style:italic"></span>log.<span style="color:#900;font-weight:bold">Warn</span>(<span style="color:#d14">&#34;test warn&#34;</span>)
+log.<span style="color:#900;font-weight:bold">Warnf</span>(<span style="color:#d14">&#34;test %s&#34;</span>, <span style="color:#d14">&#34;warn&#34;</span>)
+log.<span style="color:#900;font-weight:bold">Warnw</span>(<span style="color:#d14">&#34;log&#34;</span>, <span style="color:#d14">&#34;test warn&#34;</span>)
+
+<span style="color:#998;font-style:italic">// 绑定 ctx 来打印
+</span><span style="color:#998;font-style:italic"></span>log.<span style="color:#900;font-weight:bold">WithContext</span>(ctx).<span style="color:#900;font-weight:bold">Info</span>(<span style="color:#d14">&#34;hello&#34;</span>, <span style="color:#d14">&#34;world&#34;</span>)
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="使用方式">使用方式</h2>
+<p>推荐的方式为，在程序启动入口处初始化 logger 实例：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">logger <span style="color:#000;font-weight:bold">:=</span> log.<span style="color:#900;font-weight:bold">With</span>(log.<span style="color:#900;font-weight:bold">NewStdLogger</span>(os.Stdout),
+    <span style="color:#d14">&#34;ts&#34;</span>, log.DefaultTimestamp,
+    <span style="color:#d14">&#34;caller&#34;</span>, log.DefaultCaller,
+    <span style="color:#d14">&#34;service.id&#34;</span>, id,
+    <span style="color:#d14">&#34;service.name&#34;</span>, Name,
+    <span style="color:#d14">&#34;service.version&#34;</span>, Version,
+    <span style="color:#d14">&#34;trace_id&#34;</span>, tracing.<span style="color:#900;font-weight:bold">TraceID</span>(),
+    <span style="color:#d14">&#34;span_id&#34;</span>, tracing.<span style="color:#900;font-weight:bold">SpanID</span>(),
+))
+
+logger = log.<span style="color:#900;font-weight:bold">NewFilter</span>(logger, log.<span style="color:#900;font-weight:bold">FilterLevel</span>(log.LevelDebug), log.<span style="color:#900;font-weight:bold">FilterKey</span>(<span style="color:#d14">&#34;password&#34;</span>))
+</code></pre></td></tr></table>
+</div>
+</div><p>这个 logger 将通过依赖注入工具 wire 的生成，注入到项目的各层中，供其内部使用。</p>
+<p>下面我们拿 service 来举例看下，在这里将注入进来的 logger 实例用 log.NewHelper 包装成 Helper，绑定到 service 上，这样就可以在这一层调用这个绑定的 helper 对象来打日志了。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">NewGreeterService</span>(uc <span style="color:#000;font-weight:bold">*</span>biz.GreeterUsecase, logger log.Logger) <span style="color:#000;font-weight:bold">*</span>GreeterService {
+    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>GreeterService{uc: uc, log: log.<span style="color:#900;font-weight:bold">NewHelper</span>(logger)} <span style="color:#998;font-style:italic">// 初始化和绑定 helper
+</span><span style="color:#998;font-style:italic"></span>}
+
+<span style="color:#000;font-weight:bold">func</span> (s <span style="color:#000;font-weight:bold">*</span>GreeterService) <span style="color:#900;font-weight:bold">SayHello</span>(ctx context.Context, in <span style="color:#000;font-weight:bold">*</span>v1.HelloRequest) (<span style="color:#000;font-weight:bold">*</span>v1.HelloReply, <span style="color:#458;font-weight:bold">error</span>) {
+    s.log.<span style="color:#900;font-weight:bold">WithContext</span>(ctx).<span style="color:#900;font-weight:bold">Infof</span>(<span style="color:#d14">&#34;SayHello Received: %v&#34;</span>, in.<span style="color:#900;font-weight:bold">GetName</span>())  <span style="color:#998;font-style:italic">// 打印日志
+</span><span style="color:#998;font-style:italic"></span>    <span style="color:#000;font-weight:bold">return</span> <span style="color:#000;font-weight:bold">&amp;</span>v1.HelloReply{Message: <span style="color:#d14">&#34;Hello &#34;</span> <span style="color:#000;font-weight:bold">+</span> in.<span style="color:#900;font-weight:bold">GetName</span>()}, <span style="color:#000;font-weight:bold">nil</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>其它几个层级的初始化和使用方式也是一样的，在 biz 层和 data 层中也可以按照这种方式来注入 logger。</p>
+<h2 id="小结">小结</h2>
+<p>Kratos 为了更加灵活地适配和迁移到各种环境，把日志组件也进行了抽象，这样就可以把业务代码里日志的使用，和日志底层具体的实现隔离开来，提高整体的可维护性，用户只需要实现 Logger 接口即可接入自己业务场景的日志系统。</p>
+<p>通过阅读日志组件源码，我们可以学习到，在开发系统组件或者业务逻辑时候，一定要面向接口编程进行松耦合设计，不要面向具体实现编程，才能提高系统的可维护性和高扩展性。</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://github.com/go-kratos/kratos">https://github.com/go-kratos/kratos</a></p>
+<p><a href="https://github.com/go-kratos/kratos/issues/882">https://github.com/go-kratos/kratos/issues/882</a></p>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2022/01/10/kratos-logger-design/">https://maratrix.cn/post/2022/01/10/kratos-logger-design/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2021/04/28/go-deps/">如何获取Go服务依赖包</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-core-library-changes/">Go1.16新特性|标准库和其他变化</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-module/">Go1.16新特性|Module功能新变化</a></li>
+        
+        <li><a href="/post/2021/02/21/go-embed-syntax/">Go1.16新特性|embed静态资源嵌入[转]</a></li>
+        
+        <li><a href="/post/2020/08/25/go-channel-source-read/">Go源码阅读 | channel 设计与实现</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/go'>go</a></li>
+                
+                <li><a href='/tags/kratos'>kratos</a></li>
+                
+                <li><a href='/tags/logger'>logger</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "maratrixx/maratrixx.github.io"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/10/kratos-logger-design/" title="Kratos 源码分析（一）|日志组件设计与实现">Kratos 源码分析（一）|日志组件设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/30/2021-summary/" title="再见 2021">再见 2021</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/21/go-embed-syntax/" title="Go1.16新特性|embed静态资源嵌入[转]">Go1.16新特性|embed静态资源嵌入[转]</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/02/11/grafana-quick-start/" title="Prometheus学习笔记|02.监控数据可视化">Prometheus学习笔记|02.监控数据可视化</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Git/">Git (9)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Kratos/">Kratos (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/PHP/">PHP (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Prometheus/">Prometheus (4)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (2)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Git/">Git</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/Grafana/">Grafana</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/Prometheus/">Prometheus</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/hystrix-go/">hystrix-go</a>
+    
+    <a href="https://maratrix.cn/tags/kratos/">kratos</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/logger/">logger</a>
+    
+    <a href="https://maratrix.cn/tags/makefile/">makefile</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/">熔断器</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/">监控</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
