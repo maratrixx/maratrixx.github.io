@@ -25,5 +25,95 @@
       <description>dd 命令介绍 Linux dd 命令用于读取、转换并输出数据。 dd 可从标准输入或文件中读取数据，根据指定的格式来转换数据，再输出到文件、设备或标准输出。 dd 命令使用指定大小的块拷贝一个文件，并在拷贝的同时进行指定的转换。可</description>
     </item>
     
+    <item>
+      <title>Vim使用技巧-快速加密</title>
+      <link>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</link>
+      <pubDate>Mon, 22 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</guid>
+      <description>我们知道对于Linux服务器来说是支持多用户多任务环境的，聪明的Linux同学给我们每个用户都有各自的权限，彼此工作互不干扰。但是环境中有一个Super man存在呢，谁拥有它的权限就可以‘偷窥’别人隐</description>
+    </item>
+    
+    <item>
+      <title>Tmux进阶篇</title>
+      <link>https://maratrix.cn/post/2014/12/02/copy_model_note/</link>
+      <pubDate>Tue, 02 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/02/copy_model_note/</guid>
+      <description>今天是12月1日，昨天是今年沈阳下的第一场雪，阴沉沉的天气下了整整一天，虽然不是很大但却是刺骨的冷，由于特么太冷我上午钻进实验室，一天几乎没出去，懒人就是这样。另外就是觉得现在的天气真是扭曲（天气不正</description>
+    </item>
+    
+    <item>
+      <title>潇洒的Tmux结对编程</title>
+      <link>https://maratrix.cn/post/2014/12/01/program_with_each_other/</link>
+      <pubDate>Mon, 01 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/01/program_with_each_other/</guid>
+      <description>本来计划是一天总结一篇Tmux使用技巧的，但是现在真的忍不住要提前介绍一个更炫酷的关于使用Tmux的技巧了，哈哈，技术控嘛，碰到新鲜的而自己又喜欢的技术肯定是不会放过的，破例一下。 Tmux另一个很潇洒</description>
+    </item>
+    
+    <item>
+      <title>配置篇-玩转Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/30/happy-tmux/</link>
+      <pubDate>Sun, 30 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/30/happy-tmux/</guid>
+      <description>上一篇，我们已经安装好了我们的威猛先生Tmux神器。既然被称为是神器，肯定是其被人称道的地方，那么现在就来动手亲自配置我们的Tmux，初体验她的酷以及可定制化。 废话不多说，下面开始吧。。。 常用快捷键 T</description>
+    </item>
+    
+    <item>
+      <title>初次认识Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/29/tmux-intro/</link>
+      <pubDate>Sun, 02 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/29/tmux-intro/</guid>
+      <description>最近，刚接触了命令行神器Tmux,然后瞬间被她的神奇所吸引，真是相见很晚啊！！ Tmux是一个优秀的终端复用软件，使用它最直观的好处就是，通过一个终端登录远程主机并运行tmux后，在其中可以开启多个控制</description>
+    </item>
+    
+    <item>
+      <title>Shell脚本的执行方式区别</title>
+      <link>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</link>
+      <pubDate>Fri, 22 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</guid>
+      <description>不同的Shell脚本执行方式会造成不一样的后果，尤其对bash的环境影响很大。shell脚本的执行方式除了（绝对路径、相对路径、bash、sh）执行外，还可以利用source来执行，那么他们之间有什么</description>
+    </item>
+    
+    <item>
+      <title>Sed数据处理</title>
+      <link>https://maratrix.cn/post/2014/08/17/linux-sed/</link>
+      <pubDate>Sun, 17 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/17/linux-sed/</guid>
+      <description>在Linux下有两个非常强大的数据处理工具，一个是sed，另一个是awk。这里暂且介绍sed如何使用好了，作为备忘笔记，以便以后查看。 sed本身是一个管道命令，可以分析stdin的，而且sed可以将数</description>
+    </item>
+    
+    <item>
+      <title>Linux下语系编码问题总结</title>
+      <link>https://maratrix.cn/post/2014/08/11/linux-code-type/</link>
+      <pubDate>Mon, 11 Aug 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/11/linux-code-type/</guid>
+      <description>我们都知道，我们操作系统的文件都会有一个编码格式[比如：utf8、gb2312…],但是很多情况下，我们会需要将现有文件的语系编码进行转换，比如将utf8的文件转换为gb2312格式，那该怎么办？难道</description>
+    </item>
+    
+    <item>
+      <title>简明VIM练级备忘笔记</title>
+      <link>https://maratrix.cn/post/2014/08/11/vim-study/</link>
+      <pubDate>Mon, 11 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/11/vim-study/</guid>
+      <description>特此声明：本文以及链接参考自[左耳朵耗子]的酷壳站点 vim的学习曲线相当的大，所以，如果你一开始看到的是一大堆VIM的命令分类，你一定会对这个编辑器失去兴趣的。所以如果你想以最快的速度学习人类史上最好</description>
+    </item>
+    
+    <item>
+      <title>Linux与Windows的断行符问题</title>
+      <link>https://maratrix.cn/post/2014/06/27/unix-dos-crlf/</link>
+      <pubDate>Fri, 27 Jun 2014 22:26:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/unix-dos-crlf/</guid>
+      <description>在Linux系统中，当我们使用cat -A命令来查看以Windows建立的文件的格式时，可以发现在Windows中使用的断行符是^M$,被称为“CRLF”。而以Linux建立的文件格式却只有LF($)这</description>
+    </item>
+    
   </channel>
 </rss>

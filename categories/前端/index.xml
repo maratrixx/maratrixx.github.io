@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>前端 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/categories/%E5%89%8D%E7%AB%AF/</link>
+    <description>Recent content in 前端 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 12 Sep 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/%E5%89%8D%E7%AB%AF/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JavaScript之词法分析</title>
+      <link>https://maratrix.cn/post/2014/09/12/js_analysis/</link>
+      <pubDate>Fri, 12 Sep 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/09/12/js_analysis/</guid>
+      <description>js是一门简单的严格面向对象语言，对于刚开始学习js的菜鸟来说，要想学好js有两条链是必须要掌握的，它们分别是： 作用域链 面向对象原型链 这里简单总结下有关作用域链的问题，首先要求我们得懂的js的词法分析</description>
+    </item>
+    
+  </channel>
+</rss>

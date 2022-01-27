@@ -6,7 +6,115 @@
     <description>Recent content in PHP on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Mon, 12 May 2014 20:27:10 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/PHP/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 09 Jul 2015 15:20:57 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/PHP/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何正常转换中文json格式字符串</title>
+      <link>https://maratrix.cn/post/2015/07/09/use_json_note/</link>
+      <pubDate>Thu, 09 Jul 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/07/09/use_json_note/</guid>
+      <description>如何对json格式的字符串进行转换，在php手册中提供了两个函数： 1 2 json_encode : 对变量进行 JSON 编码 json_decode : 对 JSON 格式的字符串进行编码 下面看个实例： 1 2 $arr = [&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;, &amp;#39;c&amp;#39;]; echo json_encode($arr); 输出为： 1 [“a”,”b”,”c”] 但是，当我们在</description>
+    </item>
+    
+    <item>
+      <title>禁用COOKIE后如何访问SESSION问题</title>
+      <link>https://maratrix.cn/post/2015/06/04/how_to_use_session_without_cookie/</link>
+      <pubDate>Thu, 04 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/04/how_to_use_session_without_cookie/</guid>
+      <description>最近看到一个有关在PHP中使用COOKIE会话管理的面试题，不单单是因为这道题很有意思，还有就是自己以前确实没有想到过这个方面（知识欠缺:P），所以这里做个记录总结下，该题大概是这样描述的: 1 如何不使</description>
+    </item>
+    
+    <item>
+      <title>关于在PDO中使用bindParam绑定参数的陷阱</title>
+      <link>https://maratrix.cn/post/2015/05/13/pdo_bindParam_bug_note/</link>
+      <pubDate>Wed, 13 May 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/05/13/pdo_bindParam_bug_note/</guid>
+      <description>今天，在看鸟哥@laruence的个人博客时看到了有关在PHP中使用PDO的bindParam绑定方法结合循环语句来使用时会产生一个BUG或者小陷阱，这里做个笔记备忘 :) 来自PHP官方的BUG报告在这里</description>
+    </item>
+    
+    <item>
+      <title>无锁共享内存---Yac</title>
+      <link>https://maratrix.cn/post/2015/04/20/yac_study_and_vs_memcache_note/</link>
+      <pubDate>Mon, 20 Apr 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/04/20/yac_study_and_vs_memcache_note/</guid>
+      <description>这几天一直在研究鸟哥@laruence的一个产品—Yac，它是为PHP实现的一个基于共享内存、并且无锁的User Data Cache。今天比较了下Memcache和Yac的高并发读写性能测试，发现Yac要比M</description>
+    </item>
+    
+    <item>
+      <title>PHP检测gif图片是否为动态图片</title>
+      <link>https://maratrix.cn/post/2014/10/15/check_gif_picture/</link>
+      <pubDate>Wed, 15 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/15/check_gif_picture/</guid>
+      <description>当我们使用php自带的getimagesize()函数来判断一个gif图片是否为动态（动画）时，发现无法判别是否为动态的效果。本文介绍了php是如何判断gif图片是否为动画的方法，具体步骤如下： 经过G</description>
+    </item>
+    
+    <item>
+      <title>PHP实现异步执行</title>
+      <link>https://maratrix.cn/post/2014/10/11/php_simulation_asynchroous/</link>
+      <pubDate>Sat, 11 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/11/php_simulation_asynchroous/</guid>
+      <description>对于php而言本身没有提供多线程这个东西，但是可以通过其他方式做出同样的效果，即一中方式就是使用fsockopen()函数和fwrite()函数来请求一个url，然后不用等待该返回结果，所以当我们在被</description>
+    </item>
+    
+    <item>
+      <title>SESSION安全性问题</title>
+      <link>https://maratrix.cn/post/2014/08/06/session_safe_notes/</link>
+      <pubDate>Wed, 06 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/06/session_safe_notes/</guid>
+      <description>一直以来很多开发者都认为php内置的session管理机制是具有一定的安全性，可以对一般的session攻击起到防御。事实上，这是一种误解，php团队只实现了一种方便有效的机制。具体的安全措施，应该有</description>
+    </item>
+    
+    <item>
+      <title>PHP程序操作Memcache笔记</title>
+      <link>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</link>
+      <pubDate>Wed, 30 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</guid>
+      <description>上一篇说明telnet操作memcache时就提到有两中方式来操作memcache，一种是通过telnet工具，另一种是通过程序控制，下面简单总结下关于使用PHP程序来操作memcache步骤以及细节</description>
+    </item>
+    
+    <item>
+      <title>网站在线支付总结</title>
+      <link>https://maratrix.cn/post/2014/07/28/php_web_pay_notes/</link>
+      <pubDate>Mon, 28 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/28/php_web_pay_notes/</guid>
+      <description>最近，在做一个购物商城的项目时，其中购买商品用到了关于网站在线支付的技术，就好好研究了下关于网站在线支付的流程与实现原理以及一些特别需要注意的地方。特此总结，备忘，以便查阅！ 大家都知道，在电子商务告诉</description>
+    </item>
+    
+    <item>
+      <title>0.1&#43;0.2=0.3？</title>
+      <link>https://maratrix.cn/post/2014/07/14/php_float_false_notes/</link>
+      <pubDate>Mon, 14 Jul 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/14/php_float_false_notes/</guid>
+      <description>先看一段程序代码，判断下输出会是什么： 1 2 3 4 5 6 7 8 &amp;lt;?php $a = 0.2; $b = 0.1; if (($a + $b) == 0.3) { echo &amp;#39;值为0.3&amp;#39;; } else { echo &amp;#39;值不为0.3&amp;#39;; } ?&amp;gt; 结果会输出什么？会输出 值为0.3 ？ 错误</description>
+    </item>
+    
+    <item>
+      <title>PHP生成扭曲验证码</title>
+      <link>https://maratrix.cn/post/2014/07/13/php_distorted_code/</link>
+      <pubDate>Sun, 13 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/13/php_distorted_code/</guid>
+      <description>为了防止网站被机器人灌水，现在网站的各种验证码广泛存在，为安全性起到了一定的作用。 验证码的样式有很多样，这里笔者只是总结下扭曲验证码的制作过程及其原理介绍，也算是备忘的笔记吧。 原理介绍 这里不再赘余生成</description>
+    </item>
+    
+    <item>
+      <title>PDO 事务处理</title>
+      <link>https://maratrix.cn/post/2014/06/27/php-pdo/</link>
+      <pubDate>Fri, 27 Jun 2014 22:25:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/php-pdo/</guid>
+      <description>事务是确保数据库一致的机制，作为一个单元的一组有序的数据库操作。在事务的组中哪怕有一个环节操作失败，事务也不成功，则整个事务将被回滚，该事务中的所有操作都将被撤销。只有组中的所有SQL语句都操作成功，</description>
+    </item>
+    
     <item>
       <title>PHP新增语法结构Traits</title>
       <link>https://maratrix.cn/post/2014/05/12/php-traits/</link>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>面试 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/%E9%9D%A2%E8%AF%95/</link>
+    <description>Recent content in 面试 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 12 Jun 2015 15:20:57 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E9%9D%A2%E8%AF%95/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>一道面试题引发的一点点思考</title>
+      <link>https://maratrix.cn/post/2015/06/12/shuffle_array_note/</link>
+      <pubDate>Fri, 12 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/12/shuffle_array_note/</guid>
+      <description>到了大三下学期，身边的小伙伴都不约而同地开始找实习了，其中面试当然是不可缺少的重头戏啦。 最近在面百度的时候，面试官的一道关于随机数的题很有意思，不算难，但却在那么一瞬间触动了我，所以打算抽点时间把它记</description>
+    </item>
+    
+  </channel>
+</rss>

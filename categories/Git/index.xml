@@ -6,7 +6,97 @@
     <description>Recent content in Git on MARATRIX BLOG</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Fri, 27 Jun 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Git/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 21 Jul 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/Git/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>不要做一个浮躁的程序员</title>
+      <link>https://maratrix.cn/post/2014/07/21/life_essay_3/</link>
+      <pubDate>Mon, 21 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/21/life_essay_3/</guid>
+      <description>今天看到一篇关于编程感悟的博客，大概意思说的是做编程、做技术（其实就是程序员呀）这行，切忌心浮气躁、急功近利，要让自己的内心静下来、沉淀下来，踏踏实实去做，每天进步一点点，然后坚持下去，肯定会学有所成</description>
+    </item>
+    
+    <item>
+      <title>Git分布式版本控制系统总结</title>
+      <link>https://maratrix.cn/post/2014/07/15/git_summary_notes/</link>
+      <pubDate>Tue, 15 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/15/git_summary_notes/</guid>
+      <description>经过这段时间对Git分布式版本控制系统的学习，对Git已经初步掌握，简单的配置和使用应该不是问题了，并且Git分支管理版本库以及多人协作的策略的思想还是比较好的，确实很优秀。 Git虽然极其强大，命令繁</description>
+    </item>
+    
+    <item>
+      <title>版本控制系统配置别名</title>
+      <link>https://maratrix.cn/post/2014/07/07/git_config_aliase_notes/</link>
+      <pubDate>Mon, 07 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/07/git_config_aliase_notes/</guid>
+      <description>有时候，会觉得Git的命令太长又不好记住，那么能不能做到简短呢？答案当然是肯定的啦！ 比如说git status这个命令对有些人来说就很长，不容易记住，如果可以这样git st使用那就好了，我们强大的Git</description>
+    </item>
+    
+    <item>
+      <title>Gitignore忽略特殊文件操作</title>
+      <link>https://maratrix.cn/post/2014/07/05/git_gitignore_file_notes/</link>
+      <pubDate>Sat, 05 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/05/git_gitignore_file_notes/</guid>
+      <description>有些时候，你必须把某些文件放到Git工作目录中，但又不能提交它们，比如保存了数据库密码的配置文件啦，等等，每次git status都会显示“Untracked files &amp;hellip;”，有强迫症的心里肯定不爽</description>
+    </item>
+    
+    <item>
+      <title>创建标签和操作标签</title>
+      <link>https://maratrix.cn/post/2014/07/04/git_create_tag_notes/</link>
+      <pubDate>Fri, 04 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/04/git_create_tag_notes/</guid>
+      <description>提交一个版本时，我们通常先在版本库中打一个标签，这样，就唯一确定了打标签时刻的版本。将来无论什么时候，取某个标签的版本，就是把那个打标签的时刻的历史版本取出来。所以，标签也是版本库的一个快照。 创建标签</description>
+    </item>
+    
+    <item>
+      <title>Git推送分支和抓取分支</title>
+      <link>https://maratrix.cn/post/2014/07/02/git-push/</link>
+      <pubDate>Wed, 02 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/02/git-push/</guid>
+      <description>当你从远程仓库克隆时，实际上Git自动把本地的master分支和远程的master分支对应起来了，并且，远程仓库的默认名称是origin。 要查看远程库的信息，用git remote： 1 2 $ git remote origin 可以使用</description>
+    </item>
+    
+    <item>
+      <title>Feature分支</title>
+      <link>https://maratrix.cn/post/2014/06/30/git-feat/</link>
+      <pubDate>Mon, 30 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/30/git-feat/</guid>
+      <description>添加一个新功能时，你肯定不希望因为一些实验性质的代码，把主分支搞乱了，所以，每添加一个新功能，最好新建一个feature分支，在上面开发，完成后，合并，最后，删除该feature分支。 假设我们创建了一</description>
+    </item>
+    
+    <item>
+      <title>管理Bug分支</title>
+      <link>https://maratrix.cn/post/2014/06/28/git-bug-branch/</link>
+      <pubDate>Sat, 28 Jun 2014 00:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/28/git-bug-branch/</guid>
+      <description>在项目开发中，bug就像家常便饭一样，随时都会出现。有了bug就需要修复，在Git中，由于分支是如此的强大，所以，每个bug都可以通过一个新的临时分支来修复，修复后，合并分支，然后将临时分支删除。 当你</description>
+    </item>
+    
+    <item>
+      <title>分支管理策略</title>
+      <link>https://maratrix.cn/post/2014/06/27/git_branch_manage_notes/</link>
+      <pubDate>Fri, 27 Jun 2014 22:20:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/git_branch_manage_notes/</guid>
+      <description>通常，合并分支时，如果可能，Git会用“Fast forward”模式，但这种模式下，删除分支后，会丢掉分支信息。如果要强制禁用“Fast forward”模式，Git就会在merge时生成一个新的com</description>
+    </item>
+    
+    <item>
+      <title>解决分支冲突问题</title>
+      <link>https://maratrix.cn/post/2014/06/27/git_branch_conflicts_notes/</link>
+      <pubDate>Fri, 27 Jun 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/git_branch_conflicts_notes/</guid>
+      <description>我们已经知道了如何去创建分支以及合并分支，但实际工作中合并分支并不总是像我们想象的那么一帆风顺，总会发生这样那样的冲突，下面说明下如何去解决如此的问题。 首先，创建一个分支dev，并添加新内容： 1 2 $ git</description>
+    </item>
+    
     <item>
       <title>创建与合并分支</title>
       <link>https://maratrix.cn/post/2014/06/27/git-branch/</link>

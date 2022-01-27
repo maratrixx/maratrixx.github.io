@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>缓存 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/categories/%E7%BC%93%E5%AD%98/</link>
+    <description>Recent content in 缓存 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 30 Mar 2015 15:20:57 +0800</lastBuildDate><atom:link href="https://maratrix.cn/categories/%E7%BC%93%E5%AD%98/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>缓存无底洞现象</title>
+      <link>https://maratrix.cn/post/2015/03/30/memcache_multiget_hole_note/</link>
+      <pubDate>Mon, 30 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/30/memcache_multiget_hole_note/</guid>
+      <description>该问题由facebook 的工作人员提出的, facebook 在2010 年左右,memcached 节点就已经达 3000 个,缓存数千G 内容. 他们发现了一个问题，即由于memcache连接频繁，导致效率下降了。于是他们开始添加m</description>
+    </item>
+    
+    <item>
+      <title>Memcache过期数据惰性和LRU删除机制</title>
+      <link>https://maratrix.cn/post/2015/03/29/memcache_item_delete_note/</link>
+      <pubDate>Sun, 29 Mar 2015 15:30:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/29/memcache_item_delete_note/</guid>
+      <description>Memcache是缓存，所以数据不会永久保存在服务器上，这也是在服务器上引进Memcache的前提。当我们在memcache中存放数据时会设置超时时间（不设置，默认为永久有效，但不排除会被新数据剔除的</description>
+    </item>
+    
+    <item>
+      <title>永久数据丢失现象</title>
+      <link>https://maratrix.cn/post/2015/03/29/memcache_perpetual_data_lose/</link>
+      <pubDate>Sun, 29 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/29/memcache_perpetual_data_lose/</guid>
+      <description>有时候，在我们使用memcache过程中会出现”数据丢失”的现象， 也就是说明明数据被设为永久有效，却莫名其妙的丢失了，这是怎么回事呢？ 在上一篇博客Memcache过期数据惰性和LRU删除机制中已经总结</description>
+    </item>
+    
+    <item>
+      <title>Memcache的内存分配管理</title>
+      <link>https://maratrix.cn/post/2015/03/28/memcache_memory_manage_note/</link>
+      <pubDate>Sat, 28 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/28/memcache_memory_manage_note/</guid>
+      <description>首先，我们要明白什么是内存的碎片化，要解释这个也不困难。大概可以这样描述，如果用c 语言直接malloc,free 来向操作系统申请和释放内存时,在不断的申请和释放过程中,形成了一些很小的内存片断,无法再</description>
+    </item>
+    
+    <item>
+      <title>PHP程序操作Memcache笔记</title>
+      <link>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</link>
+      <pubDate>Wed, 30 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</guid>
+      <description>上一篇说明telnet操作memcache时就提到有两中方式来操作memcache，一种是通过telnet工具，另一种是通过程序控制，下面简单总结下关于使用PHP程序来操作memcache步骤以及细节</description>
+    </item>
+    
+    <item>
+      <title>Telnet操作memcached服务</title>
+      <link>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</link>
+      <pubDate>Tue, 29 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</guid>
+      <description>我们知道，操作memcached有两种方式，分别是通过telnet和php程序来控制，其中php程序控制是主要方面，主要包括三种类型，如下图： pic 首先，我们要先在cmd控制台中开启memcached服务</description>
+    </item>
+    
+    <item>
+      <title>Memcached缓存技术原理与安装</title>
+      <link>https://maratrix.cn/post/2014/07/12/memcached_install_notes/</link>
+      <pubDate>Sat, 12 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/12/memcached_install_notes/</guid>
+      <description>Memcached 是以LiveJournal旗下Danga Interactive公司的Brad Fitzpatric为首开发的一款内存缓存软件。Memcached是一种缓存技术，它可以把数据放入内存，从而可以通过内存访</description>
+    </item>
+    
+  </channel>
+</rss>

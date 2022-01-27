@@ -35,6 +35,15 @@
     </item>
     
     <item>
+      <title>我的 MacOS 软件工具清单</title>
+      <link>https://maratrix.cn/post/2021/12/26/macos-application-list/</link>
+      <pubDate>Sun, 26 Dec 2021 09:10:04 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2021/12/26/macos-application-list/</guid>
+      <description>日常使用 开发环境 名称 说明 下载安装 vscode 轻量级开发编辑器，支持多语言，开源免费，插件丰富 官网下载 goland 重量级开发 IDE，JetBrains 出品，生态完善 官网下载 终端工具 名称 说明 下载安装 tig 终端下更方便好用的 Git 文本</description>
+    </item>
+    
+    <item>
       <title>[转]如何选择开源协议</title>
       <link>https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/</link>
       <pubDate>Sat, 15 May 2021 10:51:27 +0800</pubDate>
@@ -428,6 +437,483 @@
       
       <guid>https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/</guid>
       <description>什么是go:linkname 这里引用Go官方文档的解释： //go:linkname localname importpath.name The //go:linkname directive instructs the compiler to use “importpath.name” as the object file symbol name for the variable or function declared as “localname” in the source code. Because this directive can subvert the type system and package modularity, it is only enabled in</description>
+    </item>
+    
+    <item>
+      <title>如何正常转换中文json格式字符串</title>
+      <link>https://maratrix.cn/post/2015/07/09/use_json_note/</link>
+      <pubDate>Thu, 09 Jul 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/07/09/use_json_note/</guid>
+      <description>如何对json格式的字符串进行转换，在php手册中提供了两个函数： 1 2 json_encode : 对变量进行 JSON 编码 json_decode : 对 JSON 格式的字符串进行编码 下面看个实例： 1 2 $arr = [&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;, &amp;#39;c&amp;#39;]; echo json_encode($arr); 输出为： 1 [“a”,”b”,”c”] 但是，当我们在</description>
+    </item>
+    
+    <item>
+      <title>如何在MySQL中高效的存储ip地址</title>
+      <link>https://maratrix.cn/post/2015/06/20/mysql_save_ip/</link>
+      <pubDate>Sat, 20 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/20/mysql_save_ip/</guid>
+      <description>在多数场景下，我们一般在MySQL中存储ip地址时都使用varchar(15)或者char(15)类型，是吧？ 虽说功能是实现了，但是这样构建数据表就能最大限度的优化数据库性能吗？答案是否定的，尽管在存</description>
+    </item>
+    
+    <item>
+      <title>一道面试题引发的一点点思考</title>
+      <link>https://maratrix.cn/post/2015/06/12/shuffle_array_note/</link>
+      <pubDate>Fri, 12 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/12/shuffle_array_note/</guid>
+      <description>到了大三下学期，身边的小伙伴都不约而同地开始找实习了，其中面试当然是不可缺少的重头戏啦。 最近在面百度的时候，面试官的一道关于随机数的题很有意思，不算难，但却在那么一瞬间触动了我，所以打算抽点时间把它记</description>
+    </item>
+    
+    <item>
+      <title>MySQL中使用binary查询字符串</title>
+      <link>https://maratrix.cn/post/2015/06/07/mysql_str_binary/</link>
+      <pubDate>Sun, 07 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/07/mysql_str_binary/</guid>
+      <description>今天，在做老师布置的实验作业时候遇到一个关于MySQL字符串比较问题。场景是这样的，就是需要在数据库中查询记录而进行字符串比较时，需要对字符串进行大小写区分比较，这样在默认情况下进行操作可能不会达到你</description>
+    </item>
+    
+    <item>
+      <title>禁用COOKIE后如何访问SESSION问题</title>
+      <link>https://maratrix.cn/post/2015/06/04/how_to_use_session_without_cookie/</link>
+      <pubDate>Thu, 04 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/04/how_to_use_session_without_cookie/</guid>
+      <description>最近看到一个有关在PHP中使用COOKIE会话管理的面试题，不单单是因为这道题很有意思，还有就是自己以前确实没有想到过这个方面（知识欠缺:P），所以这里做个记录总结下，该题大概是这样描述的: 1 如何不使</description>
+    </item>
+    
+    <item>
+      <title>关于在PDO中使用bindParam绑定参数的陷阱</title>
+      <link>https://maratrix.cn/post/2015/05/13/pdo_bindParam_bug_note/</link>
+      <pubDate>Wed, 13 May 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/05/13/pdo_bindParam_bug_note/</guid>
+      <description>今天，在看鸟哥@laruence的个人博客时看到了有关在PHP中使用PDO的bindParam绑定方法结合循环语句来使用时会产生一个BUG或者小陷阱，这里做个笔记备忘 :) 来自PHP官方的BUG报告在这里</description>
+    </item>
+    
+    <item>
+      <title>无锁共享内存---Yac</title>
+      <link>https://maratrix.cn/post/2015/04/20/yac_study_and_vs_memcache_note/</link>
+      <pubDate>Mon, 20 Apr 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/04/20/yac_study_and_vs_memcache_note/</guid>
+      <description>这几天一直在研究鸟哥@laruence的一个产品—Yac，它是为PHP实现的一个基于共享内存、并且无锁的User Data Cache。今天比较了下Memcache和Yac的高并发读写性能测试，发现Yac要比M</description>
+    </item>
+    
+    <item>
+      <title>缓存无底洞现象</title>
+      <link>https://maratrix.cn/post/2015/03/30/memcache_multiget_hole_note/</link>
+      <pubDate>Mon, 30 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/30/memcache_multiget_hole_note/</guid>
+      <description>该问题由facebook 的工作人员提出的, facebook 在2010 年左右,memcached 节点就已经达 3000 个,缓存数千G 内容. 他们发现了一个问题，即由于memcache连接频繁，导致效率下降了。于是他们开始添加m</description>
+    </item>
+    
+    <item>
+      <title>Memcache过期数据惰性和LRU删除机制</title>
+      <link>https://maratrix.cn/post/2015/03/29/memcache_item_delete_note/</link>
+      <pubDate>Sun, 29 Mar 2015 15:30:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/29/memcache_item_delete_note/</guid>
+      <description>Memcache是缓存，所以数据不会永久保存在服务器上，这也是在服务器上引进Memcache的前提。当我们在memcache中存放数据时会设置超时时间（不设置，默认为永久有效，但不排除会被新数据剔除的</description>
+    </item>
+    
+    <item>
+      <title>永久数据丢失现象</title>
+      <link>https://maratrix.cn/post/2015/03/29/memcache_perpetual_data_lose/</link>
+      <pubDate>Sun, 29 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/29/memcache_perpetual_data_lose/</guid>
+      <description>有时候，在我们使用memcache过程中会出现”数据丢失”的现象， 也就是说明明数据被设为永久有效，却莫名其妙的丢失了，这是怎么回事呢？ 在上一篇博客Memcache过期数据惰性和LRU删除机制中已经总结</description>
+    </item>
+    
+    <item>
+      <title>Memcache的内存分配管理</title>
+      <link>https://maratrix.cn/post/2015/03/28/memcache_memory_manage_note/</link>
+      <pubDate>Sat, 28 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/28/memcache_memory_manage_note/</guid>
+      <description>首先，我们要明白什么是内存的碎片化，要解释这个也不困难。大概可以这样描述，如果用c 语言直接malloc,free 来向操作系统申请和释放内存时,在不断的申请和释放过程中,形成了一些很小的内存片断,无法再</description>
+    </item>
+    
+    <item>
+      <title>MySQL数据库主从复制</title>
+      <link>https://maratrix.cn/post/2015/03/20/mysql_and_slave_test/</link>
+      <pubDate>Fri, 20 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/20/mysql_and_slave_test/</guid>
+      <description>MySQL数据库主从复制的工作方式很简单，一台主机作为主服务器，一台或者多台主机作为从服务器。主服务器会把数据库的变化记录到日志，一旦这些变化被记录到日志，就会马上或者以固定的时间间隔被发送从服务器，</description>
+    </item>
+    
+    <item>
+      <title>大学最后一个寒假</title>
+      <link>https://maratrix.cn/post/2015/03/07/winter_holiday_conclusion/</link>
+      <pubDate>Sat, 07 Mar 2015 15:22:17 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/07/winter_holiday_conclusion/</guid>
+      <description>猛地意识到今天就已经是3月7日了，而我买的是明天的火车票，对于我来说意味着毫无防备并且来不及拾掇就要滚回学校了。呜呼，时间过的真TM快，将近俩月的大学最后一个大长假就这么一睁眼一闭眼就嗝屁（方言）了,</description>
+    </item>
+    
+    <item>
+      <title>Kindle爱之初体验</title>
+      <link>https://maratrix.cn/post/2015/02/07/experience_of_kindle/</link>
+      <pubDate>Sat, 07 Feb 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/02/07/experience_of_kindle/</guid>
+      <description>自入手kindle差不多已经一个月了，这将近一个月的阅读体验确实本人感概良多，发现自己更爱读书了，也逐渐喜欢上和离不开 kindle了（推荐给喜欢阅读的小伙伴们~）。其实，早就有写一篇博客来记录这段时间</description>
+    </item>
+    
+    <item>
+      <title>Vim使用技巧-快速加密</title>
+      <link>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</link>
+      <pubDate>Mon, 22 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</guid>
+      <description>我们知道对于Linux服务器来说是支持多用户多任务环境的，聪明的Linux同学给我们每个用户都有各自的权限，彼此工作互不干扰。但是环境中有一个Super man存在呢，谁拥有它的权限就可以‘偷窥’别人隐</description>
+    </item>
+    
+    <item>
+      <title>Tmux进阶篇</title>
+      <link>https://maratrix.cn/post/2014/12/02/copy_model_note/</link>
+      <pubDate>Tue, 02 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/02/copy_model_note/</guid>
+      <description>今天是12月1日，昨天是今年沈阳下的第一场雪，阴沉沉的天气下了整整一天，虽然不是很大但却是刺骨的冷，由于特么太冷我上午钻进实验室，一天几乎没出去，懒人就是这样。另外就是觉得现在的天气真是扭曲（天气不正</description>
+    </item>
+    
+    <item>
+      <title>潇洒的Tmux结对编程</title>
+      <link>https://maratrix.cn/post/2014/12/01/program_with_each_other/</link>
+      <pubDate>Mon, 01 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/01/program_with_each_other/</guid>
+      <description>本来计划是一天总结一篇Tmux使用技巧的，但是现在真的忍不住要提前介绍一个更炫酷的关于使用Tmux的技巧了，哈哈，技术控嘛，碰到新鲜的而自己又喜欢的技术肯定是不会放过的，破例一下。 Tmux另一个很潇洒</description>
+    </item>
+    
+    <item>
+      <title>配置篇-玩转Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/30/happy-tmux/</link>
+      <pubDate>Sun, 30 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/30/happy-tmux/</guid>
+      <description>上一篇，我们已经安装好了我们的威猛先生Tmux神器。既然被称为是神器，肯定是其被人称道的地方，那么现在就来动手亲自配置我们的Tmux，初体验她的酷以及可定制化。 废话不多说，下面开始吧。。。 常用快捷键 T</description>
+    </item>
+    
+    <item>
+      <title>SSL/TLS协议概述</title>
+      <link>https://maratrix.cn/post/2014/11/02/ssl_tls_secure_notes/</link>
+      <pubDate>Sun, 02 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/02/ssl_tls_secure_notes/</guid>
+      <description>不使用SSL/TLS协议的HTTP通信，就是不加密的通信，所有信息都是明文传播。在这个不安全的网络上，当我们涉及金钱的交易时，如果信息使用明文传输，光是想想都觉得可怕（假如支付宝使用明文的HTTP协议</description>
+    </item>
+    
+    <item>
+      <title>初次认识Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/29/tmux-intro/</link>
+      <pubDate>Sun, 02 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/29/tmux-intro/</guid>
+      <description>最近，刚接触了命令行神器Tmux,然后瞬间被她的神奇所吸引，真是相见很晚啊！！ Tmux是一个优秀的终端复用软件，使用它最直观的好处就是，通过一个终端登录远程主机并运行tmux后，在其中可以开启多个控制</description>
+    </item>
+    
+    <item>
+      <title>如何高效管理我们的时间</title>
+      <link>https://maratrix.cn/post/2014/10/30/how_to_manage_our_time/</link>
+      <pubDate>Thu, 30 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/30/how_to_manage_our_time/</guid>
+      <description>不知道大家有没有发现，有时候一天过去了却发现自己好像什么都没干。不要虚伪，我相信每个人都会碰到这种情况的，所以不要说在你身上没有发生过。说到底，原因是我们没有充分以及高效的利用好我们时间，总被各种繁琐</description>
+    </item>
+    
+    <item>
+      <title>MySQL实现增量备份小结</title>
+      <link>https://maratrix.cn/post/2014/10/21/mysql_mysqlbinlog_dump_note/</link>
+      <pubDate>Tue, 21 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/21/mysql_mysqlbinlog_dump_note/</guid>
+      <description>当我们误删了MySQL数据库某张表中的数据或者整张表，我们可以使用MySQL的增量备份机制来实现误删数据的恢复，接下来就来总结下MySQL的增量备份技术是如何实现的，以及其中需要我们注意的事项！ 首先，</description>
+    </item>
+    
+    <item>
+      <title>MyISAM存储引擎的碎片整理问题</title>
+      <link>https://maratrix.cn/post/2014/10/19/mysql_myisam_data_optimize/</link>
+      <pubDate>Sun, 19 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/19/mysql_myisam_data_optimize/</guid>
+      <description>最近，在使用MySQL数据库的MyISAM存储引擎建表，并且在删除大量数据时，发现在本地硬盘放置的的data文件并没有改变大小。碰到这种情况，笔者甚是郁闷而又感到奇怪，经查阅资料，终于解决了该问题。 问</description>
+    </item>
+    
+    <item>
+      <title>PHP检测gif图片是否为动态图片</title>
+      <link>https://maratrix.cn/post/2014/10/15/check_gif_picture/</link>
+      <pubDate>Wed, 15 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/15/check_gif_picture/</guid>
+      <description>当我们使用php自带的getimagesize()函数来判断一个gif图片是否为动态（动画）时，发现无法判别是否为动态的效果。本文介绍了php是如何判断gif图片是否为动画的方法，具体步骤如下： 经过G</description>
+    </item>
+    
+    <item>
+      <title>PHP实现异步执行</title>
+      <link>https://maratrix.cn/post/2014/10/11/php_simulation_asynchroous/</link>
+      <pubDate>Sat, 11 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/11/php_simulation_asynchroous/</guid>
+      <description>对于php而言本身没有提供多线程这个东西，但是可以通过其他方式做出同样的效果，即一中方式就是使用fsockopen()函数和fwrite()函数来请求一个url，然后不用等待该返回结果，所以当我们在被</description>
+    </item>
+    
+    <item>
+      <title>正则表达式---环视</title>
+      <link>https://maratrix.cn/post/2014/10/07/the_regular_expression_look_around/</link>
+      <pubDate>Tue, 07 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/07/the_regular_expression_look_around/</guid>
+      <description>在正则表达式中，断言用来声明一个应该为真的事实，只有断言为真时才会继续进行匹配。不过要记得哦，断言只是匹配一个事实，而不是内容。这里介绍的断言，他们用于查找在某些内容之前或者之后，也就是一个位置应该满</description>
+    </item>
+    
+    <item>
+      <title>细节，深刻又尴尬的教训</title>
+      <link>https://maratrix.cn/post/2014/09/26/details_with_attitude/</link>
+      <pubDate>Fri, 26 Sep 2014 14:52:04 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/09/26/details_with_attitude/</guid>
+      <description>今天，做了一件让我自己都觉得羞愧的事，感觉自己就像一个小丑，都是自己太粗心大意了，或者说自己也太不注意细节问题了。 现在，大部分人当然也包括此刻以前的我(此刻已改变)，都觉得凡事都不用太在乎细节，逢人便</description>
+    </item>
+    
+    <item>
+      <title>不要浪费人生的每一天</title>
+      <link>https://maratrix.cn/post/2014/09/23/dropbox_mit_speech/</link>
+      <pubDate>Tue, 23 Sep 2014 14:52:04 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/09/23/dropbox_mit_speech/</guid>
+      <description>今天分享一个演讲，演讲人是Dropbox创始人，他向我们毕业或者在校大学生提出了3点人生建议，但是可能也同样适用于你MIT演讲：只和出色的人在一起，不浪费生命的每一天 Dropbox创始人，CEO德鲁·</description>
+    </item>
+    
+    <item>
+      <title>JavaScript之词法分析</title>
+      <link>https://maratrix.cn/post/2014/09/12/js_analysis/</link>
+      <pubDate>Fri, 12 Sep 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/09/12/js_analysis/</guid>
+      <description>js是一门简单的严格面向对象语言，对于刚开始学习js的菜鸟来说，要想学好js有两条链是必须要掌握的，它们分别是： 作用域链 面向对象原型链 这里简单总结下有关作用域链的问题，首先要求我们得懂的js的词法分析</description>
+    </item>
+    
+    <item>
+      <title>Shell脚本的执行方式区别</title>
+      <link>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</link>
+      <pubDate>Fri, 22 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</guid>
+      <description>不同的Shell脚本执行方式会造成不一样的后果，尤其对bash的环境影响很大。shell脚本的执行方式除了（绝对路径、相对路径、bash、sh）执行外，还可以利用source来执行，那么他们之间有什么</description>
+    </item>
+    
+    <item>
+      <title>Sed数据处理</title>
+      <link>https://maratrix.cn/post/2014/08/17/linux-sed/</link>
+      <pubDate>Sun, 17 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/17/linux-sed/</guid>
+      <description>在Linux下有两个非常强大的数据处理工具，一个是sed，另一个是awk。这里暂且介绍sed如何使用好了，作为备忘笔记，以便以后查看。 sed本身是一个管道命令，可以分析stdin的，而且sed可以将数</description>
+    </item>
+    
+    <item>
+      <title>Linux下语系编码问题总结</title>
+      <link>https://maratrix.cn/post/2014/08/11/linux-code-type/</link>
+      <pubDate>Mon, 11 Aug 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/11/linux-code-type/</guid>
+      <description>我们都知道，我们操作系统的文件都会有一个编码格式[比如：utf8、gb2312…],但是很多情况下，我们会需要将现有文件的语系编码进行转换，比如将utf8的文件转换为gb2312格式，那该怎么办？难道</description>
+    </item>
+    
+    <item>
+      <title>简明VIM练级备忘笔记</title>
+      <link>https://maratrix.cn/post/2014/08/11/vim-study/</link>
+      <pubDate>Mon, 11 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/11/vim-study/</guid>
+      <description>特此声明：本文以及链接参考自[左耳朵耗子]的酷壳站点 vim的学习曲线相当的大，所以，如果你一开始看到的是一大堆VIM的命令分类，你一定会对这个编辑器失去兴趣的。所以如果你想以最快的速度学习人类史上最好</description>
+    </item>
+    
+    <item>
+      <title>SESSION安全性问题</title>
+      <link>https://maratrix.cn/post/2014/08/06/session_safe_notes/</link>
+      <pubDate>Wed, 06 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/06/session_safe_notes/</guid>
+      <description>一直以来很多开发者都认为php内置的session管理机制是具有一定的安全性，可以对一般的session攻击起到防御。事实上，这是一种误解，php团队只实现了一种方便有效的机制。具体的安全措施，应该有</description>
+    </item>
+    
+    <item>
+      <title>PHP程序操作Memcache笔记</title>
+      <link>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</link>
+      <pubDate>Wed, 30 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/30/memcache_php_notes/</guid>
+      <description>上一篇说明telnet操作memcache时就提到有两中方式来操作memcache，一种是通过telnet工具，另一种是通过程序控制，下面简单总结下关于使用PHP程序来操作memcache步骤以及细节</description>
+    </item>
+    
+    <item>
+      <title>Telnet操作memcached服务</title>
+      <link>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</link>
+      <pubDate>Tue, 29 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</guid>
+      <description>我们知道，操作memcached有两种方式，分别是通过telnet和php程序来控制，其中php程序控制是主要方面，主要包括三种类型，如下图： pic 首先，我们要先在cmd控制台中开启memcached服务</description>
+    </item>
+    
+    <item>
+      <title>网站在线支付总结</title>
+      <link>https://maratrix.cn/post/2014/07/28/php_web_pay_notes/</link>
+      <pubDate>Mon, 28 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/28/php_web_pay_notes/</guid>
+      <description>最近，在做一个购物商城的项目时，其中购买商品用到了关于网站在线支付的技术，就好好研究了下关于网站在线支付的流程与实现原理以及一些特别需要注意的地方。特此总结，备忘，以便查阅！ 大家都知道，在电子商务告诉</description>
+    </item>
+    
+    <item>
+      <title>不要做一个浮躁的程序员</title>
+      <link>https://maratrix.cn/post/2014/07/21/life_essay_3/</link>
+      <pubDate>Mon, 21 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/21/life_essay_3/</guid>
+      <description>今天看到一篇关于编程感悟的博客，大概意思说的是做编程、做技术（其实就是程序员呀）这行，切忌心浮气躁、急功近利，要让自己的内心静下来、沉淀下来，踏踏实实去做，每天进步一点点，然后坚持下去，肯定会学有所成</description>
+    </item>
+    
+    <item>
+      <title>Git分布式版本控制系统总结</title>
+      <link>https://maratrix.cn/post/2014/07/15/git_summary_notes/</link>
+      <pubDate>Tue, 15 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/15/git_summary_notes/</guid>
+      <description>经过这段时间对Git分布式版本控制系统的学习，对Git已经初步掌握，简单的配置和使用应该不是问题了，并且Git分支管理版本库以及多人协作的策略的思想还是比较好的，确实很优秀。 Git虽然极其强大，命令繁</description>
+    </item>
+    
+    <item>
+      <title>0.1&#43;0.2=0.3？</title>
+      <link>https://maratrix.cn/post/2014/07/14/php_float_false_notes/</link>
+      <pubDate>Mon, 14 Jul 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/14/php_float_false_notes/</guid>
+      <description>先看一段程序代码，判断下输出会是什么： 1 2 3 4 5 6 7 8 &amp;lt;?php $a = 0.2; $b = 0.1; if (($a + $b) == 0.3) { echo &amp;#39;值为0.3&amp;#39;; } else { echo &amp;#39;值不为0.3&amp;#39;; } ?&amp;gt; 结果会输出什么？会输出 值为0.3 ？ 错误</description>
+    </item>
+    
+    <item>
+      <title>PHP生成扭曲验证码</title>
+      <link>https://maratrix.cn/post/2014/07/13/php_distorted_code/</link>
+      <pubDate>Sun, 13 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/13/php_distorted_code/</guid>
+      <description>为了防止网站被机器人灌水，现在网站的各种验证码广泛存在，为安全性起到了一定的作用。 验证码的样式有很多样，这里笔者只是总结下扭曲验证码的制作过程及其原理介绍，也算是备忘的笔记吧。 原理介绍 这里不再赘余生成</description>
+    </item>
+    
+    <item>
+      <title>Memcached缓存技术原理与安装</title>
+      <link>https://maratrix.cn/post/2014/07/12/memcached_install_notes/</link>
+      <pubDate>Sat, 12 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/12/memcached_install_notes/</guid>
+      <description>Memcached 是以LiveJournal旗下Danga Interactive公司的Brad Fitzpatric为首开发的一款内存缓存软件。Memcached是一种缓存技术，它可以把数据放入内存，从而可以通过内存访</description>
+    </item>
+    
+    <item>
+      <title>就当我在扯淡</title>
+      <link>https://maratrix.cn/post/2014/07/10/life_essay_2/</link>
+      <pubDate>Thu, 10 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/10/life_essay_2/</guid>
+      <description>今天是学校暑假放假回家后的第一天，我不知道这个暑假会不会是最后一次在家过暑假了，但总感觉很有可能是，因为也快要出去实习了嘛，以前在总觉得实习离我还很遥远，就那样“悠闲的”度过了我的大一大二，暑假过后我</description>
+    </item>
+    
+    <item>
+      <title>版本控制系统配置别名</title>
+      <link>https://maratrix.cn/post/2014/07/07/git_config_aliase_notes/</link>
+      <pubDate>Mon, 07 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/07/git_config_aliase_notes/</guid>
+      <description>有时候，会觉得Git的命令太长又不好记住，那么能不能做到简短呢？答案当然是肯定的啦！ 比如说git status这个命令对有些人来说就很长，不容易记住，如果可以这样git st使用那就好了，我们强大的Git</description>
+    </item>
+    
+    <item>
+      <title>Gitignore忽略特殊文件操作</title>
+      <link>https://maratrix.cn/post/2014/07/05/git_gitignore_file_notes/</link>
+      <pubDate>Sat, 05 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/05/git_gitignore_file_notes/</guid>
+      <description>有些时候，你必须把某些文件放到Git工作目录中，但又不能提交它们，比如保存了数据库密码的配置文件啦，等等，每次git status都会显示“Untracked files &amp;hellip;”，有强迫症的心里肯定不爽</description>
+    </item>
+    
+    <item>
+      <title>创建标签和操作标签</title>
+      <link>https://maratrix.cn/post/2014/07/04/git_create_tag_notes/</link>
+      <pubDate>Fri, 04 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/04/git_create_tag_notes/</guid>
+      <description>提交一个版本时，我们通常先在版本库中打一个标签，这样，就唯一确定了打标签时刻的版本。将来无论什么时候，取某个标签的版本，就是把那个打标签的时刻的历史版本取出来。所以，标签也是版本库的一个快照。 创建标签</description>
+    </item>
+    
+    <item>
+      <title>Git推送分支和抓取分支</title>
+      <link>https://maratrix.cn/post/2014/07/02/git-push/</link>
+      <pubDate>Wed, 02 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/02/git-push/</guid>
+      <description>当你从远程仓库克隆时，实际上Git自动把本地的master分支和远程的master分支对应起来了，并且，远程仓库的默认名称是origin。 要查看远程库的信息，用git remote： 1 2 $ git remote origin 可以使用</description>
+    </item>
+    
+    <item>
+      <title>Feature分支</title>
+      <link>https://maratrix.cn/post/2014/06/30/git-feat/</link>
+      <pubDate>Mon, 30 Jun 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/30/git-feat/</guid>
+      <description>添加一个新功能时，你肯定不希望因为一些实验性质的代码，把主分支搞乱了，所以，每添加一个新功能，最好新建一个feature分支，在上面开发，完成后，合并，最后，删除该feature分支。 假设我们创建了一</description>
+    </item>
+    
+    <item>
+      <title>管理Bug分支</title>
+      <link>https://maratrix.cn/post/2014/06/28/git-bug-branch/</link>
+      <pubDate>Sat, 28 Jun 2014 00:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/28/git-bug-branch/</guid>
+      <description>在项目开发中，bug就像家常便饭一样，随时都会出现。有了bug就需要修复，在Git中，由于分支是如此的强大，所以，每个bug都可以通过一个新的临时分支来修复，修复后，合并分支，然后将临时分支删除。 当你</description>
+    </item>
+    
+    <item>
+      <title>Linux与Windows的断行符问题</title>
+      <link>https://maratrix.cn/post/2014/06/27/unix-dos-crlf/</link>
+      <pubDate>Fri, 27 Jun 2014 22:26:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/unix-dos-crlf/</guid>
+      <description>在Linux系统中，当我们使用cat -A命令来查看以Windows建立的文件的格式时，可以发现在Windows中使用的断行符是^M$,被称为“CRLF”。而以Linux建立的文件格式却只有LF($)这</description>
+    </item>
+    
+    <item>
+      <title>PDO 事务处理</title>
+      <link>https://maratrix.cn/post/2014/06/27/php-pdo/</link>
+      <pubDate>Fri, 27 Jun 2014 22:25:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/php-pdo/</guid>
+      <description>事务是确保数据库一致的机制，作为一个单元的一组有序的数据库操作。在事务的组中哪怕有一个环节操作失败，事务也不成功，则整个事务将被回滚，该事务中的所有操作都将被撤销。只有组中的所有SQL语句都操作成功，</description>
+    </item>
+    
+    <item>
+      <title>分支管理策略</title>
+      <link>https://maratrix.cn/post/2014/06/27/git_branch_manage_notes/</link>
+      <pubDate>Fri, 27 Jun 2014 22:20:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/git_branch_manage_notes/</guid>
+      <description>通常，合并分支时，如果可能，Git会用“Fast forward”模式，但这种模式下，删除分支后，会丢掉分支信息。如果要强制禁用“Fast forward”模式，Git就会在merge时生成一个新的com</description>
+    </item>
+    
+    <item>
+      <title>解决分支冲突问题</title>
+      <link>https://maratrix.cn/post/2014/06/27/git_branch_conflicts_notes/</link>
+      <pubDate>Fri, 27 Jun 2014 22:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/06/27/git_branch_conflicts_notes/</guid>
+      <description>我们已经知道了如何去创建分支以及合并分支，但实际工作中合并分支并不总是像我们想象的那么一帆风顺，总会发生这样那样的冲突，下面说明下如何去解决如此的问题。 首先，创建一个分支dev，并添加新内容： 1 2 $ git</description>
     </item>
     
     <item>

@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>不要浪费人生的每一天 | MARATRIX BLOG</title>
+    <meta property="og:title" content="不要浪费人生的每一天 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2014-09-23T14:52:04&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2014-09-23T14:52:04&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="不要浪费人生的每一天">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2014/09/23/dropbox_mit_speech/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#个人感悟">个人感悟：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">不要浪费人生的每一天</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2014年9月23日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <p>　今天分享一个演讲，演讲人是Dropbox创始人，他向我们毕业或者在校大学生提出了3点人生建议，但是可能也同样适用于你MIT演讲：只和出色的人在一起，不浪费生命的每一天</p>
+<p>Dropbox创始人，CEO德鲁·休斯顿(Drew Houston)近期在美国麻省理工学院的毕业典礼上发表演讲。他向大学生提出了3点人生建议：追逐自己感兴趣的事，找到最合适的圈子，以及不要浪费人生的每一天。以下为休斯顿演讲全文：</p>
+<p>谢谢董事会主席里德，也祝贺所有2013届毕业的同学。我很高兴回到麻省理工学院，并很荣幸地与你们在一起。我仍然佩戴着“黄铜鼠”戒指。在毕业当天向所有人展示这枚戒指仍是我一生中最自豪的时刻之一。这是特殊的一天，而原因则有很多，我认为最令人激动的原因在于，这是人生中第一天你不必再为上课签到担心。</p>
+<p>pic</p>
+<p>在你们人生最初的几个十年中，成功意味着从一个围城跳入另一个围城：考试获得高分，进入这所大学，修完所有课程，获得这一学位，进入一家有名的研究所，随后进入另一家有名的研究所。今天，这一切都结束了。</p>
+<p>人生规划的难点在于，你不知道将走向何处，但会希望尽快实现自己的目标。或许你会建立一家公司，或治愈癌症，或撰写一部美国知名的小说。但谁知道呢？或许，情况会变得很糟糕。我无法判断。</p>
+<p>今天，穿着学位服站在这里并对大家演讲并不在我7年前的计划之中。实际上，我从没有过伟大的计划。我现在发现，在刚刚毕业时，几乎不可能提出这种伟大的计划。</p>
+<p>我曾思考过，你们从今天开始将会有怎样不同的人生。我也曾思考过，如果重来一次，我会怎样去做。你们能走到今天是因为聪明的大脑和刻苦学习。但没有人会告诉你，过了今天之后，推动成功的元素将会改变。因此我想做的是，给你们一张“考试作弊的小抄”，这是我在毕业当天希望拥有的。</p>
+<p>如果看看这张小抄，可以发现上面的内容不多：一个网球、一个圆圈，以及数字3万。我知道，目前这些内容没有任何意义，但请听我说完。</p>
+<p>21岁时，我建立了自己的第一家公司，这是我和合伙人安德鲁·可利克(AndrewCrick)此前从未做过的。我们不知道走进市政大厅是否需要穿着正装，也不知道是否需要刻一枚印章为重要文件盖章。最终我们发现，只需上网填表就可以在两分钟内完成建立公司的步骤。这听起来有些扫兴，但我们开始了自己的生意。吃着洋葱圈，我们决定这家公司将针对SAT考试提供一种全新的网络课程。当时，大部分孩子仍在使用厚达800页的教材，而网上的其他预备课程也不是很好。我们将公司称作Accolade，在SAT词汇表中意为“杰出的成就”。实际上，我们的公司名为“TheAccolade Group LLC”，我们认为这听起来容易引起关注。</p>
+<p>在回家路上，我前往一家Staples门店去买名片盒。很明显，建立公司的最重要一步是使用Photoshop设计公司标志，并打印一些名片，名片上印有“创始人”的字样。下一步则是在各种会议上分发名片，并告诉女孩们：“理由是，我确实有一家公司。”这挺不错。</p>
+<p>不过，创业最有趣的部分在于学习各种新东西。每年夏天，我都会住在兄弟会的房子里，5楼有一个梯子通往房顶。我会拿上一把绿色的尼龙折叠椅，带着从亚马逊购买的商业类图书去阅读。每个周末，我都会花时间阅读有关营销、销售、管理，以及其他我不了解领域的图书。我并未打算在PhiDeltaTheta兄弟会的房顶上拿到MBA学位，但事实就是这样。</p>
+<p>几年后，情况开始走下坡路。我感觉，我需要更加努力才能取得进步。一些时候，我觉得思路突然中断，无法解答更多关于平行线或火车开行的数学题。我发现自己出了问题，对这样的低效我感到自责。建立一家公司是我的梦想，但我可能还没有做好万全的准备。</p>
+<p>因此我休息了一段时间。当然，如果你来自6系(麻省理工学院电气工程专业)，那么“休息一会”意味着编写一个扑克机器人程序。如果你们不懂什么是扑克机器人，可以这样理解：当你在网上打扑克时，你一坐几个小时，点击一些按钮，输掉所有钱，而扑克机器人意味着你可以用计算机帮你输掉这些钱。</p>
+<p>这是一项有趣的挑战。我全身心投入。我在洗澡时思考，在午夜也会思考。这就像打开了一个开关，突然之间我就成了一台机器。</p>
+<p>期间，我的父母希望全家人前往新汉普歇尔，共同度过一个周末。但我仍希望开发我的扑克机器人。因此我打开本田雅阁的后备箱，将所有计算机设备和线缆搬进度假小屋。饭厅的桌子不是很大，因此我将所有锅碗瓢盆搬开，给显示器腾出地方。这一次，我妈妈认为我出了什么问题，肯定要进监狱。</p>
+<p>原本我可以说，去做你喜欢的事，但实际情况并非如此。你可以很容易说服自己，你喜欢自己正在做的事。有谁会承认他们不喜欢呢？在思考这一问题时，我发现，我所认识的最愉快、最成功的人们不仅喜欢自己做的事，也善于解决一个重要问题，这对他们来说很重要。他们让我联想到小狗追逐网球的例子：它们的眼神有些疯狂，绳索一松就会立刻扑上去，抓住可以抓的一切东西。我的另一些朋友同样努力工作，获得了很高的薪水，但他们总是抱怨被束缚在办公桌上。</p>
+<p>问题在于，许多人没有找到他们的网球。我不希望走错路。我喜欢良好的标准化考试，但成为SAT备考的领先者并不是我的目标。令我惊讶的是，扑克机器人和Dropbox开始分散我的注意力。我内心的一个声音告诉我要去哪里，而我则一直告诉它闭嘴，让我好好工作。然而有些时候，这个声音才最了解你。</p>
+<p>我花了很长时间才知道这一点：最努力的人并不是由于纪律性才努力工作，而是因为他们正在解决有趣的问题。因此在今天之后，你们不用自己鞭策自己，而是要找到属于自己的网球，让事情去鞭策自己。这可能需要花一段时间，但在你找到网球之前，请倾听内心的声音。</p>
+<p>让我们回到我毕业后的那个夏天，你们也将迎来这样的夏天。我兄弟会的伙伴亚当·史密斯(AdamSmith)和他的朋友马特·布雷齐纳(Matt Brezina)创建了一家公司。我们都发现，当所有人都在一间公寓中工作时，将非常有趣。</p>
+<p>这是一个完美的夏天，或者说，接近完美。公寓的空调出了问题，我们所有人都只能在小格子间里编程。史密斯和布雷齐纳日以继夜地工作。一段时间后，许多潜在投资人找到他们，与他们分享秘密，并带他们乘坐直升机。我感到羡慕。我的公司已有几年时间，而史密斯的公司才只有几个月。我的直升机在哪里？</p>
+<p>情况越来越糟。8月份过去，史密斯带来了坏消息：他们将要搬走。这不仅意味着我失去了小食品来源，他们也将离开前往硅谷，在那里将会有重要的事发生，但我不参与其中。我经常打电话给史密斯，听听他的进展。他们似乎总是很顺利。他会告诉我：“我们今天下午见了维诺德·科斯拉(VinodKhosla)。”科斯拉是一名亿万富翁投资人，同时也是Sun的联合创始人。他丢给我一个“重磅炸弹”：“他会给我们500万美元。”</p>
+<p>我为他取得的成就感到激动，但对我来说则是一次打击。这是我的酒友，也是我兄弟会中的兄弟，比我年轻两岁。我没有任何借口。他已经在“超级碗”比赛中出场，而我在选秀时就已落选。史密斯当时并不知道，但实际上他给了我很大的触动：是时候做出改变了。</p>
+<p>许多人都说，人们通常只与5个人在一起的时间最长。想一想，谁是你圈子中的这5个人？我得出了一些好消息：对建立圈子来说，麻省理工学院是全球最好的场所。如果我没有来到这里，我就不会认识史密斯，不会遇见出色的合作者，也不会有Dropbox。</p>
+<p>我学到的一点是，周围人的出色与自己的才能和努力同样重要。如果迈克尔·乔丹(MichaelJordan)没有加入NBA，他周围的5个人都来自意大利，那么将会怎样？你的圈子使你变得更好，正如史密斯对我一样。</p>
+<p>你的圈子中将会加入你的同事和周围所有人。你生活的地方很重要：全世界只有一个麻省理工学院，一个好莱坞，一个硅谷。这不是巧合：无论从事什么工作，通常只有一个地方能吸引顶尖人才。你需要去那里，而不是其他地方。见到我的偶像并向他们学习，这给了我巨大的优势。你的偶像需要成为你圈子的一部分，请跟随他们。如果下一件大事将在其他某处发生，请立即前去。</p>
+<p>大学中你跌入的另一个陷阱可能是“做好准备”。请不要错误理解：学习是首要任务，但最快的学习方式是实践。如果有一个梦想，你可以花一生的时间去学习、计划和准备。你应当去做的是立即开始。</p>
+<p>坦白地说，我不认为我做好了准备。我还记得，第一名投资人答应我的要求并问我将钱打到哪里的那一天。对一名24岁的年轻人而言，这就是圣诞节。打开礼物后，你在美国银行的帐户不断刷新，你的支票帐户从60美元增加至120万美元。最初我非常兴奋：数字中出现了两个逗号！我保存了屏幕截图，但后来却受到打击。未来某一天，他们会把钱要回去，那我自己要怎么办？</p>
+<p>你们已经知道这种感受：在麻省理工学院，这叫做“从消防栓里狂饮(drinkingfrom the firehose)”。这听起来很有趣，而我们都有着切身体会。这对你们很有帮助。今天，一个阀门被关上，你们需要找到下一个。</p>
+<p>Dropbox属于我。正如你们想象中一样，建立这家公司让我的人生充满了激情、趣味和满足的体验，但我却没有真正分享过创业过程中最令人耻辱、失望和痛苦的经历。我甚至无法计算出曾经犯过多少错误。</p>
+<p>幸运的是，这无关紧要，没有人的生活是满分。事实上，当你从学校毕业，学分的概念将不复存在。在你上学时，所有小错误都只是挡风玻璃上的擦伤。但在社会上，如果你没有学会调整，避免撞向护栏，你的发展将会很慢。你最大的风险不是失败，而是过于自满。</p>
+<p>比尔·盖茨(Bill Gates)的第一家公司是做交通灯软件，史蒂夫·乔布斯(Steve Jobs)的第一家公司制造塑料口哨，帮助你免费打电话。两家公司都遭遇了失败，但很难想象他们对此非常失望。这是从今天开始我最希望的改变：你不会再带着这些数字，表明你曾有过多少失败。从现在开始，失败无关紧要，你只要做对一次就可以。</p>
+<p>我以前常常会为各种事担忧，但我还能记得让我冷静的那个时刻。当时我刚刚搬到旧金山。某天晚上我无法入睡，因此打开了笔记本。我在网上读到一条新闻“人的一生只有3万天”。一开始我并没有太多的考虑，但随后拿起了计算器。我输入了24乘以365，发现自己已经用掉了9000天！我都在做些什么？(顺便说一句，你们已经用掉了8000天。)</p>
+<p>这就是这张小抄上3万这个数字的含义。那天晚上，我意识到生活中没有热身，没有练习，也没有重启按钮。每天，我们都会在人生的故事中写上几笔。当你去世时，墓碑上不会刻着“这里躺着休斯顿，排名第174”。从那时起，我不再尝试让生命完美，而是使其更有趣。我希望自己的故事充满了冒险，这才会带来不同。</p>
+<p>我的奶奶今天也在这里，下周我们将庆祝她的95岁生日。在我搬到加州后，我们需要更多地通过电话交流。但令我印象深刻的一点是，每次挂电话时，她总是会说：“精益求精”。这个单词的意思是，永远都要向前看。</p>
+<p>今天，在你们的毕业典礼上，你们进入社会的第一天，这是我给你的祝愿。不必尝试让人生完美，给自己自由，使生命成为一场冒险，永远向前。谢谢。</p>
+<h3 id="个人感悟">个人感悟：</h3>
+<p>个人感觉现在的我们大学生或者说整个社会都太浮躁了，到处充斥着”不和谐”的学分氛围，可能本人过于言辞过激，但只是实事求是，发表下个人的看法,表达心中的失望。</p>
+<p>身边的同学似乎都已经忘记了刚进大学时的信心满满与心中的梦想，或者是进大学时的初衷。苦逼的高中我们都熬过来了，目的就是上一所中意的大学，结果现在的情况是你们的最初的目的达到了，却在大学比较自由和宽松的情况下迷失了自己甚至于到了堕落的地步，你们看错，说堕落一词完全没有言辞过激，而且是用的恰到好处，事实就是这样！就像阿里巴巴马云说的那样，梦想是要有的，万一实现了呢。</p>
+<p>希望我们身边的你我他，找回曾经信誓旦旦的我们自己，拾起当初的梦想，重新起航，不要浪费生命的每一天。</p>
+<p>(end)</p>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2014/09/23/dropbox_mit_speech/">https://maratrix.cn/post/2014/09/23/dropbox_mit_speech/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2014/07/10/life_essay_2/">就当我在扯淡</a></li>
+        
+        <li><a href="/post/2014/05/10/critical-value/">[转]批判的价值</a></li>
+        
+        <li><a href="/post/2014/03/07/hello-world/">开心写程序，快乐过生活</a></li>
+        
+        <li><a href="/post/2014/09/12/js_analysis/">JavaScript之词法分析</a></li>
+        
+        <li><a href="/post/2014/08/22/shell_script_source_and_bash/">Shell脚本的执行方式区别</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "maratrixx/maratrixx.github.io"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/26/nice-reading-pattern/" title="迄今为止最舒适的阅读模式">迄今为止最舒适的阅读模式</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/10/kratos-logger-design/" title="Kratos 源码分析（一）|日志组件设计与实现">Kratos 源码分析（一）|日志组件设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/30/2021-summary/" title="再见 2021">再见 2021</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/26/macos-application-list/" title="我的 MacOS 软件工具清单">我的 MacOS 软件工具清单</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Git/">Git (19)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Kratos/">Kratos (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (12)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/MacOS/">MacOS (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/PHP/">PHP (13)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Prometheus/">Prometheus (4)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%89%8D%E7%AB%AF/">前端 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库 (5)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (5)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BC%93%E5%AD%98/">缓存 (7)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%98%85%E8%AF%BB/">阅读 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%9D%A2%E8%AF%95/">面试 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Git/">Git</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/Grafana/">Grafana</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/Prometheus/">Prometheus</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/https/">https</a>
+    
+    <a href="https://maratrix.cn/tags/hystrix-go/">hystrix-go</a>
+    
+    <a href="https://maratrix.cn/tags/javascript/">javascript</a>
+    
+    <a href="https://maratrix.cn/tags/kindle/">kindle</a>
+    
+    <a href="https://maratrix.cn/tags/kratos/">kratos</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/logger/">logger</a>
+    
+    <a href="https://maratrix.cn/tags/macos/">macos</a>
+    
+    <a href="https://maratrix.cn/tags/makefile/">makefile</a>
+    
+    <a href="https://maratrix.cn/tags/memcached/">memcached</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sed/">sed</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/session/">session</a>
+    
+    <a href="https://maratrix.cn/tags/shell/">shell</a>
+    
+    <a href="https://maratrix.cn/tags/ssl/">ssl</a>
+    
+    <a href="https://maratrix.cn/tags/telnet/">telnet</a>
+    
+    <a href="https://maratrix.cn/tags/tmux/">tmux</a>
+    
+    <a href="https://maratrix.cn/tags/vim/">vim</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/">熔断器</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/">监控</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%BC%93%E5%AD%98/">缓存</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AF%E4%BB%B6/">软件</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%98%85%E8%AF%BB/">阅读</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%9D%A2%E8%AF%95/">面试</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

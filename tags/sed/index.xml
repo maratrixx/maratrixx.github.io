@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>sed on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/sed/</link>
+    <description>Recent content in sed on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 17 Aug 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/sed/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Sed数据处理</title>
+      <link>https://maratrix.cn/post/2014/08/17/linux-sed/</link>
+      <pubDate>Sun, 17 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/17/linux-sed/</guid>
+      <description>在Linux下有两个非常强大的数据处理工具，一个是sed，另一个是awk。这里暂且介绍sed如何使用好了，作为备忘笔记，以便以后查看。 sed本身是一个管道命令，可以分析stdin的，而且sed可以将数</description>
+    </item>
+    
+  </channel>
+</rss>

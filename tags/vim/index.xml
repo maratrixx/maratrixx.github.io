@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vim on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/vim/</link>
+    <description>Recent content in vim on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Mon, 22 Dec 2014 15:11:22 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/vim/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Vim使用技巧-快速加密</title>
+      <link>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</link>
+      <pubDate>Mon, 22 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/22/vim_miracle_encrypt_note/</guid>
+      <description>我们知道对于Linux服务器来说是支持多用户多任务环境的，聪明的Linux同学给我们每个用户都有各自的权限，彼此工作互不干扰。但是环境中有一个Super man存在呢，谁拥有它的权限就可以‘偷窥’别人隐</description>
+    </item>
+    
+    <item>
+      <title>简明VIM练级备忘笔记</title>
+      <link>https://maratrix.cn/post/2014/08/11/vim-study/</link>
+      <pubDate>Mon, 11 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/11/vim-study/</guid>
+      <description>特此声明：本文以及链接参考自[左耳朵耗子]的酷壳站点 vim的学习曲线相当的大，所以，如果你一开始看到的是一大堆VIM的命令分类，你一定会对这个编辑器失去兴趣的。所以如果你想以最快的速度学习人类史上最好</description>
+    </item>
+    
+  </channel>
+</rss>

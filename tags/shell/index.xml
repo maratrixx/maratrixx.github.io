@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>shell on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/shell/</link>
+    <description>Recent content in shell on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Fri, 22 Aug 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/shell/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Shell脚本的执行方式区别</title>
+      <link>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</link>
+      <pubDate>Fri, 22 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/22/shell_script_source_and_bash/</guid>
+      <description>不同的Shell脚本执行方式会造成不一样的后果，尤其对bash的环境影响很大。shell脚本的执行方式除了（绝对路径、相对路径、bash、sh）执行外，还可以利用source来执行，那么他们之间有什么</description>
+    </item>
+    
+  </channel>
+</rss>

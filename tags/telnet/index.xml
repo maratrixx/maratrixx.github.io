@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>telnet on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/telnet/</link>
+    <description>Recent content in telnet on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 29 Jul 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/telnet/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Telnet操作memcached服务</title>
+      <link>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</link>
+      <pubDate>Tue, 29 Jul 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/07/29/memcache_telnet_notes/</guid>
+      <description>我们知道，操作memcached有两种方式，分别是通过telnet和php程序来控制，其中php程序控制是主要方面，主要包括三种类型，如下图： pic 首先，我们要先在cmd控制台中开启memcached服务</description>
+    </item>
+    
+  </channel>
+</rss>

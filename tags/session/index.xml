@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>session on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/session/</link>
+    <description>Recent content in session on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Wed, 06 Aug 2014 21:14:30 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/session/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SESSION安全性问题</title>
+      <link>https://maratrix.cn/post/2014/08/06/session_safe_notes/</link>
+      <pubDate>Wed, 06 Aug 2014 21:14:30 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/08/06/session_safe_notes/</guid>
+      <description>一直以来很多开发者都认为php内置的session管理机制是具有一定的安全性，可以对一般的session攻击起到防御。事实上，这是一种误解，php团队只实现了一种方便有效的机制。具体的安全措施，应该有</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>tmux on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/tmux/</link>
+    <description>Recent content in tmux on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Tue, 02 Dec 2014 15:11:22 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/tmux/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tmux进阶篇</title>
+      <link>https://maratrix.cn/post/2014/12/02/copy_model_note/</link>
+      <pubDate>Tue, 02 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/02/copy_model_note/</guid>
+      <description>今天是12月1日，昨天是今年沈阳下的第一场雪，阴沉沉的天气下了整整一天，虽然不是很大但却是刺骨的冷，由于特么太冷我上午钻进实验室，一天几乎没出去，懒人就是这样。另外就是觉得现在的天气真是扭曲（天气不正</description>
+    </item>
+    
+    <item>
+      <title>潇洒的Tmux结对编程</title>
+      <link>https://maratrix.cn/post/2014/12/01/program_with_each_other/</link>
+      <pubDate>Mon, 01 Dec 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/12/01/program_with_each_other/</guid>
+      <description>本来计划是一天总结一篇Tmux使用技巧的，但是现在真的忍不住要提前介绍一个更炫酷的关于使用Tmux的技巧了，哈哈，技术控嘛，碰到新鲜的而自己又喜欢的技术肯定是不会放过的，破例一下。 Tmux另一个很潇洒</description>
+    </item>
+    
+    <item>
+      <title>配置篇-玩转Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/30/happy-tmux/</link>
+      <pubDate>Sun, 30 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/30/happy-tmux/</guid>
+      <description>上一篇，我们已经安装好了我们的威猛先生Tmux神器。既然被称为是神器，肯定是其被人称道的地方，那么现在就来动手亲自配置我们的Tmux，初体验她的酷以及可定制化。 废话不多说，下面开始吧。。。 常用快捷键 T</description>
+    </item>
+    
+    <item>
+      <title>初次认识Tmux</title>
+      <link>https://maratrix.cn/post/2014/11/29/tmux-intro/</link>
+      <pubDate>Sun, 02 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/29/tmux-intro/</guid>
+      <description>最近，刚接触了命令行神器Tmux,然后瞬间被她的神奇所吸引，真是相见很晚啊！！ Tmux是一个优秀的终端复用软件，使用它最直观的好处就是，通过一个终端登录远程主机并运行tmux后，在其中可以开启多个控制</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>数据库 on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/</link>
+    <description>Recent content in 数据库 on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sat, 20 Jun 2015 15:20:57 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>如何在MySQL中高效的存储ip地址</title>
+      <link>https://maratrix.cn/post/2015/06/20/mysql_save_ip/</link>
+      <pubDate>Sat, 20 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/20/mysql_save_ip/</guid>
+      <description>在多数场景下，我们一般在MySQL中存储ip地址时都使用varchar(15)或者char(15)类型，是吧？ 虽说功能是实现了，但是这样构建数据表就能最大限度的优化数据库性能吗？答案是否定的，尽管在存</description>
+    </item>
+    
+    <item>
+      <title>MySQL中使用binary查询字符串</title>
+      <link>https://maratrix.cn/post/2015/06/07/mysql_str_binary/</link>
+      <pubDate>Sun, 07 Jun 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/06/07/mysql_str_binary/</guid>
+      <description>今天，在做老师布置的实验作业时候遇到一个关于MySQL字符串比较问题。场景是这样的，就是需要在数据库中查询记录而进行字符串比较时，需要对字符串进行大小写区分比较，这样在默认情况下进行操作可能不会达到你</description>
+    </item>
+    
+    <item>
+      <title>MySQL数据库主从复制</title>
+      <link>https://maratrix.cn/post/2015/03/20/mysql_and_slave_test/</link>
+      <pubDate>Fri, 20 Mar 2015 15:20:57 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2015/03/20/mysql_and_slave_test/</guid>
+      <description>MySQL数据库主从复制的工作方式很简单，一台主机作为主服务器，一台或者多台主机作为从服务器。主服务器会把数据库的变化记录到日志，一旦这些变化被记录到日志，就会马上或者以固定的时间间隔被发送从服务器，</description>
+    </item>
+    
+    <item>
+      <title>MySQL实现增量备份小结</title>
+      <link>https://maratrix.cn/post/2014/10/21/mysql_mysqlbinlog_dump_note/</link>
+      <pubDate>Tue, 21 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/21/mysql_mysqlbinlog_dump_note/</guid>
+      <description>当我们误删了MySQL数据库某张表中的数据或者整张表，我们可以使用MySQL的增量备份机制来实现误删数据的恢复，接下来就来总结下MySQL的增量备份技术是如何实现的，以及其中需要我们注意的事项！ 首先，</description>
+    </item>
+    
+    <item>
+      <title>MyISAM存储引擎的碎片整理问题</title>
+      <link>https://maratrix.cn/post/2014/10/19/mysql_myisam_data_optimize/</link>
+      <pubDate>Sun, 19 Oct 2014 14:56:00 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/10/19/mysql_myisam_data_optimize/</guid>
+      <description>最近，在使用MySQL数据库的MyISAM存储引擎建表，并且在删除大量数据时，发现在本地硬盘放置的的data文件并没有改变大小。碰到这种情况，笔者甚是郁闷而又感到奇怪，经查阅资料，终于解决了该问题。 问</description>
+    </item>
+    
+  </channel>
+</rss>

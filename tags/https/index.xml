@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>https on MARATRIX BLOG</title>
+    <link>https://maratrix.cn/tags/https/</link>
+    <description>Recent content in https on MARATRIX BLOG</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <lastBuildDate>Sun, 02 Nov 2014 15:11:22 +0800</lastBuildDate><atom:link href="https://maratrix.cn/tags/https/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>SSL/TLS协议概述</title>
+      <link>https://maratrix.cn/post/2014/11/02/ssl_tls_secure_notes/</link>
+      <pubDate>Sun, 02 Nov 2014 15:11:22 +0800</pubDate>
+      
+      <guid>https://maratrix.cn/post/2014/11/02/ssl_tls_secure_notes/</guid>
+      <description>不使用SSL/TLS协议的HTTP通信，就是不加密的通信，所有信息都是明文传播。在这个不安全的网络上，当我们涉及金钱的交易时，如果信息使用明文传输，光是想想都觉得可怕（假如支付宝使用明文的HTTP协议</description>
+    </item>
+    
+  </channel>
+</rss>
