@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Go 泛型编程: interface 不再是那个 interface | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go 泛型编程: interface 不再是那个 interface - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2022-03-27T13:36:59&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2022-03-27T13:36:59&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Go 泛型编程: interface 不再是那个 interface">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2022/03/27/go-generics-interface/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#近似元素的类型t必须是底层类型underlying-type自己而且不能是接口类型">近似元素的类型T必须是底层类型(underlying type)自己，而且不能是接口类型</a></li>
+    <li><a href="#联合union类型元素不能是类型参数type-parameter">联合(union)类型元素不能是类型参数(type parameter)</a></li>
+    <li><a href="#联合union类型元素的非接口元素必须是两两不相交">联合(union)类型元素的非接口元素必须是两两不相交</a></li>
+    <li><a href="#联合union类型元素如果包含多于一个元素不能包含非空方法的接口类型也不能是comparable或者嵌入comparable">联合(union)类型元素如果包含多于一个元素，不能包含非空方法的接口类型，也不能是comparable或者嵌入comparable</a></li>
+    <li><a href="#包含非接口类型元素近似元素和联合类型只能用作类型参数或者其它用作约束接口的元素">包含非接口类型元素、近似元素和联合类型只能用作类型参数，或者其它用作约束接口的元素</a></li>
+    <li><a href="#接口类型不定递归嵌入">接口类型不定递归嵌入</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go 泛型编程: interface 不再是那个 interface</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2022年3月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <blockquote>
+<p>原文链接：https://colobu.com/2022/01/08/the-interface-is-not-that-interface-in-go-1-18/</p>
+</blockquote>
+<p>自 Go 1.18 支持泛型后， Go interface 的意义已经彻彻底底的改变了，除了先前代表的方法集的意义外，还被用作泛型的类型约束(type constraint)的功能, interface已经不再是以前那个单纯的少年了。</p>
+<p><strong>在Go 1.17.x以及以前的版本中，interface是这样定义的：</strong></p>
+<blockquote>
+<p>An interface type specifies a method set called its interface. A variable of interface type can store a value of any type with a method set that is any superset of the interface. Such a type is said to implement the interface. The value of an uninitialized variable of interface type is nil.</p>
+<p>接口类型定义了一个方法集合，称之为接口(interface)。接口类型的变量可以存储任意的实现这个方法集合的类型，这种类型是此interface的超集。这种类型被称为实现了接口。接口类型的变量如果未初始化则它的值为nil。</p>
+</blockquote>
+<p><strong>在Go 1.18中，interface定义改变了：</strong></p>
+<blockquote>
+<p>An interface type defines a type set. A variable of interface type can store a value of any type that is in the type set of the interface. Such a type is said to implement the interface. The value of an uninitialized variable of interface type is nil.</p>
+<p>接口类型定义了一个类型集合。接口类型的变量可以存储这个接口类型集合的任意一种类型的实例值。这种类型被称之为实现了这个接口。接口类型的变量如果未初始化则它的值为nil。</p>
+</blockquote>
+<p>所以一句话，先前接口定义了方法集合，现在接口定义了类型集合。接口的用途也进行了扩展。</p>
+<p>interface的定义也扩展了。先前，接口定义只能包含方法元素(method element):</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#900;font-weight:bold">Read</span>([]<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)
+	<span style="color:#900;font-weight:bold">Write</span>([]<span style="color:#458;font-weight:bold">byte</span>) (<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">error</span>)
+	<span style="color:#900;font-weight:bold">Close</span>() <span style="color:#458;font-weight:bold">error</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>现在接口定义除了方法元素外，还可以包含类型元素:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#458;font-weight:bold">int</span>
+}
+<span style="color:#998;font-style:italic">// An interface representing all types with underlying type int.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span>
+}
+<span style="color:#998;font-style:italic">// An interface representing all types with underlying type int which implement the String method.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span>
+	<span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span>
+}
+<span style="color:#998;font-style:italic">// An interface representing an empty type set: there is no type that is both an int and a string.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#458;font-weight:bold">int</span>
+	<span style="color:#458;font-weight:bold">string</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>类型元素包含类型(T)或者近似类型(~T)或者联合(union)元素(A|B|C|~D)。</p>
+<p>但是，因为接口的定义和含义改变了，所以接口在使用的时候也有一些些不同。本文通过实例一一介绍。</p>
+<p>首先记住一点，Go 1.17.x 及以前的版本中接口的使用方法在Go 1.18中照样使用，使用方法不变。变得是接口有类型元素或者做类型约束时的一些限制。</p>
+<h2 id="近似元素的类型t必须是底层类型underlying-type自己而且不能是接口类型">近似元素的类型T必须是底层类型(underlying type)自己，而且不能是接口类型</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 错误的定义!
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> MyInt <span style="color:#458;font-weight:bold">int</span>
+<span style="color:#000;font-weight:bold">type</span> I0 <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span>MyInt <span style="color:#998;font-style:italic">// 错误! MyInt不是underlying type, int才是
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">error</span> <span style="color:#998;font-style:italic">// 错误! error是接口
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="联合union类型元素不能是类型参数type-parameter">联合(union)类型元素不能是类型参数(type parameter)</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 错误, interface{ K }中K是类型参数
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I1[K any, V <span style="color:#000;font-weight:bold">interface</span>{ K }]() {
+}
+
+<span style="color:#998;font-style:italic">// 错误, interface{ nt | K }中K 是类型参数
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I2[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | K }]() {
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="联合union类型元素的非接口元素必须是两两不相交">联合(union)类型元素的非接口元素必须是两两不相交</h2>
+<p>两两不相交意思是两两的交集是空集，比如 int|string的交集是空集，而int|~int的交集是int。</p>
+<p>联合类型中的非接口元素必须是两两不相交的。</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 没问题，因为any等价于interface{}:
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I3[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | any }]() {
+}
+
+<span style="color:#998;font-style:italic">// 错误！ int和!int相交
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I4[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> }]() {
+}
+<span style="color:#998;font-style:italic">// 下面的定义没有问题。因为int和MyInt是两个类型，不相交
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> MyInt <span style="color:#458;font-weight:bold">int</span>
+<span style="color:#000;font-weight:bold">func</span> I5[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | MyInt }]() {
+}
+<span style="color:#998;font-style:italic">// 错误! int和~MyInt相交，交集是int
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I6[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span>MyInt }]() {
+}
+<span style="color:#998;font-style:italic">// 错误! int和MyInt2是相同类型，相交
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> MyInt2 = <span style="color:#458;font-weight:bold">int</span>
+<span style="color:#000;font-weight:bold">func</span> I7[K any, V <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> | MyInt2 }]() {
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="联合union类型元素如果包含多于一个元素不能包含非空方法的接口类型也不能是comparable或者嵌入comparable">联合(union)类型元素如果包含多于一个元素，不能包含非空方法的接口类型，也不能是comparable或者嵌入comparable</h2>
+<p>这条规则定义了接口作为类型元素的一些限制.</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 编译没问题，只包含一个元素
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I9[K <span style="color:#000;font-weight:bold">interface</span>{ io.Reader }]() {
+}
+<span style="color:#998;font-style:italic">// 错误!不能编译。因为包含了两个元素，而且无论是`io.Reader`还是`io.Writer`都包含方法
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I10[K <span style="color:#000;font-weight:bold">interface</span>{ io.Reader | io.Writer }]() {
+}
+<span style="color:#998;font-style:italic">// 编译正常，因为这是正常的接口，没有联合元素
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I11[K <span style="color:#000;font-weight:bold">interface</span> {
+	io.Reader
+	io.Writer
+}]() {
+}
+<span style="color:#998;font-style:italic">// 错误! 联合类型多于一个元素，并且io.Reader包含方法
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I12[K <span style="color:#000;font-weight:bold">interface</span>{ io.Reader | <span style="color:#458;font-weight:bold">int</span> }]() {
+}
+<span style="color:#998;font-style:italic">// 错误! 不能编译.因为联合元素大于一个，并且不能是comparable
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I13[K comparable | <span style="color:#458;font-weight:bold">int</span>]() {
+}
+<span style="color:#998;font-style:italic">// 错误! 不能编译.因为联合元素大于一个，并且元素不能嵌入comparable
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> I14[K <span style="color:#000;font-weight:bold">interface</span>{ comparable } | <span style="color:#458;font-weight:bold">int</span>]() {
+}
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="包含非接口类型元素近似元素和联合类型只能用作类型参数或者其它用作约束接口的元素">包含非接口类型元素、近似元素和联合类型只能用作类型参数，或者其它用作约束接口的元素</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">21
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">22
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">23
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">24
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">25
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">26
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">27
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">28
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">29
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">30
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">31
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">32
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">33
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">34
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">35
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">36
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">37
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">38
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">39
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> (
+    <span style="color:#998;font-style:italic">// 以下编译没问题 
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">interface</span>{}
+	_ <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#900;font-weight:bold">m</span>() }
+	_ <span style="color:#000;font-weight:bold">interface</span>{ io.Reader }
+	_ <span style="color:#000;font-weight:bold">interface</span> {
+		io.Reader
+		io.Writer
+	}
+    <span style="color:#998;font-style:italic">// 以下不能编译，接口不能用作变量实例类型
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#458;font-weight:bold">int</span> }
+	_ <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> }
+	_ <span style="color:#000;font-weight:bold">interface</span>{ MyInt }
+	A <span style="color:#000;font-weight:bold">interface</span> {
+   	  <span style="color:#458;font-weight:bold">int</span>
+	  <span style="color:#900;font-weight:bold">m</span>()
+	}
+    <span style="color:#998;font-style:italic">// 可以编译
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">struct</span>{ i <span style="color:#458;font-weight:bold">int</span> }
+    <span style="color:#998;font-style:italic">// 下面一行不能编译,因为~int不能作为字段的类型
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">struct</span>{ i <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> }
+    <span style="color:#998;font-style:italic">// 下面一行不能编译，因为constraints.Ordered只能用作类型约束
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">struct</span>{ i constraints.Ordered }
+    <span style="color:#998;font-style:italic">// 下面两行能够编译，因为它们是接口类型，并且类型元素也是普通接口
+</span><span style="color:#998;font-style:italic"></span>    _ <span style="color:#000;font-weight:bold">interface</span>{ any }
+	_ <span style="color:#000;font-weight:bold">interface</span> {
+		<span style="color:#000;font-weight:bold">interface</span> {
+			any
+			<span style="color:#900;font-weight:bold">m</span>()
+		}
+	}
+    <span style="color:#998;font-style:italic">// 不能编译，因为接口部署普通接口，而是类型约束
+</span><span style="color:#998;font-style:italic"></span>	_ <span style="color:#000;font-weight:bold">interface</span> {
+		<span style="color:#000;font-weight:bold">interface</span> {
+			<span style="color:#458;font-weight:bold">int</span>|<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span>
+			<span style="color:#900;font-weight:bold">m</span>()
+		}
+	}
+)
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="接口类型不定递归嵌入">接口类型不定递归嵌入</h2>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// 错误! 不能自己嵌入自己
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Node <span style="color:#000;font-weight:bold">interface</span> {
+	Node
+}
+<span style="color:#998;font-style:italic">// 错误! Tree不能通过TreeNode嵌入自己
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Tree <span style="color:#000;font-weight:bold">interface</span> {
+	TreeNode
+}
+<span style="color:#000;font-weight:bold">type</span> TreeNode <span style="color:#000;font-weight:bold">interface</span> {
+	Tree
+}
+</code></pre></td></tr></table>
+</div>
+</div>
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2022/03/27/go-generics-interface/">https://maratrix.cn/post/2022/03/27/go-generics-interface/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2022/03/27/go-generics-design/">Go 泛型编程：泛型设计</a></li>
+        
+        <li><a href="/post/2022/01/10/kratos-logger-design/">Kratos 源码分析（一）|日志组件设计与实现</a></li>
+        
+        <li><a href="/post/2021/04/28/go-deps/">如何获取Go服务依赖包</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-core-library-changes/">Go1.16新特性|标准库和其他变化</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-module/">Go1.16新特性|Module功能新变化</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/go'>go</a></li>
+                
+                <li><a href='/tags/go1.18'>go1.18</a></li>
+                
+                <li><a href='/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B'>泛型编程</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "maratrixx/maratrixx.github.io"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-interface/" title="Go 泛型编程: interface 不再是那个 interface">Go 泛型编程: interface 不再是那个 interface</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-design/" title="Go 泛型编程：泛型设计">Go 泛型编程：泛型设计</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/26/nice-reading-pattern/" title="迄今为止最舒适的阅读模式">迄今为止最舒适的阅读模式</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/10/kratos-logger-design/" title="Kratos 源码分析（一）|日志组件设计与实现">Kratos 源码分析（一）|日志组件设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/30/2021-summary/" title="再见 2021">再见 2021</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/26/macos-application-list/" title="我的 MacOS 软件工具清单">我的 MacOS 软件工具清单</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Git/">Git (19)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (23)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Kratos/">Kratos (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (12)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/MacOS/">MacOS (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/PHP/">PHP (13)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Prometheus/">Prometheus (4)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%89%8D%E7%AB%AF/">前端 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库 (5)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BC%93%E5%AD%98/">缓存 (7)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%98%85%E8%AF%BB/">阅读 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%9D%A2%E8%AF%95/">面试 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Git/">Git</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/Grafana/">Grafana</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/Prometheus/">Prometheus</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
+    
+    <a href="https://maratrix.cn/tags/go1.18/">go1.18</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/https/">https</a>
+    
+    <a href="https://maratrix.cn/tags/hystrix-go/">hystrix-go</a>
+    
+    <a href="https://maratrix.cn/tags/javascript/">javascript</a>
+    
+    <a href="https://maratrix.cn/tags/kindle/">kindle</a>
+    
+    <a href="https://maratrix.cn/tags/kratos/">kratos</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/logger/">logger</a>
+    
+    <a href="https://maratrix.cn/tags/macos/">macos</a>
+    
+    <a href="https://maratrix.cn/tags/makefile/">makefile</a>
+    
+    <a href="https://maratrix.cn/tags/memcached/">memcached</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sed/">sed</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/session/">session</a>
+    
+    <a href="https://maratrix.cn/tags/shell/">shell</a>
+    
+    <a href="https://maratrix.cn/tags/ssl/">ssl</a>
+    
+    <a href="https://maratrix.cn/tags/telnet/">telnet</a>
+    
+    <a href="https://maratrix.cn/tags/tmux/">tmux</a>
+    
+    <a href="https://maratrix.cn/tags/vim/">vim</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">泛型编程</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/">熔断器</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/">监控</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%BC%93%E5%AD%98/">缓存</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AF%E4%BB%B6/">软件</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%98%85%E8%AF%BB/">阅读</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%9D%A2%E8%AF%95/">面试</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

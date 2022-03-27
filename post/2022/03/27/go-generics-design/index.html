@@ -1,0 +1,1327 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    
+
+    <title>Go 泛型编程：泛型设计 | MARATRIX BLOG</title>
+    <meta property="og:title" content="Go 泛型编程：泛型设计 - MARATRIX BLOG">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content='2022-03-27T13:14:09&#43;08:00'>
+        
+        
+    <meta property="article:modified_time" content='2022-03-27T13:14:09&#43;08:00'>
+        
+    <meta name="Keywords" content="Go,Go语言,Go语言笔记,博客,项目管理,架构设计,公众号,成长">
+    <meta name="description" content="Go 泛型编程：泛型设计">
+        
+    <meta name="author" content="maratrix">
+    <meta property="og:url" content="https://maratrix.cn/post/2022/03/27/go-generics-design/">
+    <link rel="shortcut icon" href='/favicon.ico'  type="image/x-icon">
+
+    <link rel="stylesheet" href='/css/normalize.css'>
+    <link rel="stylesheet" href='/css/style.css'>
+    <script type="text/javascript" src="//cdn.bootcdn.net/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+    
+        <link href="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.css" rel="stylesheet">
+    
+    
+    
+    
+</head>
+
+
+<body>
+    <header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://maratrix.cn/">
+                        MARATRIX BLOG
+                    </a>
+                
+                <p class="description">不期速成，日拱一卒，浮躁时代做个专注的人</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://maratrix.cn/">首页</a>
+                    
+                    <a  href="https://maratrix.cn/categories/" title="分类">分类</a>
+                    
+                    <a  href="https://maratrix.cn/tags/" title="标签">标签</a>
+                    
+                    <a  href="https://maratrix.cn/archives/" title="归档">归档</a>
+                    
+                    <a  href="https://maratrix.cn/about/" title="关于">关于</a>
+                    
+                    <a  href="https://maratrix.cn/read/" title="阅读">阅读</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <div id="body">
+        <div class="container">
+            <div class="col-group">
+
+                <div class="col-8" id="main">
+                    
+<div class="res-cons">
+    <style type="text/css">
+    .post-toc {
+        position: fixed;
+        width: 200px;
+        margin-left: -210px;
+        padding: 5px 10px;
+        font-family: Athelas, STHeiti, Microsoft Yahei, serif;
+        font-size: 12px;
+        border: 1px solid rgba(0, 0, 0, .07);
+        border-radius: 5px;
+        background-color: rgba(255, 255, 255, 0.98);
+        background-clip: padding-box;
+        -webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        box-shadow: 1px 1px 2px rgba(0, 0, 0, .125);
+        word-wrap: break-word;
+        white-space: nowrap;
+        -webkit-box-sizing: border-box;
+        box-sizing: border-box;
+        z-index: 999;
+        cursor: pointer;
+        max-height: 70%;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .post-toc .post-toc-title {
+        width: 100%;
+        margin: 0 auto;
+        font-size: 20px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-align: center;
+    }
+
+    .post-toc .post-toc-content {
+        font-size: 15px;
+    }
+
+    .post-toc .post-toc-content>nav>ul {
+        margin: 10px 0;
+    }
+
+    .post-toc .post-toc-content ul {
+        padding-left: 20px;
+        list-style: square;
+        margin: 0.5em;
+        line-height: 1.8em;
+    }
+
+    .post-toc .post-toc-content ul ul {
+        padding-left: 15px;
+        display: none;
+    }
+
+    @media print,
+    screen and (max-width:1057px) {
+        .post-toc {
+            display: none;
+        }
+    }
+</style>
+<div class="post-toc" style="position: absolute; top: 188px;">
+    <h2 class="post-toc-title">文章目录</h2>
+    <div class="post-toc-content">
+        <nav id="TableOfContents">
+  <ul>
+    <li><a href="#引言">引言</a></li>
+    <li><a href="#类型参数">类型参数</a></li>
+    <li><a href="#类型约束">类型约束</a>
+      <ul>
+        <li><a href="#为什么要有类型约束">为什么要有类型约束</a></li>
+        <li><a href="#定义函数约束">定义函数约束</a></li>
+        <li><a href="#定义运算符约束">定义运算符约束</a></li>
+      </ul>
+    </li>
+    <li><a href="#类型推导">类型推导</a>
+      <ul>
+        <li><a href="#参数推导">参数推导</a></li>
+        <li><a href="#约束推导">约束推导</a></li>
+      </ul>
+    </li>
+    <li><a href="#关键名词">关键名词</a>
+      <ul>
+        <li><a href="#语法定义">语法定义</a></li>
+        <li><a href="#联合元素-1">联合元素</a></li>
+        <li><a href="#近似元素-1">近似元素</a></li>
+        <li><a href="#嵌入约束">嵌入约束</a></li>
+        <li><a href="#接口类型联合约束元素">接口类型（联合约束元素）</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var postToc = $(".post-toc");
+        if (postToc.length) {
+            var leftPos = $("#main").offset().left;
+            if(leftPos<220){
+                postToc.css({"width":leftPos-10,"margin-left":(0-leftPos)})
+            }
+
+            var t = postToc.offset().top - 20,
+                a = {
+                    start: {
+                        position: "absolute",
+                        top: t
+                    },
+                    process: {
+                        position: "fixed",
+                        top: 20
+                    },
+                };
+            $(window).scroll(function () {
+                var e = $(window).scrollTop();
+                e < t ? postToc.css(a.start) : postToc.css(a.process)
+            })
+        }
+    })
+</script>
+    <article class="post">
+        <header>
+            <h1 class="post-title">Go 泛型编程：泛型设计</h1>
+        </header>
+        <date class="post-meta meta-date">
+            2022年3月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Go'>Go</a></span>
+            
+        </div>
+        
+        
+        <div class="post-meta">
+            <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
+                    阅读</span></span>
+        </div>
+        
+        
+        <div class="post-content">
+            <blockquote>
+<p>原文链接：https://golang3.eddycjy.com/posts/generics/</p>
+</blockquote>
+<h2 id="引言">引言</h2>
+<p>Go1.18 的泛型是闹得沸沸扬扬，如今已经基本成型，就由煎鱼带大家一起摸透 Go 泛型。</p>
+<p>本文内容主要涉及泛型的 3 大设计理念，4 大元素，值得大家深入学习。</p>
+<p>分别是：</p>
+<ul>
+<li>设计理念：
+<ul>
+<li>类型参数。</li>
+<li>类型约束。</li>
+<li>类型推导。</li>
+</ul>
+</li>
+<li>语法元素：
+<ul>
+<li>联合元素。</li>
+<li>近似元素。</li>
+<li>嵌入约束。</li>
+<li>接口类型。</li>
+</ul>
+</li>
+</ul>
+<h2 id="类型参数">类型参数</h2>
+<p>类型参数，这个名词。不熟悉的小伙伴咋一看就懵逼了。</p>
+<p>泛型代码是使用抽象的数据类型编写的，我们将其称之为类型参数。当程序运行通用代码时，类型参数就会被类型参数所取代。也就是<strong>类型参数是泛型的抽象数据类型</strong>。</p>
+<p>简单的泛型例子：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">Print</span>(s []T) {
+	<span style="color:#000;font-weight:bold">for</span> _, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		fmt.<span style="color:#900;font-weight:bold">Println</span>(v)
+	}
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>代码有一个 <code>Print</code> 函数，它打印出一个片断的每个元素，其中片断的元素类型，这里称为 T，是未知的。</p>
+<p>这里引出了一个要做泛型语法设计的点，那就是：T 的<strong>泛型类型参数，应该如何定义</strong>？</p>
+<p>在现有的设计中，分为两个部分：</p>
+<ul>
+<li>类型参数列表：<strong>类型参数列表将会出现在常规参数的前面</strong>。为了区分类型参数列表和常规参数列表，类型参数列表<strong>使用方括号</strong>而不是小括号。</li>
+<li>类型参数约束：如同常规参数有类型一样，类型参数也有元类型，被称为约束（后面会进一步介绍）。</li>
+</ul>
+<p>结合完整的例子如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#998;font-style:italic">// Print 可以打印任何片断的元素。
+</span><span style="color:#998;font-style:italic">// Print 有一个类型参数 T，并有一个单一的（非类型）的 s，它是该类型参数的一个片断。
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">func</span> Print[T any](s []T) {
+	<span style="color:#998;font-style:italic">// do something...
+</span><span style="color:#998;font-style:italic"></span>}
+</code></pre></td></tr></table>
+</div>
+</div><p>在上述代码中，我们声明了一个函数 <code>Print</code>，其有一个类型参数 T，类型约束为 <code>any</code>，表示为任意的类型，作用与 <code>interface{}</code> 一样。他的入参变量 <code>s</code> 是类型 T 的切片。</p>
+<p>函数声明完了，在函数调用时，我们需要指定类型参数的类型。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	Print[<span style="color:#458;font-weight:bold">int</span>]([]<span style="color:#458;font-weight:bold">int</span>{<span style="color:#099">1</span>, <span style="color:#099">2</span>, <span style="color:#099">3</span>})
+</code></pre></td></tr></table>
+</div>
+</div><p>在上述代码中，我们指定了传入的类型参数为 int，并传入了 <code>[]int{1, 2, 3}</code> 作为参数。</p>
+<p>其他类型，例如 float64:</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">	Print[<span style="color:#458;font-weight:bold">float64</span>]([]<span style="color:#458;font-weight:bold">float64</span>{<span style="color:#099">0.1</span>, <span style="color:#099">0.2</span>, <span style="color:#099">0.3</span>})
+</code></pre></td></tr></table>
+</div>
+</div><p>也是类似的声明方式，照着套就好了。</p>
+<h2 id="类型约束">类型约束</h2>
+<p>说完类型参数，我们再说说 “约束”。在所有的类型参数中都要指定类型约束，才能叫做完整的泛型。</p>
+<p>以下分为两个部分来具体展开讲解：</p>
+<ul>
+<li>定义函数约束。</li>
+<li>定义运算符约束</li>
+</ul>
+<h3 id="为什么要有类型约束">为什么要有类型约束</h3>
+<p>为了<strong>确保调用方能够满足接受方的程序诉求</strong>，保证程序中所应用的函数、运算符等特性能够正常运行。</p>
+<p>泛型的类型参数，类型约束，相辅相成。</p>
+<h3 id="定义函数约束">定义函数约束</h3>
+<h4 id="问题点">问题点</h4>
+<p>我们看看 Go 官方所提供的例子：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Stringify[T any](s []T) (ret []<span style="color:#458;font-weight:bold">string</span>) {
+	<span style="color:#000;font-weight:bold">for</span> _, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		ret = <span style="color:#0086b3">append</span>(ret, v.<span style="color:#900;font-weight:bold">String</span>()) <span style="color:#998;font-style:italic">// INVALID
+</span><span style="color:#998;font-style:italic"></span>	}
+	<span style="color:#000;font-weight:bold">return</span> ret
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>该方法的实现目的是：任何类型的切片都能转换成对应的字符串切片。但程序逻辑里有一个问题，那就是他的入参 T 是 <code>any</code> 类型，是任意类型都可以传入。</p>
+<p>其内部又调用了 <code>String</code> 方法，自然也就会报错，因为只像是 int、float64 等类型，就可能没有实现该方法。</p>
+<p>你说要定义有效的类型约束，那像是上面的例子，在泛型中如何实现呢？</p>
+<p>要求传入方要有内置方法，就得定义一个 <code>interface</code> 来约束他。</p>
+<h4 id="单个类型">单个类型</h4>
+<p>例子如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Stringer <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>在泛型方法中应用：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Stringify[T Stringer](s []T) (ret []<span style="color:#458;font-weight:bold">string</span>) {
+	<span style="color:#000;font-weight:bold">for</span> _, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		ret = <span style="color:#0086b3">append</span>(ret, v.<span style="color:#900;font-weight:bold">String</span>())
+	}
+	<span style="color:#000;font-weight:bold">return</span> ret
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>再将 <code>Stringer</code> 类型放到原有的 <code>any</code> 类型处，就可以实现程序所需的诉求了。</p>
+<h4 id="多个类型">多个类型</h4>
+<p>如果是多个类型约束。例子如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Stringer <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#900;font-weight:bold">String</span>() <span style="color:#458;font-weight:bold">string</span>
+}
+
+<span style="color:#000;font-weight:bold">type</span> Plusser <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#900;font-weight:bold">Plus</span>(<span style="color:#458;font-weight:bold">string</span>) <span style="color:#458;font-weight:bold">string</span>
+}
+
+<span style="color:#000;font-weight:bold">func</span> ConcatTo[S Stringer, P Plusser](s []S, p []P) []<span style="color:#458;font-weight:bold">string</span> {
+	r <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]<span style="color:#458;font-weight:bold">string</span>, <span style="color:#0086b3">len</span>(s))
+	<span style="color:#000;font-weight:bold">for</span> i, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		r[i] = p[i].<span style="color:#900;font-weight:bold">Plus</span>(v.<span style="color:#900;font-weight:bold">String</span>())
+	}
+	<span style="color:#000;font-weight:bold">return</span> r
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>与常规的入参、出参类型声明一样的规则。</p>
+<h3 id="定义运算符约束">定义运算符约束</h3>
+<p>完成了函数约束的定义后，剩下一个要啃的大骨头就是 “运算符” 的约束了。</p>
+<h4 id="问题点-1">问题点</h4>
+<p>我们看看 Go 官方的例子：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Smallest[T any](s []T) T {
+	r <span style="color:#000;font-weight:bold">:=</span> s[<span style="color:#099">0</span>] <span style="color:#998;font-style:italic">// panic if slice is empty
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">for</span> _, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s[<span style="color:#099">1</span>:] {
+		<span style="color:#000;font-weight:bold">if</span> v &lt; r { <span style="color:#998;font-style:italic">// INVALID
+</span><span style="color:#998;font-style:italic"></span>			r = v
+		}
+	}
+	<span style="color:#000;font-weight:bold">return</span> r
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>经过上面的函数例子，我们很快能意识到这个程序根本无法运行成功。</p>
+<p>其入参是 <code>any</code> 类型，程序内部是按 slice 类型来获取值，且在内部又进行运算符比较，那如果真是 slice，内部就可能每个值类型都不一样。</p>
+<p>如果一个是 slice，一个是 int 类型，又如何进行运算符的值对比？</p>
+<h4 id="近似元素">近似元素</h4>
+<p>可能有的同学想到了重载运算符，但&hellip;想太多了，Go 语言没有支持的计划。为此做了一个新的设计，那就是允许限制类型参数的类型范围。</p>
+<p>语法如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">InterfaceType  = <span style="color:#d14">&#34;interface&#34;</span> <span style="color:#d14">&#34;{&#34;</span> {(MethodSpec | InterfaceTypeName | ConstraintElem) <span style="color:#d14">&#34;;&#34;</span> } <span style="color:#d14">&#34;}&#34;</span> .
+ConstraintElem = ConstraintTerm { <span style="color:#d14">&#34;|&#34;</span> ConstraintTerm } .
+ConstraintTerm = [<span style="color:#d14">&#34;~&#34;</span>] Type .
+</code></pre></td></tr></table>
+</div>
+</div><p>例子如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> AnyInt <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> }
+</code></pre></td></tr></table>
+</div>
+</div><p>上述声明的类型集是 <code>~int</code>，也就是所有类型为 int 的类型（如：int、int8、int16、int32、int64）都能够满足这个类型约束的条件。</p>
+<p>包括底层类型是 int8 类型的，例如：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> AnyInt8 <span style="color:#458;font-weight:bold">int8</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>也就是在该匹配范围内的。</p>
+<h4 id="联合元素">联合元素</h4>
+<p>如果希望进一步缩小限定类型，可以结合分隔符来使用，用法为：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> AnyInt <span style="color:#000;font-weight:bold">interface</span>{
+ <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int64</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>就可以将类型集限定在 int8 和 int64 之中。</p>
+<h4 id="实现运算符约束">实现运算符约束</h4>
+<p>基于新的语法，结合新的概念联合和近似元素，可以把程序改造一下，实现在泛型中的运算符的匹配。</p>
+<p>类型约束的声明，如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> Ordered <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int16</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int64</span> |
+		<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint16</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint64</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uintptr</span> |
+		<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">float32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">float64</span> |
+		<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">string</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>应用的程序如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">9
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Smallest[T Ordered](s []T) T {
+	r <span style="color:#000;font-weight:bold">:=</span> s[<span style="color:#099">0</span>] <span style="color:#998;font-style:italic">// panics if slice is empty
+</span><span style="color:#998;font-style:italic"></span>	<span style="color:#000;font-weight:bold">for</span> _, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s[<span style="color:#099">1</span>:] {
+		<span style="color:#000;font-weight:bold">if</span> v &lt; r {
+			r = v
+		}
+	}
+	<span style="color:#000;font-weight:bold">return</span> r
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>确保了值均为基础数据类型后，程序就可以正常运行了。</p>
+<h2 id="类型推导">类型推导</h2>
+<p>程序员写代码，一定程度的偷懒是必然的。</p>
+<p>在一定的场景下，可以通过类型推导来避免明确地写出一些或所有的类型参数，编译器会进行自动识别。</p>
+<p>建议复杂函数和参数能明确是最好的，否则读代码的同学会比较麻烦，可读性和可维护性的保证也是工作中重要的一点。</p>
+<h3 id="参数推导">参数推导</h3>
+<p>函数例子。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Map[F, T any](s []F, f <span style="color:#000;font-weight:bold">func</span>(F) T) []T { <span style="color:#000;font-weight:bold">...</span> }
+</code></pre></td></tr></table>
+</div>
+</div><p>公共代码片段。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> s []<span style="color:#458;font-weight:bold">int</span>
+f <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">func</span>(i <span style="color:#458;font-weight:bold">int</span>) <span style="color:#458;font-weight:bold">int64</span> { <span style="color:#000;font-weight:bold">return</span> <span style="color:#0086b3">int64</span>(i) }
+<span style="color:#000;font-weight:bold">var</span> r []<span style="color:#458;font-weight:bold">int64</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>明确指定两个类型参数。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">r = Map[<span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">int64</span>](s, f)
+</code></pre></td></tr></table>
+</div>
+</div><p>只指定第一个类型参数，变量 f 被推断出来。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">r = Map[<span style="color:#458;font-weight:bold">int</span>](s, f)
+</code></pre></td></tr></table>
+</div>
+</div><p>不指定任何类型参数，让两者都被推断出来。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go">r = <span style="color:#900;font-weight:bold">Map</span>(s, f)
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="约束推导">约束推导</h3>
+<p>神奇的在于，类型推导不仅限与此，连约束都可以推导。</p>
+<p>函数例子，如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">func</span> Double[E constraints.Number](s []E) []E {
+	r <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>([]E, <span style="color:#0086b3">len</span>(s))
+	<span style="color:#000;font-weight:bold">for</span> i, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		r[i] = v <span style="color:#000;font-weight:bold">+</span> v
+	}
+	<span style="color:#000;font-weight:bold">return</span> r
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>基于此的推导案例，如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> MySlice []<span style="color:#458;font-weight:bold">int</span>
+
+<span style="color:#000;font-weight:bold">var</span> V1 = <span style="color:#900;font-weight:bold">Double</span>(MySlice{<span style="color:#099">1</span>})
+</code></pre></td></tr></table>
+</div>
+</div><p>MySlice 是一个 int 的切片类型别名。变量 V1 的类型编译器推导后 []int 类型，并不是 MySlice。</p>
+<p>原因在于编译器在比较两者的类型时，会将 MySlice 类型识别为 []int，也就是 int 类型。</p>
+<p>要实现 “正确” 的推导，需要如下定义：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">type</span> SC[E any] <span style="color:#000;font-weight:bold">interface</span> {
+	[]E 
+}
+
+<span style="color:#000;font-weight:bold">func</span> DoubleDefined[S SC[E], E constraints.Number](s S) S {
+	r <span style="color:#000;font-weight:bold">:=</span> <span style="color:#0086b3">make</span>(S, <span style="color:#0086b3">len</span>(s))
+	<span style="color:#000;font-weight:bold">for</span> i, v <span style="color:#000;font-weight:bold">:=</span> <span style="color:#000;font-weight:bold">range</span> s {
+		r[i] = v <span style="color:#000;font-weight:bold">+</span> v
+	}
+	<span style="color:#000;font-weight:bold">return</span> r
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>基于此的推导案例。如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> V2 = DoubleDefined[MySlice, <span style="color:#458;font-weight:bold">int</span>](MySlice{<span style="color:#099">1</span>})
+</code></pre></td></tr></table>
+</div>
+</div><p>只要定义显式类型参数，就可以获得正确的类型，变量 V2 的类型会是 MySlice。</p>
+<p>那如果不声明约束呢？如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-go" data-lang="go"><span style="color:#000;font-weight:bold">var</span> V3 = <span style="color:#900;font-weight:bold">DoubleDefined</span>(MySlice{<span style="color:#099">1</span>})
+</code></pre></td></tr></table>
+</div>
+</div><p>编译器通过函数参数进行推导，也可以明确变量 V3 类型是 MySlice。</p>
+<h2 id="关键名词">关键名词</h2>
+<p>原本 @Ian Lance Taylor 设计的的泛型类型关键字如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> T <span style="color:#000;font-weight:bold">interface</span> {
+ <span style="color:#000;font-weight:bold">type</span> <span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">int8</span>, <span style="color:#458;font-weight:bold">int16</span>, <span style="color:#458;font-weight:bold">int32</span>, <span style="color:#458;font-weight:bold">int64</span>, <span style="color:#458;font-weight:bold">uint</span>, <span style="color:#458;font-weight:bold">uint8</span>, <span style="color:#458;font-weight:bold">uint16</span>, <span style="color:#458;font-weight:bold">uint32</span>, <span style="color:#458;font-weight:bold">uint64</span>, <span style="color:#458;font-weight:bold">uintptr</span>, <span style="color:#458;font-weight:bold">float32</span>, <span style="color:#458;font-weight:bold">float64</span>, <span style="color:#458;font-weight:bold">complex64</span>, <span style="color:#458;font-weight:bold">complex128</span>, <span style="color:#458;font-weight:bold">string</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>看起来好像非常 “顺眼”。但在《<a href="https://github.com/golang/go/issues/41716" title="proposal: Go 2: sum types using interface type lists">proposal: Go 2: sum types using interface type lists</a>》中社区进行了热烈的讨论。</p>
+<p>认为该类型约束的关键字，过于 “模棱两可”。像是 @Damien Neil 所提出的以下两个例子。</p>
+<p>结构体的例子：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">package</span> p
+<span style="color:#000;font-weight:bold">type</span> mustIncludeDefaultCase <span style="color:#000;font-weight:bold">struct</span>{}
+<span style="color:#000;font-weight:bold">type</span> MySum <span style="color:#000;font-weight:bold">interface</span> {
+  <span style="color:#000;font-weight:bold">type</span> <span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">float64</span>, mustIncludeDefaultCase
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>不明确的点之一，如果类型列表包含一个未导出的类型，那又应该是如何处理呢？</p>
+<p>接口的例子：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">8
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> T <span style="color:#000;font-weight:bold">interface</span> { <span style="color:#000;font-weight:bold">type</span> <span style="color:#458;font-weight:bold">int16</span>, <span style="color:#458;font-weight:bold">int32</span> }
+<span style="color:#000;font-weight:bold">func</span> <span style="color:#900;font-weight:bold">main</span>() {
+  <span style="color:#000;font-weight:bold">var</span> x T
+  <span style="color:#000;font-weight:bold">switch</span> x.(<span style="color:#000;font-weight:bold">type</span>) {
+  <span style="color:#000;font-weight:bold">case</span> <span style="color:#458;font-weight:bold">int16</span>:
+  <span style="color:#000;font-weight:bold">case</span> <span style="color:#458;font-weight:bold">int32</span>:
+  } 
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>你认为程序会跑进哪个 switch-case 的代码块里呢，是 int16，还是 int32？</p>
+<p>不，都不会，变量 x 是 nil，如此迷惑。</p>
+<p>在社区讨论中，发现设计与真实场景一结合，发现这个类型规则在普通的接口类型、在约束中使用也太微妙了。</p>
+<p>用类型列表嵌入接口时的行为也很奇怪。认为可以做的更好，那就是 “更显式”。</p>
+<p>为此，Go 泛型的设计者 @Ian Lance Taylor 提出了一个新的提案《<a href="https://github.com/golang/go/issues/45346" title="spec: generics: use type sets to remove type keyword in constraints">spec: generics: use type sets to remove type keyword in constraints</a>》。</p>
+<p>其包含三个新的、更简单的想法来取代泛型提案中定义的类型列表，成为了正式泛型语法。</p>
+<h3 id="语法定义">语法定义</h3>
+<p>新语法在泛型处增加一个新概念：接口元素（interface elements），用作约束条件的接口类型，或者被嵌入约束条件的接口类型，允许嵌入一些额外的构造。</p>
+<p>被嵌入的可以是：</p>
+<ul>
+<li>任何类型，而不仅仅是一个接口类型。</li>
+<li>一个新的句法结构，称为近似元素。</li>
+<li>一个新的句法结构，称为联合元素。</li>
+</ul>
+<p>重点名词，我们继续展开讲解，分别是：</p>
+<ul>
+<li>嵌入约束。</li>
+<li>近似元素。</li>
+<li>联合元素。</li>
+<li>接口类型。</li>
+</ul>
+<h3 id="联合元素-1">联合元素</h3>
+<p>原先的语法中，类型约束会用逗号分隔的方式来展示。</p>
+<p>如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> <span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">int8</span>, <span style="color:#458;font-weight:bold">int16</span>, <span style="color:#458;font-weight:bold">int32</span>, <span style="color:#458;font-weight:bold">int64</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在新语法中，结合定义为 union element（联合元素），写成一系列由竖线 ”|“ 分隔的类型或近似元素。</p>
+<p>如下：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> PredeclaredSignedInteger <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#458;font-weight:bold">int</span> | <span style="color:#458;font-weight:bold">int8</span> | <span style="color:#458;font-weight:bold">int16</span> | <span style="color:#458;font-weight:bold">int32</span> | <span style="color:#458;font-weight:bold">int64</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>常常会和下面讲到的近似元素一起使用。</p>
+<h3 id="近似元素-1">近似元素</h3>
+<p>新语法，他的标识符是 “~”，完整用法是 <code>~T</code>。<code>~T</code> 是指底层类型为 T 的所有类型的集合。例如：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> AnyInt <span style="color:#000;font-weight:bold">interface</span>{ <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> }
+</code></pre></td></tr></table>
+</div>
+</div><p>他的类型集是 <code>~int</code>，也就是所有类型为 int 的类型（如：int、int8、int16、int32、int64）都能够满足这个类型约束的条件，包括底层类型为 int 类型的（例如：类型别名）。</p>
+<p>再结合以上的分隔来使用，用法为：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> SignedInteger <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int16</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int64</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>相当于泛型提案中使用的以下类型：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#000;font-weight:bold">type</span> <span style="color:#458;font-weight:bold">int</span>, <span style="color:#458;font-weight:bold">int8</span>, <span style="color:#458;font-weight:bold">int16</span>, <span style="color:#458;font-weight:bold">int32</span>, <span style="color:#458;font-weight:bold">int64</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>新语法只需借助近似标识符 <code>~int</code> 来表达就可以了，更明确的表示了近似匹配，而不是存在隐式理解。</p>
+<h3 id="嵌入约束">嵌入约束</h3>
+<p>一个类型约束可以嵌入另一个约束，联合元素可以包括约束。</p>
+<p>例如：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 3
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 4
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 5
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 6
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 7
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 8
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f"> 9
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">10
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">11
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">12
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">13
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">14
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">15
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">16
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">17
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">18
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">19
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">20
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#998;font-style:italic">// Signed is a constraint whose type set is any signed integer type.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Signed <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int16</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">int64</span>
+}
+
+<span style="color:#998;font-style:italic">// Unsigned is a constraint whose type set is any unsigned integer type.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Unsigned <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint8</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint16</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uint64</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">uintptr</span>
+}
+
+<span style="color:#998;font-style:italic">// Float is a constraint whose type set is any floating point type.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Float <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">float32</span> | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">float64</span>
+}
+
+<span style="color:#998;font-style:italic">// Ordered is a constraint whose type set is any ordered type.
+</span><span style="color:#998;font-style:italic">// That is, any type that supports the &lt; operator.
+</span><span style="color:#998;font-style:italic"></span><span style="color:#000;font-weight:bold">type</span> Ordered <span style="color:#000;font-weight:bold">interface</span> {
+	Signed | Unsigned | Float | <span style="color:#a61717;background-color:#e3d2d2">~</span><span style="color:#458;font-weight:bold">string</span>
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>这个很好理解，就是正式支持嵌入约束了。</p>
+<h3 id="接口类型联合约束元素">接口类型（联合约束元素）</h3>
+<p>在联合元素中，使用接口类型的话。将会把该类型集添加到联合中。</p>
+<p>例如：</p>
+<div class="highlight"><div style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4">
+<table style="border-spacing:0;padding:0;margin:0;border:0;width:auto;overflow:auto;display:block;"><tr><td style="vertical-align:top;padding:0;margin:0;border:0;">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">1
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">2
+</span><span style="margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#7f7f7f">3
+</span></code></pre></td>
+<td style="vertical-align:top;padding:0;margin:0;border:0;;width:100%">
+<pre tabindex="0" style="background-color:#fff;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-golang" data-lang="golang"><span style="color:#000;font-weight:bold">type</span> Stringish <span style="color:#000;font-weight:bold">interface</span> {
+	<span style="color:#458;font-weight:bold">string</span> | fmt.Stringer
+}
+</code></pre></td></tr></table>
+</div>
+</div><p>Stringish 的类型集将是字符串类型和所有实现 <code>fmt.Stringer</code> 的类型，任何这些类型（包括 <code>fmt.Stringer</code> 本身）将被允许作为这个约束的类型参数。</p>
+<p>也就是针对接口类型做了特殊的处理。</p>
+<h2 id="总结">总结</h2>
+<p>今天我们在文章中给大家介绍了泛型的三个重要概念，分别是：</p>
+<ul>
+<li>类型参数：泛型的抽象数据类型。</li>
+<li>类型约束：确保调用方能够满足接受方的程序诉求。</li>
+<li>类型推导：避免明确地写出一些或所有的类型参数。</li>
+</ul>
+<p>在内容中也涉及到了联合元素、近似元素、函数约束、运算符约束等新概念。本质上都是基于三个大概念延伸出来的新解决方法，一环扣一环。</p>
+<p>你学会 Go 泛型了吗，设计的如何，欢迎一起讨论：）</p>
+<h2 id="参考">参考</h2>
+<ul>
+<li><a href="https://go.googlesource.com/proposal/+/refs/heads/master/design/43651-type-parameters.md">Type Parameters Proposal</a></li>
+<li><a href="https://docs.google.com/document/d/1vrAy9gMpMoS3uaVphB32uVXX4pi-HnNjkMEgyAHX4N4/">Summary of Go Generics Discussions</a></li>
+</ul>
+
+        </div>
+
+        
+<div class="post-archive">
+    <ul class="post-copyright">
+        <li><strong>原文作者：</strong><a rel="author" href="https://maratrix.cn/">maratrix</a></li>
+        <li style="word-break:break-all"><strong>原文链接：</strong><a href="https://maratrix.cn/post/2022/03/27/go-generics-design/">https://maratrix.cn/post/2022/03/27/go-generics-design/</a></li>
+        <li><strong>版权声明：</strong>本作品采用<a rel="license" href="https://creativecommons.org/licenses/by-nc-nd/4.0/">知识共享署名-非商业性使用-禁止演绎 4.0 国际许可协议</a>进行许可，非商业转载请注明出处（作者，原文链接），商业转载请联系作者获得授权。</li>
+    </ul>
+</div>
+<br/>
+
+
+
+        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/2022/01/10/kratos-logger-design/">Kratos 源码分析（一）|日志组件设计与实现</a></li>
+        
+        <li><a href="/post/2021/04/28/go-deps/">如何获取Go服务依赖包</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-core-library-changes/">Go1.16新特性|标准库和其他变化</a></li>
+        
+        <li><a href="/post/2021/03/10/go1.16-module/">Go1.16新特性|Module功能新变化</a></li>
+        
+        <li><a href="/post/2021/02/21/go-embed-syntax/">Go1.16新特性|embed静态资源嵌入[转]</a></li>
+        
+    </ul>
+</div>
+
+
+        <div class="post-meta meta-tags">
+            
+            <ul class="clearfix">
+                
+                <li><a href='/tags/go'>go</a></li>
+                
+                <li><a href='/tags/go1.18'>go1.18</a></li>
+                
+                <li><a href='/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B'>泛型编程</a></li>
+                
+            </ul>
+            
+        </div>
+    </article>
+    
+    
+
+    
+    
+    <div class="post bg-white">
+      <script src="https://utteranc.es/client.js"
+            repo= "maratrixx/maratrixx.github.io"
+            issue-term="pathname"
+            theme="github-light"
+            crossorigin="anonymous"
+            async>
+      </script>
+    </div>
+    
+</div>
+
+                    <footer id="footer">
+    <div>
+        &copy; 2022 <a href="https://maratrix.cn/">MARATRIX BLOG By maratrix</a>
+        
+    </div>
+    <br />
+    <div>
+        <div class="github-badge">
+            <a href="https://gohugo.io/" target="_black" rel="nofollow"><span class="badge-subject">Powered by</span><span class="badge-value bg-blue">Hugo</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://www.flysnow.org/" target="_black"><span class="badge-subject">Design by</span><span class="badge-value bg-brightgreen">飞雪无情</span></a>
+        </div>
+        <div class="github-badge">
+            <a href="https://github.com/flysnow-org/maupassant-hugo" target="_black"><span class="badge-subject">Theme</span><span class="badge-value bg-yellowgreen">Maupassant</span></a>
+        </div>
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script><script src="https://cdn.bootcdn.net/ajax/libs/fancybox/3.5.7/jquery.fancybox.min.js"></script>
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src='/js/totop.js?v=0.0.0' async=""></script>
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-164520269-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+    <script type="text/javascript" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" async></script>
+
+
+
+
+                </div>
+
+                <div id="secondary">
+    <section class="widget">
+        <form id="search" action='https://maratrix.cn/search/' method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://maratrix.cn/">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-interface/" title="Go 泛型编程: interface 不再是那个 interface">Go 泛型编程: interface 不再是那个 interface</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-design/" title="Go 泛型编程：泛型设计">Go 泛型编程：泛型设计</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/26/nice-reading-pattern/" title="迄今为止最舒适的阅读模式">迄今为止最舒适的阅读模式</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/01/10/kratos-logger-design/" title="Kratos 源码分析（一）|日志组件设计与实现">Kratos 源码分析（一）|日志组件设计与实现</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/30/2021-summary/" title="再见 2021">再见 2021</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/12/26/macos-application-list/" title="我的 MacOS 软件工具清单">我的 MacOS 软件工具清单</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/05/15/how-to-choose-free-software-licenses/" title="[转]如何选择开源协议">[转]如何选择开源协议</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/28/go-deps/" title="如何获取Go服务依赖包">如何获取Go服务依赖包</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/04/09/gnu-makefile/" title="[转]跟我一起写 Makefile">[转]跟我一起写 Makefile</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/categories/'>分类</a></h3>
+<ul class="widget-list">
+    
+    <li><a href="https://maratrix.cn/categories/Git/">Git (19)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go/">Go (23)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Kratos/">Kratos (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Linux/">Linux (12)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/MacOS/">MacOS (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Nginx/">Nginx (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/PHP/">PHP (13)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Prometheus/">Prometheus (4)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/Rust/">Rust (8)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/protobuf/">protobuf (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%89%8D%E7%AB%AF/">前端 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结 (2)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E5%BC%80%E6%BA%90/">开源 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库 (5)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生 (6)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BC%93%E5%AD%98/">缓存 (7)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">网络协议 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%98%85%E8%AF%BB/">阅读 (1)</a></li>
+    
+    <li><a href="https://maratrix.cn/categories/%E9%9D%A2%E8%AF%95/">面试 (1)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title"><a href='/tags/'>标签</a></h3>
+<div class="tagcloud">
+    
+    <a href="https://maratrix.cn/tags/Git/">Git</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%9D%A1%E4%BB%B6%E7%BC%96%E8%AF%91/">Go条件编译</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读</a>
+    
+    <a href="https://maratrix.cn/tags/Go%E8%B8%A9%E5%9D%91%E7%B3%BB%E5%88%97/">Go踩坑系列</a>
+    
+    <a href="https://maratrix.cn/tags/Grafana/">Grafana</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/Prometheus/">Prometheus</a>
+    
+    <a href="https://maratrix.cn/tags/channel/">channel</a>
+    
+    <a href="https://maratrix.cn/tags/context/">context</a>
+    
+    <a href="https://maratrix.cn/tags/embed/">embed</a>
+    
+    <a href="https://maratrix.cn/tags/go/">go</a>
+    
+    <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
+    
+    <a href="https://maratrix.cn/tags/go1.18/">go1.18</a>
+    
+    <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
+    
+    <a href="https://maratrix.cn/tags/grpc/">grpc</a>
+    
+    <a href="https://maratrix.cn/tags/https/">https</a>
+    
+    <a href="https://maratrix.cn/tags/hystrix-go/">hystrix-go</a>
+    
+    <a href="https://maratrix.cn/tags/javascript/">javascript</a>
+    
+    <a href="https://maratrix.cn/tags/kindle/">kindle</a>
+    
+    <a href="https://maratrix.cn/tags/kratos/">kratos</a>
+    
+    <a href="https://maratrix.cn/tags/linux/">linux</a>
+    
+    <a href="https://maratrix.cn/tags/linux%E5%91%BD%E4%BB%A4/">linux命令</a>
+    
+    <a href="https://maratrix.cn/tags/logger/">logger</a>
+    
+    <a href="https://maratrix.cn/tags/macos/">macos</a>
+    
+    <a href="https://maratrix.cn/tags/makefile/">makefile</a>
+    
+    <a href="https://maratrix.cn/tags/memcached/">memcached</a>
+    
+    <a href="https://maratrix.cn/tags/nginx/">nginx</a>
+    
+    <a href="https://maratrix.cn/tags/PHP/">PHP</a>
+    
+    <a href="https://maratrix.cn/tags/protobuf/">protobuf</a>
+    
+    <a href="https://maratrix.cn/tags/protoc/">protoc</a>
+    
+    <a href="https://maratrix.cn/tags/rust/">rust</a>
+    
+    <a href="https://maratrix.cn/tags/sed/">sed</a>
+    
+    <a href="https://maratrix.cn/tags/sentinel/">sentinel</a>
+    
+    <a href="https://maratrix.cn/tags/session/">session</a>
+    
+    <a href="https://maratrix.cn/tags/shell/">shell</a>
+    
+    <a href="https://maratrix.cn/tags/ssl/">ssl</a>
+    
+    <a href="https://maratrix.cn/tags/telnet/">telnet</a>
+    
+    <a href="https://maratrix.cn/tags/tmux/">tmux</a>
+    
+    <a href="https://maratrix.cn/tags/vim/">vim</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%B8%AD%E6%96%87%E7%BF%BB%E8%AF%91/">中文翻译</a>
+    
+    <a href="https://maratrix.cn/tags/%E4%BB%A4%E7%89%8C%E6%A1%B6/">令牌桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%89%8D%E7%AB%AF/">前端</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6/">大学</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%A4%A7%E5%AD%A6%E6%97%B6%E5%85%89/">大学时光</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B7%A5%E5%85%B7/">工具</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/">年度总结</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90/">开源</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E5%8D%8F%E8%AE%AE/">开源协议</a>
+    
+    <a href="https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/">开源许可证</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">泛型编程</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%86%94%E6%96%AD%E5%99%A8/">熔断器</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%94%B5%E5%AD%90%E8%AE%BE%E5%A4%87/">电子设备</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%9B%91%E6%8E%A7/">监控</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F/">程序人生</a>
+    
+    <a href="https://maratrix.cn/tags/%E7%BC%93%E5%AD%98/">缓存</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AC%E8%BD%BD/">转载</a>
+    
+    <a href="https://maratrix.cn/tags/%E8%BD%AF%E4%BB%B6/">软件</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%98%85%E8%AF%BB/">阅读</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%99%90%E6%B5%81%E5%99%A8/">限流器</a>
+    
+    <a href="https://maratrix.cn/tags/%E9%9D%A2%E8%AF%95/">面试</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="http://xargin.com/" title="No HeadBack">No HeadBack</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://draveness.me/" title="面向信仰编程">面向信仰编程</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://eddycjy.gitbook.io/golang/" title="跟煎鱼学 Go">跟煎鱼学 Go</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://qcrao.com/" title="码农桃花源">码农桃花源</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://maratrix.cn/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

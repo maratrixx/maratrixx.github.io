@@ -79,6 +79,52 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/" title="Rust学习笔记005-函数">Rust学习笔记005-函数</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            函数定义 使用fn关键字定义函数； 函数名使用snake_case规范命名； 函数可以定义在main函数之前或之后，Rust 不关心函数定义于何处； 1 2 3 fn test_function(a: i32,b: bool)-&gt; u32 {//... } 函数参数 函数可以定义多个参数，使用逗号,……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/05/005-rust-functions-notes/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/" title="Rust学习笔记004-数据类型">Rust学习笔记004-数据类型</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2020年2月5日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Rust'>Rust</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            前言 Rust是静态类型语言，在编译时就必须知道所有变量的类型。 两种方式确定类型： 根据值及使用方式，编译器通常可以推断出我们想要用的类型； 当多种类型均有可能时，必须增加类型注解； 如下代码，不加类型编译会……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2020/02/05/004-rust-types-notes/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2020/02/04/003-rust-variable-notes/" title="Rust学习笔记003-变量与可变性">Rust学习笔记003-变量与可变性</a>
             </h1>
         </header>
@@ -260,52 +306,6 @@
         <p class="readmore"><a href="https://maratrix.cn/post/2019/07/12/go-linkname-syntax-notes/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2017/01/01/hello-2017/" title="Hello 2017">Hello 2017</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2017年1月1日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/%E7%A8%8B%E5%BA%8F%E4%BA%BA%E7%94%9F'>程序人生</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            现在是 2017 年，好久没有更新博客了，想起来从15年暑假来北京实习到现在已经 1 年多了，经历了很多，慢慢也成长了，一直有很多话想说，真要写的时候有发现无从写起 &hellip; 2022.01.27 整理：当年的自己竟然还是个多愁善感的骚年啊😂……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2017/01/01/hello-2017/">阅读全文</a></p>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2015/07/09/use_json_note/" title="如何正常转换中文json格式字符串">如何正常转换中文json格式字符串</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2015年7月9日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/PHP'>PHP</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            如何对json格式的字符串进行转换，在php手册中提供了两个函数： 1 2 json_encode : 对变量进行 JSON 编码 json_decode : 对 JSON 格式的字符串进行编码 下面看个实例： 1 2 $arr = [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;]; echo json_encode($arr); 输出为： 1 [“a”,”b”,”c”] 但是，当我们在……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2015/07/09/use_json_note/">阅读全文</a></p>
-    </article>
-    
     
 
 
@@ -461,6 +461,14 @@ if (!doNotTrack) {
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-interface/" title="Go 泛型编程: interface 不再是那个 interface">Go 泛型编程: interface 不再是那个 interface</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-design/" title="Go 泛型编程：泛型设计">Go 泛型编程：泛型设计</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2022/01/26/nice-reading-pattern/" title="迄今为止最舒适的阅读模式">迄今为止最舒适的阅读模式</a>
     </li>
     
@@ -492,14 +500,6 @@ if (!doNotTrack) {
         <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -511,7 +511,7 @@ if (!doNotTrack) {
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (19)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (23)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -590,6 +590,8 @@ if (!doNotTrack) {
     
     <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
     
+    <a href="https://maratrix.cn/tags/go1.18/">go1.18</a>
+    
     <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
     
     <a href="https://maratrix.cn/tags/grpc/">grpc</a>
@@ -667,6 +669,8 @@ if (!doNotTrack) {
     <a href="https://maratrix.cn/tags/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理</a>
     
     <a href="https://maratrix.cn/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">泛型编程</a>
     
     <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
     

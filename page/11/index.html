@@ -79,6 +79,52 @@
     <article class="post">
         <header>
             <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2014/06/27/unix-dos-crlf/" title="Linux与Windows的断行符问题">Linux与Windows的断行符问题</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2014年6月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/Linux'>Linux</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            在Linux系统中，当我们使用cat -A命令来查看以Windows建立的文件的格式时，可以发现在Windows中使用的断行符是^M$,被称为“CRLF”。而以Linux建立的文件格式却只有LF($)这……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2014/06/27/unix-dos-crlf/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
+                <a href="https://maratrix.cn/post/2014/06/27/php-pdo/" title="PDO 事务处理">PDO 事务处理</a>
+            </h1>
+        </header>
+        <date class="post-meta meta-date">
+            2014年6月27日
+        </date>
+        
+        <div class="post-meta">
+            <span>|</span>
+            
+            <span class="meta-category"><a href='/categories/PHP'>PHP</a></span>
+            
+        </div>
+        
+        <div class="post-content">
+            事务是确保数据库一致的机制，作为一个单元的一组有序的数据库操作。在事务的组中哪怕有一个环节操作失败，事务也不成功，则整个事务将被回滚，该事务中的所有操作都将被撤销。只有组中的所有SQL语句都操作成功，……
+        </div>
+        <p class="readmore"><a href="https://maratrix.cn/post/2014/06/27/php-pdo/">阅读全文</a></p>
+    </article>
+    
+    <article class="post">
+        <header>
+            <h1 class="post-title">
                 <a href="https://maratrix.cn/post/2014/06/27/git_branch_manage_notes/" title="分支管理策略">分支管理策略</a>
             </h1>
         </header>
@@ -260,52 +306,6 @@
         <p class="readmore"><a href="https://maratrix.cn/post/2014/06/22/git-work-stash/">阅读全文</a></p>
     </article>
     
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2014/06/21/git-version-reset/" title="Git实现版本回退功能">Git实现版本回退功能</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2014年6月21日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/Git'>Git</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            现在，我们重新修改下文件并添加和提交到版本库： 1 2 3 $ echo &#39;再次添加新内容&#39; &gt;&gt; readme.md $ git add ./readme.md $ git commit -m &#39;更新内容&#39; 像这样，我们不断的对文件进行修改，并一次一次的提交到版本库。就……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2014/06/21/git-version-reset/">阅读全文</a></p>
-    </article>
-    
-    <article class="post">
-        <header>
-            <h1 class="post-title">
-                <a href="https://maratrix.cn/post/2014/06/20/git-install/" title="安装分布式版本控制系统Git">安装分布式版本控制系统Git</a>
-            </h1>
-        </header>
-        <date class="post-meta meta-date">
-            2014年6月20日
-        </date>
-        
-        <div class="post-meta">
-            <span>|</span>
-            
-            <span class="meta-category"><a href='/categories/Git'>Git</a></span>
-            
-        </div>
-        
-        <div class="post-content">
-            Git是什么？Git是世界上最先进的分布式版本控制系统。 Git有什么特点？简单说就是：高端大气上档次！ 那么什么是版本控制系统呢？自己百度去。 很多人都知道，李纳斯创建了开源的Linux，从那时起Linu……
-        </div>
-        <p class="readmore"><a href="https://maratrix.cn/post/2014/06/20/git-install/">阅读全文</a></p>
-    </article>
-    
     
 
 
@@ -441,6 +441,14 @@ if (!doNotTrack) {
 <ul class="widget-list">
     
     <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-interface/" title="Go 泛型编程: interface 不再是那个 interface">Go 泛型编程: interface 不再是那个 interface</a>
+    </li>
+    
+    <li>
+        <a href="https://maratrix.cn/post/2022/03/27/go-generics-design/" title="Go 泛型编程：泛型设计">Go 泛型编程：泛型设计</a>
+    </li>
+    
+    <li>
         <a href="https://maratrix.cn/post/2022/01/26/nice-reading-pattern/" title="迄今为止最舒适的阅读模式">迄今为止最舒适的阅读模式</a>
     </li>
     
@@ -472,14 +480,6 @@ if (!doNotTrack) {
         <a href="https://maratrix.cn/post/2021/03/17/go-metrics/" title="Prometheus学习笔记|03.四大度量指标了解与应用">Prometheus学习笔记|03.四大度量指标了解与应用</a>
     </li>
     
-    <li>
-        <a href="https://maratrix.cn/post/2021/03/10/go1.16-core-library-changes/" title="Go1.16新特性|标准库和其他变化">Go1.16新特性|标准库和其他变化</a>
-    </li>
-    
-    <li>
-        <a href="https://maratrix.cn/post/2021/03/10/go1.16-module/" title="Go1.16新特性|Module功能新变化">Go1.16新特性|Module功能新变化</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -491,7 +491,7 @@ if (!doNotTrack) {
     
     <li><a href="https://maratrix.cn/categories/Git/">Git (19)</a></li>
     
-    <li><a href="https://maratrix.cn/categories/Go/">Go (21)</a></li>
+    <li><a href="https://maratrix.cn/categories/Go/">Go (23)</a></li>
     
     <li><a href="https://maratrix.cn/categories/Go%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/">Go源码阅读 (6)</a></li>
     
@@ -570,6 +570,8 @@ if (!doNotTrack) {
     
     <a href="https://maratrix.cn/tags/go1.16/">go1.16</a>
     
+    <a href="https://maratrix.cn/tags/go1.18/">go1.18</a>
+    
     <a href="https://maratrix.cn/tags/go%E6%8C%87%E4%BB%A4/">go指令</a>
     
     <a href="https://maratrix.cn/tags/grpc/">grpc</a>
@@ -647,6 +649,8 @@ if (!doNotTrack) {
     <a href="https://maratrix.cn/tags/%E6%97%B6%E9%97%B4%E7%AE%A1%E7%90%86/">时间管理</a>
     
     <a href="https://maratrix.cn/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">正则表达式</a>
+    
+    <a href="https://maratrix.cn/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/">泛型编程</a>
     
     <a href="https://maratrix.cn/tags/%E6%BC%8F%E6%A1%B6/">漏桶</a>
     

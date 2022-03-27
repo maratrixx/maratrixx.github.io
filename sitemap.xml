@@ -3,16 +3,34 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://maratrix.cn/categories/</loc>
-    <lastmod>2022-01-26T17:05:55+08:00</lastmod>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/categories/Go/</loc>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/tags/go/</loc>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/post/2022/03/27/go-generics-interface/</loc>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/tags/go1.18/</loc>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/</loc>
-    <lastmod>2022-01-26T17:05:55+08:00</lastmod>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/post/</loc>
-    <lastmod>2022-01-26T17:05:55+08:00</lastmod>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/tags/</loc>
-    <lastmod>2022-01-26T17:05:55+08:00</lastmod>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/tags/%E6%B3%9B%E5%9E%8B%E7%BC%96%E7%A8%8B/</loc>
+    <lastmod>2022-03-27T13:36:59+08:00</lastmod>
+  </url><url>
+    <loc>https://maratrix.cn/post/2022/03/27/go-generics-design/</loc>
+    <lastmod>2022-03-27T13:14:09+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/post/2022/01/26/nice-reading-pattern/</loc>
     <lastmod>2022-01-26T17:05:55+08:00</lastmod>
@@ -22,9 +40,6 @@
   </url><url>
     <loc>https://maratrix.cn/categories/%E9%98%85%E8%AF%BB/</loc>
     <lastmod>2022-01-26T17:05:55+08:00</lastmod>
-  </url><url>
-    <loc>https://maratrix.cn/tags/go/</loc>
-    <lastmod>2022-01-10T09:13:21+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/categories/Kratos/</loc>
     <lastmod>2022-01-10T09:13:21+08:00</lastmod>
@@ -76,9 +91,6 @@
   </url><url>
     <loc>https://maratrix.cn/tags/%E5%BC%80%E6%BA%90%E8%AE%B8%E5%8F%AF%E8%AF%81/</loc>
     <lastmod>2021-05-15T10:51:27+08:00</lastmod>
-  </url><url>
-    <loc>https://maratrix.cn/categories/Go/</loc>
-    <lastmod>2021-04-28T18:38:26+08:00</lastmod>
   </url><url>
     <loc>https://maratrix.cn/post/2021/04/28/go-deps/</loc>
     <lastmod>2021-04-28T18:38:26+08:00</lastmod>
